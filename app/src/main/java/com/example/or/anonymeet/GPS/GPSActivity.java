@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
@@ -38,7 +39,7 @@ public class GPSActivity extends AppCompatActivity {
     LocationManager locationManager;
     Geocoder geocoder;
     boolean first;
-    Location mLoc;
+    Location mLocation;
     Firebase firebase;
     EditText data_input;
     ListView listView;
@@ -61,8 +62,6 @@ public class GPSActivity extends AppCompatActivity {
         data_input = (EditText) findViewById(R.id.data_input);
         //listView = (ListView) findViewById(R.id.listView);
 
-
-
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         locationListener = new MyLocationListener();
@@ -71,11 +70,11 @@ public class GPSActivity extends AppCompatActivity {
            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
            //requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
         }
-        else locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 0, locationListener);
+        else locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
         geocoder = new Geocoder(this);
 
-        firebase = new Firebase("https://luminous-torch-4319.firebaseio.com/Name");
+        firebase = new Firebase("https://luminous-torch-4319.firebaseio.com");
 
         firebase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -94,7 +93,6 @@ public class GPSActivity extends AppCompatActivity {
     public void changeData(View view) {
         String text = data_input.getText().toString();
         data_input.setText("");
-        //firebase.push().setValue(text);
         firebase.setValue(text);
     }
 
@@ -118,13 +116,15 @@ public class GPSActivity extends AppCompatActivity {
             address_text.setText("Address: " + address.getAddressLine(0));
 
             if (first) {
-                mLoc = location;
+                mLocation = location;
                 first = false;
             }
             else {
-                float distance = location.distanceTo(mLoc);
+                float distance = location.distanceTo(mLocation);
                 distance_text.setText("Distance: " + (int)distance + " meters");
             }
+
+            Toast.makeText(getApplicationContext(), "Location updated", Toast.LENGTH_SHORT).show();
         }
 
         public void onStatusChanged(String provider, int status, Bundle extras) {

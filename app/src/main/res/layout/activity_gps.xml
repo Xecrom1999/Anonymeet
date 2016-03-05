@@ -76,30 +76,41 @@
             android:layout_marginTop="20dp"
             />
 
-        <EditText
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/data_input"
-            android:layout_gravity="center_horizontal"
-            android:textSize="25dp"
-            android:textColor="@android:color/black"
-            android:layout_below="@+id/data_text"
-            android:layout_marginTop="20dp"
-            />
+            android:layout_below="@id/data_text">
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/data_button"
-            android:layout_gravity="center_horizontal"
-            android:textSize="25dp"
-            android:text="Change Data"
-            android:textAllCaps="false"
-            android:textColor="@android:color/black"
-            android:layout_below="@+id/data_input"
-            android:layout_marginTop="20dp"
-            android:onClick="changeData"
-            />
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/data_input"
+                android:layout_gravity="center_horizontal"
+                android:textSize="25dp"
+                android:textColor="@android:color/black"
+                android:layout_below="@+id/data_text"
+                android:layout_marginTop="20dp"
+                android:layout_weight="1"
+                />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/data_button"
+                android:layout_gravity="center_horizontal"
+                android:textSize="25dp"
+                android:text="Change Data"
+                android:textAllCaps="false"
+                android:textColor="@android:color/black"
+                android:layout_below="@+id/data_input"
+                android:layout_marginTop="20dp"
+                android:onClick="changeData"
+                android:layout_weight="1"
+                />
+
+        </LinearLayout>
+
+
     </RelativeLayout>
 
 
