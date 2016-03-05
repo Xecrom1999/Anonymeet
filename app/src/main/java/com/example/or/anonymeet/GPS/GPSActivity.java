@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,10 +39,9 @@ public class GPSActivity extends AppCompatActivity {
     Geocoder geocoder;
     boolean first;
     Location mLocation;
-    Firebase firebase;
+    Firebase firebaseRoot;
+    Firebase firebaseMe;
     EditText data_input;
-    ListView listView;
-
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,15 +66,18 @@ public class GPSActivity extends AppCompatActivity {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-           //requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
         }
         else locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
         geocoder = new Geocoder(this);
 
-        firebase = new Firebase("https://luminous-torch-4319.firebaseio.com/Name");
+        firebaseRoot = new Firebase("https://luminous-torch-4319.firebaseio.com");
+        firebaseRoot.setValue("Anonymeet");
 
-        firebase.addValueEventListener(new ValueEventListener() {
+        //firebaseMe = firebaseRoot.push();
+        //firebaseMe.setValue("Ariel Gamrian");
+
+        firebaseRoot.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String text = dataSnapshot.getValue(String.class);
@@ -93,7 +94,7 @@ public class GPSActivity extends AppCompatActivity {
     public void changeData(View view) {
         String text = data_input.getText().toString();
         data_input.setText("");
-        firebase.setValue(text);
+        firebaseRoot.setValue(text);
     }
 
     class MyLocationListener implements LocationListener {
