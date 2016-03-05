@@ -23,15 +23,13 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        msgId = "12345";
-        GcmBroadcastReceiver gcmBroadcastReceiver = new GcmBroadcastReceiver(this);
         gcm = GoogleCloudMessaging.getInstance(this);
-        reg = new RegistrationIntentService("me");
-        SENDER_ID = reg.getSenderID();
+        SENDER_ID = "260934602355";
 
     }
 
     public void onClick(final View view) {
+        msgId = UUID.randomUUID().toString();
             new AsyncTask() {
 
 
@@ -43,11 +41,13 @@ public class ChatActivity extends AppCompatActivity {
                         data.putString("my_message", "Hiiiiii you");
                         data.putString("my_action", "SAY_HELLO");
                     try {
+
                         gcm.send(SENDER_ID + "@gcm.googleapis.com", msgId, data);
+                        msg = "Sent message";
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        msg = "error";
                     }
-                    msg = "Sent message";
+
 
                     Log.d("hiiiiiiiiiiiiiiiii", msg);
                     return msg;

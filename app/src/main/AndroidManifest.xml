@@ -15,6 +15,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <service android:name=".RegistrationIntentService" android:exported="false" />
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
@@ -34,6 +35,9 @@
                 <category android:name="com.jlieberman.nightwatch" />
             </intent-filter>
         </receiver>
+
+
+
         <service
             android:name="com.example.or.anonymeet.MyGcmListenerService"
             android:exported="false" >

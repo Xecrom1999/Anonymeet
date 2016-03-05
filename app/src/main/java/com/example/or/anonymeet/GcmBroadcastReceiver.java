@@ -11,12 +11,13 @@ import android.widget.Toast;
 
 public class GcmBroadcastReceiver
         extends WakefulBroadcastReceiver {
-    private Context context;
 
 
-    public GcmBroadcastReceiver(Context c){
-        this.context = c;
+    public GcmBroadcastReceiver(){
+
     }
+
+
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -34,7 +35,7 @@ public class GcmBroadcastReceiver
                 (intent.setComponent(comp)));
         setResultCode(Activity.RESULT_OK);
 
-        Toast.makeText(this.context, ""+intent.getExtras().getString("message"), Toast.LENGTH_LONG).show();
+
 
     }
 }

@@ -32,15 +32,11 @@ package com.example.or.anonymeet;
 
 public class MyGcmListenerService extends GcmListenerService {
 
-    private static final String TAG = "MyGcmListenerService";
-    private Context context;
 
     public MyGcmListenerService() {
     }
 
-    public MyGcmListenerService(Context c) {
-        this.context = c;
-    }
+
 
     @Override
     public void onMessageSent(String msgId) {
@@ -65,11 +61,10 @@ public class MyGcmListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        Log.d("hiiiiiiiiiiiiiiiii", "got");
         String message = data.getString("message");
-        Log.d(TAG, "From: " + from);
-        Log.d(TAG, "Message: " + message);
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+        Log.d("hiiiiiiiiiiiiiiiii", "From: " + from);
+        Log.d("hiiiiiiiiiiiiiiiii", "Message: " + message);
+
 
         if (from.startsWith("/topics/")) {
             // message received from some topic.
