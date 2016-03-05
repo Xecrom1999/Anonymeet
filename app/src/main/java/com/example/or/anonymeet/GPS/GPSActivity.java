@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -23,7 +24,7 @@ import com.firebase.client.ValueEventListener;
 
 import java.io.IOException;
 
-import anonymeet.R;
+//import anonymeet.R;
 
 public class GPSActivity extends AppCompatActivity {
 
@@ -58,7 +59,7 @@ public class GPSActivity extends AppCompatActivity {
         distance_text = (TextView) findViewById(R.id.distance_text);
         data_text = (TextView) findViewById(R.id.data_text);
         data_input = (EditText) findViewById(R.id.data_input);
-        listView = (ListView) findViewById(R.id.listView);
+        //listView = (ListView) findViewById(R.id.listView);
 
 
 

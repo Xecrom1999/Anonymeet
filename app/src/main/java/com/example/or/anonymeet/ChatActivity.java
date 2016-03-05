@@ -1,15 +1,18 @@
 package com.example.or.anonymeet;
 
+import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import java.util.UUID;
+import android.widget.Button;
 
+import com.example.or.anonymeet.GPS.GPSActivity;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.IOException;
+import java.util.UUID;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -17,7 +20,7 @@ public class ChatActivity extends AppCompatActivity {
     private String msgId;
     private GoogleCloudMessaging gcm;
     private RegistrationIntentService reg;
-
+    Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +29,14 @@ public class ChatActivity extends AppCompatActivity {
         gcm = GoogleCloudMessaging.getInstance(this);
         SENDER_ID = "260934602355";
 
+        button = (Button) findViewById(R.id.activity_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), GPSActivity.class);
+                startActivity(i);
+            }
+        });
     }
 
     public void onClick(final View view) {
@@ -57,7 +68,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
                 protected void onPostExecute(String msg) {
-                    
+
                 }
             }.execute(null, null, null);
 

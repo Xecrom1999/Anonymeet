@@ -8,14 +8,19 @@
     <permission android:name="com.example.or.anonymeet.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
     <uses-permission android:name="com.example.or.anonymeet.permission.C2D_MESSAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <service android:name=".RegistrationIntentService" android:exported="false" />
+        android:theme="@style/AppTheme"
+        android:name=".GPS.FireBaseHelper">
+
+    <service android:name=".RegistrationIntentService" android:exported="false" />
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
@@ -60,6 +65,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".GPS.GPSActivity">
+
+        </activity>
+
     </application>
 
 </manifest>

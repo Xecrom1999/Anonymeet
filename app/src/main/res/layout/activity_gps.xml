@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layoutDirection="ltr"
+    tools:context="com.example.or.anonymeet.GPS.GPSActivity">
+
+    <include
+        layout="@layout/toolbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/toolBarGPS"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/longitude_text"
+            android:layout_gravity="center_horizontal"
+            android:text="Longitude:"
+            android:textSize="25dp"
+            android:textColor="@android:color/black"
+            android:layout_alignParentTop="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/latitude_text"
+            android:layout_gravity="center_horizontal"
+            android:text="Latitude:"
+            android:textSize="25dp"
+            android:textColor="@android:color/black"
+            android:layout_below="@+id/longitude_text"
+            android:layout_marginTop="20dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/address_text"
+            android:layout_gravity="center_horizontal"
+            android:text="Address:"
+            android:textSize="25dp"
+            android:textColor="@android:color/black"
+            android:layout_below="@+id/latitude_text"
+            android:layout_marginTop="20dp"
+            />
+
+        <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/distance_text"
+        android:layout_gravity="center_horizontal"
+        android:text="Distance:"
+        android:textSize="25dp"
+        android:textColor="@android:color/black"
+        android:layout_below="@+id/address_text"
+        android:layout_marginTop="20dp"
+        />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/data_text"
+            android:layout_gravity="center_horizontal"
+            android:text="Data:"
+            android:textSize="25dp"
+            android:textColor="@android:color/black"
+            android:layout_below="@+id/distance_text"
+            android:layout_marginTop="20dp"
+            />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/data_input"
+            android:layout_gravity="center_horizontal"
+            android:textSize="25dp"
+            android:textColor="@android:color/black"
+            android:layout_below="@+id/data_text"
+            android:layout_marginTop="20dp"
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/data_button"
+            android:layout_gravity="center_horizontal"
+            android:textSize="25dp"
+            android:text="Change Data"
+            android:textAllCaps="false"
+            android:textColor="@android:color/black"
+            android:layout_below="@+id/data_input"
+            android:layout_marginTop="20dp"
+            android:onClick="changeData"
+            />
+    </RelativeLayout>
+
+
+
+</LinearLayout>
