@@ -74,7 +74,7 @@ public class GPSActivity extends AppCompatActivity {
 
         geocoder = new Geocoder(this);
 
-        firebase = new Firebase("https://luminous-torch-4319.firebaseio.com");
+        firebase = new Firebase("https://luminous-torch-4319.firebaseio.com/Name");
 
         firebase.addValueEventListener(new ValueEventListener() {
             @Override
