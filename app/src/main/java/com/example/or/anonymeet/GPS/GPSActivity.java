@@ -1,6 +1,7 @@
 package com.example.or.anonymeet.GPS;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -14,8 +15,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.or.anonymeet.ChatActivity;
 import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -29,8 +30,6 @@ import java.io.IOException;
 public class GPSActivity extends AppCompatActivity {
 
     Toolbar toolbar;
-    TextView longitude_text;
-    TextView latitude_text;
     TextView address_text;
     TextView distance_text;
     TextView data_text;
@@ -40,7 +39,6 @@ public class GPSActivity extends AppCompatActivity {
     boolean first;
     Location mLocation;
     Firebase firebaseRoot;
-    Firebase firebaseMe;
     EditText data_input;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +50,10 @@ public class GPSActivity extends AppCompatActivity {
 
         first = true;
 
-        longitude_text = (TextView) findViewById(R.id.longitude_text);
-        latitude_text = (TextView) findViewById(R.id.latitude_text);
         address_text = (TextView) findViewById(R.id.address_text);
         distance_text = (TextView) findViewById(R.id.distance_text);
         data_text = (TextView) findViewById(R.id.data_text);
         data_input = (EditText) findViewById(R.id.data_input);
-        //listView = (ListView) findViewById(R.id.listView);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
@@ -82,7 +77,6 @@ public class GPSActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-
             }
         });
     }
@@ -93,15 +87,18 @@ public class GPSActivity extends AppCompatActivity {
         firebaseRoot.setValue(text);
     }
 
+    public void chatActivity(View view) {
+        startActivity(new Intent(this, ChatActivity.class));
+    }
+
+
+
     class MyLocationListener implements LocationListener {
 
         public void onLocationChanged(Location location) {
 
             double longitude = location.getLongitude();
             double latitude =  location.getLatitude();
-
-            longitude_text.setText("Longitude: " + longitude);
-            latitude_text.setText("Latitude: " + latitude);
 
             Address address = null;
             try {
@@ -121,7 +118,7 @@ public class GPSActivity extends AppCompatActivity {
                 distance_text.setText("Distance: " + (int)distance + " meters");
             }
 
-            Toast.makeText(getApplicationContext(), "Location updated", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Location updated", Toast.LENGTH_SHORT).show();
         }
 
         public void onStatusChanged(String provider, int status, Bundle extras) {

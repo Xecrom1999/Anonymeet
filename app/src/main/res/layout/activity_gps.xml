@@ -13,42 +13,14 @@
         android:layout_height="wrap_content"
         android:id="@+id/toolBarGPS"/>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/longitude_text"
-            android:layout_gravity="center_horizontal"
-            android:text="Longitude:"
-            android:textSize="25dp"
-            android:textColor="@android:color/black"
-            android:layout_alignParentTop="true"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/latitude_text"
-            android:layout_gravity="center_horizontal"
-            android:text="Latitude:"
-            android:textSize="25dp"
-            android:textColor="@android:color/black"
-            android:layout_below="@+id/longitude_text"
-            android:layout_marginTop="20dp"
-            />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/address_text"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center_vertical"
             android:text="Address:"
             android:textSize="25dp"
             android:textColor="@android:color/black"
-            android:layout_below="@+id/latitude_text"
             android:layout_marginTop="20dp"
             />
 
@@ -56,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/distance_text"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="center_vertical"
         android:text="Distance:"
         android:textSize="25dp"
         android:textColor="@android:color/black"
@@ -68,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/data_text"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center_vertical"
             android:text="Data:"
             android:textSize="25dp"
             android:textColor="@android:color/black"
@@ -108,11 +80,18 @@
                 android:layout_weight="1"
                 />
 
+
+
         </LinearLayout>
 
-
-    </RelativeLayout>
-
-
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:layout_gravity="center_horizontal"
+        android:text="Go to chat activity"
+        android:id="@+id/activity_button"
+        android:layout_marginTop="150dp"
+        android:onClick="chatActivity"/>
 
 </LinearLayout>
