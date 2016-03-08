@@ -71,11 +71,7 @@ public class GPSActivity extends AppCompatActivity {
 
         geocoder = new Geocoder(this);
 
-        firebaseRoot = new Firebase("https://luminous-torch-4319.firebaseio.com");
-        firebaseRoot.setValue("Anonymeet");
-
-        //firebaseMe = firebaseRoot.push();
-        //firebaseMe.setValue("Ariel Gamrian");
+        firebaseRoot = new Firebase("https://anonymeet.firebaseio.com/Locations");
 
         firebaseRoot.addValueEventListener(new ValueEventListener() {
             @Override
