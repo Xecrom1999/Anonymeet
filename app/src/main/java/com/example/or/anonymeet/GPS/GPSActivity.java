@@ -14,6 +14,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +22,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +52,8 @@ public class GPSActivity extends AppCompatActivity {
     EditText data_input;
     String myName;
     SharedPreferences myData;
+    ProgressBar progressBar;
+    ProgressBar progressBar2;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +66,10 @@ public class GPSActivity extends AppCompatActivity {
         name_text = (TextView) findViewById(R.id.name_text);
         data_text = (TextView) findViewById(R.id.data_text);
         data_input = (EditText) findViewById(R.id.data_input);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar2 = (ProgressBar) findViewById(R.id.progressBar2);
+
+        address_text.setVisibility(View.GONE);
 
         myData = getSharedPreferences("myData", Context.MODE_PRIVATE);
         myName = myData.getString("myName", "NAME");
@@ -74,9 +82,9 @@ public class GPSActivity extends AppCompatActivity {
         locationListener = new MyLocationListener();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-           requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-        }
-        else locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+        } else
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
 
         geocoder = new Geocoder(this);
 
@@ -86,10 +94,13 @@ public class GPSActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 try {
-                    String text = "" + dataSnapshot.getValue(String.class);
-                    data_text.setText("Data: " + text);
-                }
-                catch (Exception e){
+                    String text = dataSnapshot.toString();
+                    text = text.substring(text.lastIndexOf("= ") + 8, text.lastIndexOf(' ') - 1);
+                    data_text.setText(text);
+                    progressBar.setVisibility(View.GONE);
+                    data_text.setVisibility(View.VISIBLE);
+
+                } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
@@ -99,6 +110,33 @@ public class GPSActivity extends AppCompatActivity {
             public void onCancelled(FirebaseError firebaseError) {
             }
         });
+
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                !locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Location Services Not Active");
+            builder.setMessage("Please enable Location Services and GPS");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                }
+            });
+            Dialog alertDialog = builder.create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.show();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locationManager.removeUpdates(locationListener);
     }
 
     public void changeData(View view) {
@@ -108,6 +146,8 @@ public class GPSActivity extends AppCompatActivity {
         HashMap map = new HashMap<String, String>();
         map.put("Text", text);
         firebaseRoot.updateChildren(map);
+        data_text.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     public void chatActivity(View view) {
@@ -128,7 +168,9 @@ public class GPSActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            address_text.setText("Address: " + address.getAddressLine(0));
+            progressBar2.setVisibility(View.GONE);
+            address_text.setVisibility(View.VISIBLE);
+            address_text.setText(address.getAddressLine(0));
         }
 
         public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -168,7 +210,6 @@ public class GPSActivity extends AppCompatActivity {
 
                     return true;
                 }
-
                 return false;
             }
         });

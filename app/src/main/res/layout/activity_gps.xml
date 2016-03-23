@@ -13,31 +13,77 @@
         android:layout_height="wrap_content"
         android:id="@+id/toolBarGPS"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="Address: "
+            android:textSize="25dp"
+            android:textColor="@android:color/black"
+            />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/address_text"
             android:layout_gravity="center_vertical"
-            android:text="Address:"
+            android:text=""
             android:textSize="25dp"
             android:textColor="@android:color/black"
-            android:layout_marginTop="20dp"
             />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyle"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:id="@+id/progressBar2"
+            android:progressDrawable="@drawable/circular_progress_bar"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/data_text"
-            android:layout_gravity="center_vertical"
-            android:text="Data:"
+            android:text="Data: "
             android:textSize="25dp"
             android:textColor="@android:color/black"
-            android:layout_marginTop="20dp"
             />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/data_text"
+        android:text=""
+        android:textSize="25dp"
+        android:textColor="@android:color/black"
+        />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyle"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:id="@+id/progressBar"
+            android:progressDrawable="@drawable/circular_progress_bar"/>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
 
             <EditText
                 android:layout_width="0dp"
@@ -83,7 +129,6 @@
         android:textAllCaps="false"
         android:layout_gravity="center_horizontal"
         android:text="Go to chat activity"
-        android:id="@+id/activity_button"
         android:layout_marginTop="150dp"
         android:onClick="chatActivity"/>
 
