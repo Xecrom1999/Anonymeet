@@ -26,7 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.or.anonymeet.ChatActivity;
+import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -88,7 +88,7 @@ public class GPSActivity extends AppCompatActivity {
 
         geocoder = new Geocoder(this);
 
-        firebaseRoot = new Firebase("https://anonymeet.firebaseio.com");
+        firebaseRoot = new Firebase("https://anonymeetapp.firebaseio.com/Locations");
 
         firebaseRoot.addValueEventListener(new ValueEventListener() {
             @Override

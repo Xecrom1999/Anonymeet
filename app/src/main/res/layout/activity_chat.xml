@@ -9,20 +9,33 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.or.anonymeet.ChatActivity">
 
+
+
+    <ImageButton
+        android:src="@android:drawable/ic_menu_send"
+        android:onClick="onClick"
+        android:id="@+id/send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:layout_toStartOf="@id/send"
+        android:layout_alignBottom="@id/send"
+        android:id="@+id/sendMessage"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/msg"
-        android:text="Hello World!" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/getMessage"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="127dp" />
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="send"
-        android:onClick="onClick"
-        android:id="@+id/send"
-        android:layout_below="@id/msg"
-         />
 
 </RelativeLayout>
