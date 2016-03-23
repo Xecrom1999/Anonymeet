@@ -88,7 +88,7 @@ public class GPSActivity extends AppCompatActivity {
 
         geocoder = new Geocoder(this);
 
-        firebaseRoot = new Firebase("https://anonymeet.firebaseio.com");
+        firebaseRoot = new Firebase("https://anonymeetapp.firebaseio.com/");
 
         firebaseRoot.addValueEventListener(new ValueEventListener() {
             @Override

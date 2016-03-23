@@ -20,6 +20,11 @@ android {
         versionName "1.0"
     }
 
+    defaultConfig {
+        // Enabling multidex support.
+        multiDexEnabled true
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -32,8 +37,8 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.2.1'
-    compile 'com.google.android.gms:play-services:8.4.0'
-    compile 'com.google.android.gms:play-services-ads:8.4.0'
+    compile 'com.google.android.gms:play-services:8.3.0'
+    compile 'com.google.android.gms:play-services-ads:8.3.0'
     compile 'com.google.android.gms:play-services-auth:8.3.0'
     compile 'com.firebase:firebase-client-android:2.3.1'
     compile 'com.google.android.gms:play-services-gcm:8.3.0'
