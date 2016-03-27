@@ -48,6 +48,7 @@
             android:name=".GPS.LoginActivity"
             android:label="@string/title_activity_login"></activity>
         <activity android:name=".FireBaseChat.MessagesActivity"></activity>
+
     </application>
 
 </manifest>

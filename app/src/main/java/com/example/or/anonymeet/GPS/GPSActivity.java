@@ -1,6 +1,7 @@
 package com.example.or.anonymeet.GPS;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -13,20 +14,26 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.or.anonymeet.ChatActivity;
+import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -34,6 +41,8 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 //import anonymeet.R;
@@ -47,20 +56,26 @@ public class GPSActivity extends AppCompatActivity {
     MyLocationListener locationListener;
     LocationManager locationManager;
     Geocoder geocoder;
-    Location mLocation;
-    Firebase firebaseRoot;
+    Firebase textRef;
     EditText data_input;
     String myName;
     SharedPreferences myData;
     ProgressBar progressBar;
     ProgressBar progressBar2;
+    Firebase onlineUsers;
+    String userId;
+    ListView listView;
 
+    @TargetApi(Build.VERSION_CODES.M)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gps);
 
         toolbar = (Toolbar) findViewById(R.id.toolBarGPS);
         setSupportActionBar(toolbar);
+
+        onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
+        userId = getIntent().getStringExtra("userId");
 
         address_text = (TextView) findViewById(R.id.address_text);
         name_text = (TextView) findViewById(R.id.name_text);
@@ -84,13 +99,13 @@ public class GPSActivity extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
         } else
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0, locationListener);
 
         geocoder = new Geocoder(this);
 
-        firebaseRoot = new Firebase("https://anonymeetapp.firebaseio.com/");
+        textRef = new Firebase("https://anonymeetapp.firebaseio.com/Text");
 
-        firebaseRoot.addValueEventListener(new ValueEventListener() {
+        textRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 try {
@@ -128,6 +143,39 @@ public class GPSActivity extends AppCompatActivity {
             alertDialog.setCanceledOnTouchOutside(false);
             alertDialog.show();
         }
+
+        Toast.makeText(getApplicationContext(), "Successfully logged in!", Toast.LENGTH_SHORT).show();
+
+        listView = (ListView) findViewById(R.id.listView);
+
+        onlineUsers.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
+
+                Collection<String> list = new ArrayList<String>();
+                for (DataSnapshot item : iter) {
+                    list.add(item.getKey());
+                }
+                final String[] arr = list.toArray(new String[list.size()]);
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1,  arr);
+                listView.setAdapter(adapter);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        //Intent intent = new Intent(getApplicationContext(), OtherClass);
+                        //intent.putExtra("userId", arr[position]);
+                        //startActivity(intent);
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -137,15 +185,15 @@ public class GPSActivity extends AppCompatActivity {
             return;
         }
         locationManager.removeUpdates(locationListener);
+        onlineUsers.child(userId).removeValue();
     }
 
     public void changeData(View view) {
         String text = data_input.getText().toString();
         data_input.setText("");
-        //firebaseRoot.setValue(text);
         HashMap map = new HashMap<String, String>();
         map.put("Text", text);
-        firebaseRoot.updateChildren(map);
+        textRef.updateChildren(map);
         data_text.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
     }
@@ -171,6 +219,9 @@ public class GPSActivity extends AppCompatActivity {
             progressBar2.setVisibility(View.GONE);
             address_text.setVisibility(View.VISIBLE);
             address_text.setText(address.getAddressLine(0));
+
+            onlineUsers.child(userId).child("long").setValue(longitude);
+            onlineUsers.child(userId).child("lat").setValue(latitude);
         }
 
         public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -200,7 +251,7 @@ public class GPSActivity extends AppCompatActivity {
 
                     String name = editText.getText().toString();
 
-                    if (!name.matches("")){
+                    if (!name.matches("")) {
                         SharedPreferences sp = getSharedPreferences("myData", MODE_PRIVATE);
                         SharedPreferences.Editor editor = sp.edit();
                         editor.putString("myName", name);
@@ -221,7 +272,7 @@ public class GPSActivity extends AppCompatActivity {
 
                 String name = editText.getText().toString();
 
-                if (!name.matches("")){
+                if (!name.matches("")) {
                     SharedPreferences sp = getSharedPreferences("myData", MODE_PRIVATE);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString("myName", name);
@@ -245,5 +296,21 @@ public class GPSActivity extends AppCompatActivity {
 
         Dialog d = dialog.create();
         d.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        //if (item.getItemId() == R.id.logout_item) {
+        //    textRef.unauth();
+        //}
+
+        return super.onOptionsItemSelected(item);
     }
 }
