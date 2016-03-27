@@ -20,6 +20,7 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +39,8 @@ import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.MutableData;
+import com.firebase.client.Transaction;
 import com.firebase.client.ValueEventListener;
 
 import java.io.IOException;
@@ -184,7 +187,15 @@ public class GPSActivity extends AppCompatActivity {
             return;
         }
         locationManager.removeUpdates(locationListener);
-        onlineUsers.child(userId).removeValue();
+        onlineUsers.child(userId).runTransaction(new Transaction.Handler() {
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                mutableData.setValue(null); // This removes the node.
+                return Transaction.success(mutableData);
+            }
+            public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
+                // Handle completion
+            }
+        });
         super.onDestroy();
     }
 
