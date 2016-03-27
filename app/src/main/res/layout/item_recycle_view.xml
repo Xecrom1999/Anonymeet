@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="80dp">
+
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:background="#000"
+        android:id="@+id/contactImage"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-Name-"
+        android:layout_alignTop="@id/contactImage"
+        style="@style/Base.TextAppearance.AppCompat.Title"
+        android:textSize="30sp"
+        android:id="@+id/contactName"
+        android:layout_toRightOf="@id/contactImage"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        />
+
+
+
+
+
+
+
+</RelativeLayout>
