@@ -37,14 +37,16 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     DB myDB;
     SQLiteDatabase db;
     View v;
+    OnItemClickListener mItemClickListener;
+
     public final static String EXTRA_MESSAGE = "com.mycompany.myfirstapp.MESSAGE";
     Context context;
 
     public RecyclerAdapter(Context con, ArrayList<Contact> c, DB d){
 
+        context = con;
         inflater = LayoutInflater.from(context);
         contacts = c;
-        context = con;
         myDB = d;
         db = myDB.getWritableDatabase();
 
@@ -54,16 +56,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         v = inflater.inflate(R.layout.item_recycle_view, parent, false);
-        v.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, ChatActivity.class);
-                context.startActivity(intent);
-            }
-        });
 
 
-        MyViewHolder viewHolder = new MyViewHolder(v, contacts, this);
+        MyViewHolder viewHolder = new MyViewHolder(v, contacts, this, mItemClickListener);
         return viewHolder;
     }
 
@@ -75,6 +70,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
         final Contact c = contacts.get(position);
         holder.image.setImageResource(c.photo);
         holder.name .setText(c.name);
+        holder.position = position;
 
 
 
@@ -84,24 +80,42 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     public int getItemCount() {
         return this.contacts.size();
     }
+
+    public void SetOnItemClickListener(final OnItemClickListener mItemClickListener) {
+        this.mItemClickListener = mItemClickListener;
+    }
 }
 
-class MyViewHolder extends RecyclerView.ViewHolder{
+class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
     ImageView image;
     RecyclerAdapter recyclerAdapter;
     ArrayList<Contact> contacts;
+    OnItemClickListener mItemClickListener;
     TextView name;
-    public MyViewHolder(View v, ArrayList<Contact> c, final RecyclerAdapter r){
+    int position;
+
+    public MyViewHolder(View v, ArrayList<Contact> c, final RecyclerAdapter r, OnItemClickListener m){
         super(v);
         recyclerAdapter = r;
         contacts = c;
         image = (ImageView) v.findViewById(R.id.contactImage);
         name = (TextView) v.findViewById(R.id.contactName);
+        mItemClickListener = m;
+        v.setOnClickListener(this);
 
+    }
 
+    @Override
+    public void onClick(View v) {
+        mItemClickListener.onItemClick(v, getPosition(), name.getText().toString()); //OnItemClickListener mItemClickListener;
     }
 
 
 
 }
+
+   interface OnItemClickListener {
+    public void onItemClick(View view , int position, String name);
+}
+

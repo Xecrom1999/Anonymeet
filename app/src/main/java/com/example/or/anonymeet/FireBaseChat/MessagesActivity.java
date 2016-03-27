@@ -1,5 +1,8 @@
 package com.example.or.anonymeet.FireBaseChat;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.example.or.anonymeet.R;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 
 import java.util.ArrayList;
 
@@ -17,15 +21,19 @@ public class MessagesActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     SQLiteDatabase db;
+    Context context;
+    ArrayList<Contact> contacts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages);
+        context = this;
         recyclerView = (RecyclerView)findViewById(R.id.recycle);
         DB myDB = new DB(this);
         db = myDB.getWritableDatabase();
-        ArrayList<Contact> contacts = new ArrayList<Contact>();
+        contacts = new ArrayList<Contact>();
+        myDB.insert("Ari", "OrAri");
         String[] columns = {myDB.USER};
         Cursor cursor = db.query(myDB.TABLE_NAME, columns, null, null, null, null, null);
         Contact contact;
@@ -37,23 +45,16 @@ public class MessagesActivity extends AppCompatActivity {
             contacts.add(contact);
         }
         RecyclerAdapter recyclerAdapter = new RecyclerAdapter(this, contacts, myDB);
-        recyclerView.setAdapter(recyclerAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+        recyclerAdapter.SetOnItemClickListener(new OnItemClickListener() {
             @Override
-            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                return false;
-            }
-
-            @Override
-            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-
-            }
-
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+            public void onItemClick(View view, int position, String name) {
+                Intent myintent=new Intent(context, ChatActivity.class).putExtra("username", contacts.get(position).name);
+                startActivity(myintent);
 
             }
         });
+        recyclerView.setAdapter(recyclerAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
     }
 }

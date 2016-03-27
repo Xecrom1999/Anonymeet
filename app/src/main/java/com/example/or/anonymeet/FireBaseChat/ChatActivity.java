@@ -22,6 +22,7 @@ public class ChatActivity extends AppCompatActivity {
     String usernameTo;
     String myUsername;
     EditText SendMessage;
+    EditText user;
     TextView getMessage;
     SQLiteDatabase db;
     DB myDB;
@@ -32,9 +33,12 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         Firebase.setAndroidContext(this);
+        user = (EditText)findViewById(R.id.user);
+        usernameTo= getIntent().getStringExtra("username");
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         SendMessage = (EditText)findViewById(R.id.sendMessage);
         getMessage = (TextView)findViewById(R.id.getMessage);
+        myDB = new DB(this);
         db = myDB.getWritableDatabase();
         String selectQuery = "SELECT * FROM "+myDB.TABLE_NAME+" WHERE "+myDB.USER+"='"+usernameTo+"';";
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -43,7 +47,13 @@ public class ChatActivity extends AppCompatActivity {
         myFirebaseRef.child(usernameTo).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                getMessage.setText(dataSnapshot.getValue().toString());
+                try {
+                    getMessage.setText(dataSnapshot.getValue().toString());
+                }
+                catch (Exception e){
+                    getMessage.setText("");
+                }
+
             }
 
             @Override
@@ -57,6 +67,10 @@ public class ChatActivity extends AppCompatActivity {
     public void onClick(View view){
         myFirebaseRef.child(myUsername).setValue(SendMessage.getText().toString());
     }
+    public void setUser(View view){
+        myUsername = user.getText().toString();
+    }
+
 
 
 }

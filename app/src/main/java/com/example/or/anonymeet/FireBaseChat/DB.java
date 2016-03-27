@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by Or on 23/03/2016.
  */
 public class DB extends SQLiteOpenHelper {
-    static final int DATABASE_VERSION = 1;
+    static final int DATABASE_VERSION = 2;
     static final String DATABASE_NAME = "Anonymeet.db";
     static final String TABLE_NAME = "Chats";
     static final String UID = "_id";
@@ -18,7 +18,7 @@ public class DB extends SQLiteOpenHelper {
     private static final String CREATE_TABLE = "CREATE TABLE "+TABLE_NAME+"("+
             UID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
             USER+" varchar(225), "+
-            REF+" varchar(225);";
+            REF+" varchar(225));";
 
 
     public void insert(String user, String ref){
