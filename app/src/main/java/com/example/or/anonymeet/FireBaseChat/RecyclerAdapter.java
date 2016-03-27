@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -38,6 +41,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     SQLiteDatabase db;
     View v;
     OnItemClickListener mItemClickListener;
+
 
     public final static String EXTRA_MESSAGE = "com.mycompany.myfirstapp.MESSAGE";
     Context context;
@@ -84,6 +88,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     public void SetOnItemClickListener(final OnItemClickListener mItemClickListener) {
         this.mItemClickListener = mItemClickListener;
     }
+
+    public void delete(int position){
+
+        String contactName = contacts.get(position).name;
+        db.delete(myDB.TABLE_NAME, myDB.USER + "='" + contactName + "'", null);
+        contacts.remove(position);
+        if (contacts.size() == 1) {
+            notifyDataSetChanged();
+        } else {
+            notifyItemRemoved(position);
+        }
+    }
+
+
 }
 
 class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -103,6 +121,13 @@ class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListen
         name = (TextView) v.findViewById(R.id.contactName);
         mItemClickListener = m;
         v.setOnClickListener(this);
+        v.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                r.delete(getPosition());
+                return false;
+            }
+        });
 
     }
 
@@ -117,5 +142,6 @@ class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListen
 
    interface OnItemClickListener {
     public void onItemClick(View view , int position, String name);
+
 }
 

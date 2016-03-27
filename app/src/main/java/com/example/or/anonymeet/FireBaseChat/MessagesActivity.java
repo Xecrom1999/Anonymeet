@@ -11,6 +11,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Toast;
 
 import com.example.or.anonymeet.R;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
@@ -33,7 +35,6 @@ public class MessagesActivity extends AppCompatActivity {
         DB myDB = new DB(this);
         db = myDB.getWritableDatabase();
         contacts = new ArrayList<Contact>();
-        myDB.insert("Ari", "OrAri");
         String[] columns = {myDB.USER};
         Cursor cursor = db.query(myDB.TABLE_NAME, columns, null, null, null, null, null);
         Contact contact;
@@ -48,13 +49,17 @@ public class MessagesActivity extends AppCompatActivity {
         recyclerAdapter.SetOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position, String name) {
-                Intent myintent=new Intent(context, ChatActivity.class).putExtra("username", contacts.get(position).name);
+                Intent myintent = new Intent(context, ChatActivity.class).putExtra("username", contacts.get(position).name);
                 startActivity(myintent);
 
             }
+
         });
+
+
         recyclerView.setAdapter(recyclerAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
 
     }
 }
