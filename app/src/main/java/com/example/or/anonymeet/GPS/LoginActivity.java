@@ -25,7 +25,6 @@ import com.firebase.client.FirebaseError;
  */
 public class LoginActivity extends AppCompatActivity implements Firebase.AuthResultHandler, Firebase.ResultHandler {
 
-
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
@@ -39,8 +38,6 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_login);
-
-
 
         users = new Firebase("https://anonymeetapp.firebaseio.com");
 
