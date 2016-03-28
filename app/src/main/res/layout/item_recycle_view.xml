@@ -14,7 +14,7 @@
         android:text="-Name-"
         android:layout_alignTop="@id/contactImage"
         style="@style/Base.TextAppearance.AppCompat.Title"
-        android:textSize="30sp"
+        android:textSize="20sp"
         android:id="@+id/contactName"
         android:layout_toRightOf="@id/contactImage"
         android:layout_alignParentRight="true"

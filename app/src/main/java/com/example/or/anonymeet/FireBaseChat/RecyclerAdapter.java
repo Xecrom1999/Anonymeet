@@ -2,6 +2,7 @@ package com.example.or.anonymeet.FireBaseChat;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -46,13 +47,38 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     public final static String EXTRA_MESSAGE = "com.mycompany.myfirstapp.MESSAGE";
     Context context;
 
-    public RecyclerAdapter(Context con, ArrayList<Contact> c, DB d){
+    public RecyclerAdapter(Context con, DB d){
 
         context = con;
         inflater = LayoutInflater.from(context);
-        contacts = c;
         myDB = d;
         db = myDB.getWritableDatabase();
+        contacts = new ArrayList<Contact>();
+        String[] columns = {myDB.USER};
+        Cursor cursor = db.query(myDB.TABLE_NAME, columns, null, null, null, null, null);
+        Contact contact;
+        String user;
+        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
+
+            user = cursor.getString(cursor.getColumnIndex(myDB.USER));
+            contact = new Contact(user);
+            contacts.add(contact);
+        }
+
+    }
+
+    public void syncContacts(){
+        contacts = new ArrayList<Contact>();
+        String[] columns = {myDB.USER};
+        Cursor cursor = db.query(myDB.TABLE_NAME, columns, null, null, null, null, null);
+        Contact contact;
+        String user;
+        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
+
+            user = cursor.getString(cursor.getColumnIndex(myDB.USER));
+            contact = new Contact(user);
+            contacts.add(contact);
+        }
 
     }
 

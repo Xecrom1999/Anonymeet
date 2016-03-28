@@ -5,6 +5,7 @@ import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
@@ -24,9 +25,12 @@ import java.util.ArrayList;
 public class MessagesActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
+    RecyclerAdapter recyclerAdapter;
     SQLiteDatabase db;
     Context context;
-    ArrayList<Contact> contacts;
+    SharedPreferences preferences;
+    android.support.v4.app.FragmentTransaction transaction;
+    android.support.v4.app.Fragment f;
 
 
     @Override
@@ -34,42 +38,37 @@ public class MessagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages);
         context = this;
+        preferences = getSharedPreferences("data", MODE_PRIVATE);
         recyclerView = (RecyclerView)findViewById(R.id.recycle);
         DB myDB = new DB(this);
         db = myDB.getWritableDatabase();
-        contacts = new ArrayList<Contact>();
-        String[] columns = {myDB.USER};
-        Cursor cursor = db.query(myDB.TABLE_NAME, columns, null, null, null, null, null);
-        Contact contact;
-        String user;
-        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
-
-            user = cursor.getString(cursor.getColumnIndex(myDB.USER));
-            contact = new Contact(user);
-            contacts.add(contact);
-        }
-        RecyclerAdapter recyclerAdapter = new RecyclerAdapter(this, contacts, myDB);
+        recyclerAdapter = new RecyclerAdapter(this, myDB);
         recyclerAdapter.SetOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position, String name) {
-                Intent myintent = new Intent(context, ChatActivity.class).putExtra("username", contacts.get(position).name);
+                Intent myintent = new Intent(context, ChatActivity.class).putExtra("username", recyclerAdapter.contacts.get(position).name);
                 startActivity(myintent);
 
             }
 
         });
-
-
         recyclerView.setAdapter(recyclerAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        f = new AddChatFragment(recyclerAdapter);
+
+
+
 
 
     }
 
     public void addChat(View view){
-        Fragment f = new AddChatFragment();
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.add(f, "add user");
-        transaction.commit();
+
+            f = new AddChatFragment(recyclerAdapter);
+            transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.frame, f);
+            transaction.show(f);
+            transaction.commit();
+
     }
 }
