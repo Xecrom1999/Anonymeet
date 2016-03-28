@@ -16,7 +16,6 @@
         android:id="@+id/listView"
         android:background="@android:color/holo_green_light"
         android:dividerHeight="10dp"
-
         ></ListView>
 
 
