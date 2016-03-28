@@ -7,7 +7,7 @@
        android:background="@color/colorPrimary"
        android:minHeight="?attr/actionBarSize"
        android:fitsSystemWindows="true"
-       app:title="Find People"
+       app:title="Title"
        app:titleTextColor="@android:color/white"
     >
 

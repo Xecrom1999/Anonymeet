@@ -1,10 +1,20 @@
 package com.example.or.anonymeet.GPS;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,41 +36,37 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 
 public class GPSActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
 
     public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
-
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
 
-    protected GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private Location mCurrentLocation;
 
-    protected LocationRequest mLocationRequest;
-
-    protected Location mCurrentLocation;
-
-    protected Boolean mRequestingLocationUpdates;
-
-    protected String mLastUpdateTime;
-
-    Firebase onlineUsers;
-    String userId;
-    ListView listView;
+    private Firebase onlineUsers;
+    private String userId;
+    private ListView listView;
+    private Toolbar toolbar;
+    LocationManager lm;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gps_layout);
 
+        toolbar = (Toolbar) findViewById(R.id.toolBar2);
+        setSupportActionBar(toolbar);
+        toolbar.setTitle("Find People");
+
+        lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+
         onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
         userId = getIntent().getStringExtra("userId");
-
-        mRequestingLocationUpdates = false;
-        mLastUpdateTime = "";
 
         buildGoogleApiClient();
 
@@ -74,15 +80,20 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
                 Collection<String> list = new ArrayList<String>();
                 for (DataSnapshot item : iter) {
                     Geocoder geocoder = new Geocoder(getApplicationContext());
-                    double lat = (double) item.child("lat").getValue();
-                    double longt = (double) item.child("long").getValue();
+                    double lat = 0;
+                    double longt = 0;
+                    try {
+                        lat = (double) item.child("lat").getValue();
+                        longt = (double) item.child("long").getValue();
+                    } catch (NullPointerException e) {
+
+                    }
                     Address address = null;
                     try {
                         address = geocoder.getFromLocation(lat, longt, 1).get(0);
+                        list.add(address.getAddressLine(0));
                     } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    list.add(address.getAddressLine(0));
+                    }catch ( IndexOutOfBoundsException er){}
                 }
                 final String[] arr = list.toArray(new String[list.size()]);
 
@@ -103,8 +114,55 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
             }
         });
+
+        locationProvider();
     }
-////
+
+    public void locationProvider() {
+
+        if(!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || !lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Location Services Not Active");
+            builder.setMessage("Please enable Location Services and GPS");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                }
+            });
+
+            builder.setNegativeButton("No Thanks", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+
+            builder.setCancelable(false);
+
+            Dialog alertDialog = builder.create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.show();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.gps_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (item.getItemId() == R.id.logout_item) onlineUsers.unauth();
+
+        if (item.getItemId() == R.id.or_item) Snackbar.make(listView, "Yes!!!", Snackbar.LENGTH_SHORT).show();
+
+        return super.onOptionsItemSelected(item);
+    }
+
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -144,7 +202,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     public void onResume() {
         super.onResume();
 
-        if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
+        if (mGoogleApiClient.isConnected()) {
             startLocationUpdates();
         }
     }
@@ -178,19 +236,14 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
                 if (mCurrentLocation == null) {
                     mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                    mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
                 }
 
-                if (mRequestingLocationUpdates) {
-                    startLocationUpdates();
-                }
                 startLocationUpdates();
             }
 
             @Override
             public void onLocationChanged(Location location) {
                 mCurrentLocation = location;
-                mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
                 onlineUsers.child(userId).child("long").setValue(location.getLongitude());
                 onlineUsers.child(userId).child("lat").setValue(location.getLatitude());
             }
@@ -203,5 +256,4 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
             @Override
             public void onConnectionFailed(ConnectionResult result) {
             }
-
         }

@@ -1,10 +1,9 @@
 package com.example.or.anonymeet.FireBaseChat;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -43,7 +42,7 @@ public class ChatActivity extends AppCompatActivity {
         String selectQuery = "SELECT * FROM "+myDB.TABLE_NAME+" WHERE "+myDB.USER+"='"+usernameTo+"';";
         Cursor cursor = db.rawQuery(selectQuery, null);
         cursor.moveToFirst();
-        myFirebaseRef = myFirebaseRef.child(cursor.getString(cursor.getColumnIndex(myDB.REF)));
+        //myFirebaseRef = myFirebaseRef.child(cursor.getString(cursor.getColumnIndex(myDB.REF)));
         myFirebaseRef.child(usernameTo).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

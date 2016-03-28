@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,11 +38,16 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
     Firebase users;
     boolean isLoggedIn;
     SharedPreferences preferences;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_login);
+
+        toolbar = (Toolbar) findViewById(R.id.toolBar1);
+        setSupportActionBar(toolbar);
+        toolbar.setTitle("Login & Register");
 
         users = new Firebase("https://anonymeetapp.firebaseio.com");
 
