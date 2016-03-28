@@ -18,7 +18,4 @@
         android:dividerHeight="10dp"
         ></ListView>
 
-
-
-
 </LinearLayout>

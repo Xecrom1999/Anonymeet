@@ -128,7 +128,7 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
-//
+
     public void onSuccess() {
         Toast.makeText(getApplicationContext(), "Successfully registered!", Toast.LENGTH_SHORT).show();
     }
@@ -161,18 +161,4 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
         mEmailView.setError(firebaseError.getMessage());
         showProgress(false);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
-

@@ -14,6 +14,8 @@ import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.MutableData;
+import com.firebase.client.Transaction;
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -159,39 +161,47 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     @Override
     protected void onStop() {
         mGoogleApiClient.disconnect();
+
+        onlineUsers.child(userId).runTransaction(new Transaction.Handler() {
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                mutableData.setValue(null);
+                return Transaction.success(mutableData);
+            }
+            public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
+            }
+        });
         super.onStop();
     }
 
+            @Override
+            public void onConnected(Bundle connectionHint) {
 
-    @Override
-    public void onConnected(Bundle connectionHint) {
+                if (mCurrentLocation == null) {
+                    mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                    mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+                }
 
-        if (mCurrentLocation == null) {
-            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+                if (mRequestingLocationUpdates) {
+                    startLocationUpdates();
+                }
+                startLocationUpdates();
+            }
+
+            @Override
+            public void onLocationChanged(Location location) {
+                mCurrentLocation = location;
+                mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+                onlineUsers.child(userId).child("long").setValue(location.getLongitude());
+                onlineUsers.child(userId).child("lat").setValue(location.getLatitude());
+            }
+
+            @Override
+            public void onConnectionSuspended(int cause) {
+                mGoogleApiClient.connect();
+            }
+
+            @Override
+            public void onConnectionFailed(ConnectionResult result) {
+            }
+
         }
-
-        if (mRequestingLocationUpdates) {
-            startLocationUpdates();
-        }
-        startLocationUpdates();
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        mCurrentLocation = location;
-        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-        onlineUsers.child(userId).child("long").setValue(location.getLongitude());
-        onlineUsers.child(userId).child("lat").setValue(location.getLatitude());
-    }
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-    }
-
-}
