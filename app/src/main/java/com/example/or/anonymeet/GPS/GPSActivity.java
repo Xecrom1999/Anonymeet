@@ -20,7 +20,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.example.or.anonymeet.FireBaseChat.ChatActivity;
+import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
 import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -258,7 +258,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
             public void onConnectionFailed(ConnectionResult result) {
             }
 
-    public void goToChatActivity(View view) {
-        startActivity(new Intent(this, ChatActivity.class));
+    public void goToMessagesActivity(View view) {
+        startActivity(new Intent(this, MessagesActivity.class));
     }
 }
