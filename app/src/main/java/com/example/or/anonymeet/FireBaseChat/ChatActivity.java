@@ -1,5 +1,6 @@
 package com.example.or.anonymeet.FireBaseChat;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -7,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -63,6 +65,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 try {
+
                     getMessage.setText(dataSnapshot.getValue().toString());
                 }
                 catch (Exception e){
@@ -81,6 +84,9 @@ public class ChatActivity extends AppCompatActivity {
 
     public void onClick(View view){
         myFirebaseRef.child(emailWith).child(myEmail).setValue(SendMessage.getText().toString());
+        SendMessage.setText("");
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
     }
 
 

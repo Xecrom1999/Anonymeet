@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -24,6 +25,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
+import com.example.or.anonymeet.FireBaseChat.MessagesReceiver;
+import com.example.or.anonymeet.FireBaseChat.MyService;
 import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -62,7 +65,11 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gps_layout);
-//
+        Intent i = new Intent(this, MyService.class);
+        startService(i);
+        MessagesReceiver receiver = new MessagesReceiver();
+        IntentFilter intentFilter = new IntentFilter("getMessages");
+        registerReceiver(receiver, intentFilter);
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Find People");
