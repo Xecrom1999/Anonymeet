@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
+import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
 import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -182,7 +183,7 @@ public class GPSActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onStop() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -196,7 +197,7 @@ public class GPSActivity extends AppCompatActivity {
                 // Handle completion
             }
         });
-        super.onDestroy();
+        super.onStop();
     }
 
     public void changeData(View view) {
@@ -210,7 +211,7 @@ public class GPSActivity extends AppCompatActivity {
     }
 
     public void chatActivity(View view) {
-        startActivity(new Intent(this, ChatActivity.class));
+        startActivity(new Intent(this, MessagesActivity.class));
     }
 
     class MyLocationListener implements LocationListener {
