@@ -1,9 +1,11 @@
 package com.example.or.anonymeet.GPS;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -11,6 +13,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -84,8 +87,8 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
                     double lat = 0;
                     double longt = 0;
                     try {
-                        lat = (double) item.child("lat").getValue();
-                        longt = (double) item.child("long").getValue();
+                        lat = (double) item.child("latitude").getValue();
+                        longt = (double) item.child("longitude").getValue();
                     } catch (NullPointerException e) {
 
                     }
@@ -94,7 +97,8 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
                         address = geocoder.getFromLocation(lat, longt, 1).get(0);
                         list.add(address.getAddressLine(0));
                     } catch (IOException e) {
-                    }catch ( IndexOutOfBoundsException er){}
+                    } catch (IndexOutOfBoundsException er) {
+                    }
                 }
                 final String[] arr = list.toArray(new String[list.size()]);
 
@@ -121,7 +125,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
     public void locationProvider() {
 
-        if(!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || !lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || !lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Location Services Not Active");
@@ -159,7 +163,8 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
         if (item.getItemId() == R.id.logout_item) onlineUsers.unauth();
 
-        if (item.getItemId() == R.id.or_item) Snackbar.make(listView, "Yes!!!", Snackbar.LENGTH_SHORT).show();
+        if (item.getItemId() == R.id.or_item)
+            Snackbar.make(listView, "Yes!!!", Snackbar.LENGTH_SHORT).show();
 
         return super.onOptionsItemSelected(item);
     }
@@ -226,17 +231,21 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
                 mutableData.setValue(null);
                 return Transaction.success(mutableData);
             }
+
             public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
             }
         });
         super.onStop();
     }
 
-            @Override
-            public void onConnected(Bundle connectionHint) {
+    @Override
+    public void onConnected(Bundle connectionHint) {
 
-                if (mCurrentLocation == null) {
-                    mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mCurrentLocation == null) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                 }
 
                 startLocationUpdates();
@@ -245,8 +254,8 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
             @Override
             public void onLocationChanged(Location location) {
                 mCurrentLocation = location;
-                onlineUsers.child(userId).child("long").setValue(location.getLongitude());
-                onlineUsers.child(userId).child("lat").setValue(location.getLatitude());
+                onlineUsers.child(userId).child("longitude").setValue(location.getLongitude());
+                onlineUsers.child(userId).child("latitude").setValue(location.getLatitude());
             }
 
             @Override

@@ -83,7 +83,7 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
                 if (actionId == EditorInfo.IME_ACTION_DONE)
                     attemptLogin();
                 return false;
-            }
+           }
         });
     }
 
