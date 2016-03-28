@@ -1,5 +1,7 @@
 package com.example.or.anonymeet.FireBaseChat;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +27,7 @@ public class MessagesActivity extends AppCompatActivity {
     SQLiteDatabase db;
     Context context;
     ArrayList<Contact> contacts;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,5 +64,12 @@ public class MessagesActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 
+    }
+
+    public void addChat(View view){
+        Fragment f = new AddChatFragment();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.add(f, "add user");
+        transaction.commit();
     }
 }
