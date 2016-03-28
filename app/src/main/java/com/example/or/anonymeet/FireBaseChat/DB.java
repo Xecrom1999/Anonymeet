@@ -14,18 +14,15 @@ public class DB extends SQLiteOpenHelper {
     static final String TABLE_NAME = "Chats";
     static final String UID = "_id";
     static final String USER = "User";
-    static final String REF = "Ref";
     private static final String CREATE_TABLE = "CREATE TABLE "+TABLE_NAME+"("+
             UID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
-            USER+" varchar(225), "+
-            REF+" varchar(225));";
+            USER+" varchar(225);";
 
 
-    public void insert(String user, String ref){
+    public void insert(String user){
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(USER, user);
-        values.put(REF, ref);
         db.insert(TABLE_NAME, null, values);
     }
 

@@ -20,7 +20,8 @@
         android:inputType="textEmailAddress"
         android:ems="10"
         android:hint="User's Email"
-        android:id="@+id/editText"
+        android:textAlignment="center"
+        android:id="@+id/userToAdd"
         android:layout_marginTop="40dp"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true" />
@@ -28,9 +29,9 @@
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageButton"
+        android:id="@+id/addUser"
         android:src="@android:drawable/ic_input_add"
-        android:layout_below="@+id/editText"
+        android:layout_below="@+id/userToAdd"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="46dp" />
 
