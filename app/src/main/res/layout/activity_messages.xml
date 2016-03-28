@@ -16,4 +16,13 @@
 
     </android.support.v7.widget.RecyclerView>
 
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.example.or.anonymeet.FireBaseChat.AddChatFragment"
+        android:id="@+id/fragment"
+        android:layout_alignTop="@+id/recycle"
+        android:layout_centerHorizontal="true" />
+
+
 </RelativeLayout>
