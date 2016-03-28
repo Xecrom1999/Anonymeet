@@ -2,17 +2,21 @@ package com.example.or.anonymeet.GPS;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AutoCompleteTextView;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.or.anonymeet.R;
@@ -25,7 +29,7 @@ import com.firebase.client.FirebaseError;
  */
 public class LoginActivity extends AppCompatActivity implements Firebase.AuthResultHandler, Firebase.ResultHandler {
 
-    private AutoCompleteTextView mEmailView;
+    private EditText mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -41,7 +45,7 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
 
         users = new Firebase("https://anonymeetapp.firebaseio.com");
 
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mEmailView = (EditText) findViewById(R.id.email);
 
         mPasswordView = (EditText) findViewById(R.id.password);
 
@@ -63,8 +67,18 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
             String email = preferences.getString("email", "");
             String password = preferences.getString("password", "");
 
-            //users.authWithPassword(email, password, this);
+            mEmailView.setText(email);
+            mPasswordView.setText(password);
         }
+
+        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE)
+                    attemptLogin();
+                return false;
+            }
+        });
     }
 
     private void attemptLogin() {
@@ -85,6 +99,9 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
     }
 
     private void showProgress(final boolean show) {
+
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
@@ -118,7 +135,7 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
 
     @Override
     public void onError(FirebaseError firebaseError) {
-        Toast.makeText(getApplicationContext(), "Error: " + firebaseError.getMessage(), Toast.LENGTH_SHORT).show();
+        mEmailView.setError(firebaseError.getMessage());
     }
 
     public void onAuthenticated(final AuthData authData) {
@@ -141,8 +158,7 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
 
     @Override
     public void onAuthenticationError(FirebaseError firebaseError) {
-        Toast.makeText(getApplicationContext(), "Error: " + firebaseError.getMessage(), Toast.LENGTH_SHORT).show();
+        mEmailView.setError(firebaseError.getMessage());
         showProgress(false);
     }
 }
-
