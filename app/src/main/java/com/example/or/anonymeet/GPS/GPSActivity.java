@@ -102,7 +102,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
             }
         });
     }
-////
+//////
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
