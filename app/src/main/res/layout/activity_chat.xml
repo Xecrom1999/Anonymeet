@@ -37,23 +37,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="127dp" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/user"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/getMessage" />
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="set user"
-        android:id="@+id/setUser"
-        android:onClick="setUser"
-        android:layout_alignBottom="@+id/user"
-        android:layout_toEndOf="@+id/user" />
+
 
 
 </RelativeLayout>

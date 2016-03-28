@@ -37,7 +37,9 @@ public class ChatActivity extends AppCompatActivity {
         Firebase.setAndroidContext(this);
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         myEmail = preferences.getString("email", "");
+        myEmail = myEmail.substring(0, myEmail.indexOf('.'));
         emailWith = getIntent().getStringExtra("username");
+        emailWith = emailWith.substring(0, emailWith.indexOf('.'));
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         SendMessage = (EditText)findViewById(R.id.sendMessage);
         getMessage = (TextView)findViewById(R.id.getMessage);
