@@ -3,6 +3,7 @@ package com.example.or.anonymeet.GPS;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -67,7 +68,8 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         setContentView(R.layout.gps_layout);
         Intent i = new Intent(this, MyService.class);
         startService(i);
-        MessagesReceiver receiver = new MessagesReceiver();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        MessagesReceiver receiver = new MessagesReceiver(this, notificationManager);
         IntentFilter intentFilter = new IntentFilter("getMessages");
         registerReceiver(receiver, intentFilter);
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
