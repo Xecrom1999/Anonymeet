@@ -30,12 +30,38 @@ public class ChatActivity extends AppCompatActivity {
     SQLiteDatabase db;
     DB myDB;
     SharedPreferences preferences;
+    boolean active;
+    String lastMessage;
 
+    @Override
+    protected void onStart() {
+        active = true;
+        super.onStart();
+    }
+
+    @Override
+    protected void onDestroy() {
+        active = false;
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onResume() {
+        active = true;
+        super.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        active = false;
+        super.onStop();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        lastMessage = "";
         Firebase.setAndroidContext(this);
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         myEmail = preferences.getString("email", "");
@@ -64,13 +90,10 @@ public class ChatActivity extends AppCompatActivity {
         myFirebaseRef.child(myEmail).child(emailWith).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                try {
 
-                    getMessage.setText(dataSnapshot.getValue().toString());
-                }
-                catch (Exception e){
-                    getMessage.setText("");
-                }
+                    if(dataSnapshot.getValue().toString().length()>36 && dataSnapshot.getValue().toString().substring(0,35).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) getMessage.setText(dataSnapshot.getValue().toString().substring(36,dataSnapshot.getValue().toString().length()-1));
+                    else getMessage.setText(dataSnapshot.getValue().toString());
+
 
             }
 
@@ -83,12 +106,21 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     public void onClick(View view){
+        if(SendMessage.getText().toString().equals(lastMessage)){
+            myFirebaseRef.child(emailWith).child(myEmail).setValue("cbd9b0a2-d183-45ee-9582-27df3020ff65"+SendMessage.getText().toString());
+        }
         myFirebaseRef.child(emailWith).child(myEmail).setValue(SendMessage.getText().toString());
         SendMessage.setText("");
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
     }
 
+    public boolean isActive(){
+        return active;
+    }
+    public String getEmailWith(){
+        return emailWith;
+    }
 
 
 

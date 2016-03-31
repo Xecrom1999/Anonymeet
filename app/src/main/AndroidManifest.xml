@@ -52,18 +52,9 @@
 
         <service
             android:name=".FireBaseChat.MyService"
-            android:enabled="true"
-            android:exported="true" >
+            android:exported="false" >
         </service>
 
-        <receiver
-            android:name=".FireBaseChat.MessagesReceiver"
-            android:enabled="true"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="getMessage" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

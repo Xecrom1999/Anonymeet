@@ -1,7 +1,11 @@
 package com.example.or.anonymeet.FireBaseChat;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -30,7 +34,7 @@ public class MyService extends IntentService {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
-        Log.d("hiiiiiiiiiiiiiiiiii", "Serveice started");
+        final NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
         String myEmail = preferences.getString("email", "");
         myEmail = myEmail.substring(0, myEmail.indexOf('.'));
@@ -44,13 +48,21 @@ public class MyService extends IntentService {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                NotificationCompat.Builder n = new NotificationCompat.Builder(getApplicationContext())
+                Log.d("hiiiiiiiiiiiiiiiiii", "Service got");
+                Notification.Builder n = new Notification.Builder(getApplicationContext())
                         .setContentTitle("New mail from " + "test@gmail.com")
                         .setContentText("Subject")
                         .setSmallIcon(R.drawable.contact)
-                        .setDefaults()
-
-                nm.notify(0, n);
+                        .setAutoCancel(true)
+                        .setTicker("hiiiiii")
+                        .setDefaults(NotificationCompat.DEFAULT_SOUND);
+                TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
+                Intent i = new Intent(getApplicationContext(), MessagesActivity.class);
+                t.addParentStack(MessagesActivity.class);
+                t.addNextIntent(i);
+                PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                n.setContentIntent(pendingIntent);
+                nm.notify(0, n.build());
             }
 
             @Override
@@ -68,19 +80,25 @@ public class MyService extends IntentService {
 
             }
         });
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
-    @Override
+
 
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d("hiiiiiiiiiiiiiiiiii", "onBind");
         return null;
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+    }
 
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        Log.d("hiiiiiiiiiiiiiiiiii", "onHandleIntent");
     }
 }
