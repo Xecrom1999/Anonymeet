@@ -1,21 +1,26 @@
 package com.example.or.anonymeet.FireBaseChat;
 
+import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.example.or.anonymeet.R;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
-public class MyService extends Service {
+public class MyService extends IntentService {
     public MyService() {
+        super("myService");
     }
+
 
     @Override
     public void onCreate() {
@@ -39,11 +44,13 @@ public class MyService extends Service {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Intent i = new Intent("getMessages");
-                i.putExtra("name", dataSnapshot.toString());
-                i.putExtra("message", dataSnapshot.getValue().toString());
-                sendBroadcast(i);
+                NotificationCompat.Builder n = new NotificationCompat.Builder(getApplicationContext())
+                        .setContentTitle("New mail from " + "test@gmail.com")
+                        .setContentText("Subject")
+                        .setSmallIcon(R.drawable.contact)
+                        .setDefaults()
 
+                nm.notify(0, n);
             }
 
             @Override
@@ -65,7 +72,15 @@ public class MyService extends Service {
     }
 
     @Override
+
+
+    @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+
     }
 }
