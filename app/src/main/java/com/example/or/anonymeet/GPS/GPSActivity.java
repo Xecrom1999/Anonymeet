@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
 import com.example.or.anonymeet.FireBaseChat.MyService;
 import com.example.or.anonymeet.R;
@@ -44,9 +45,8 @@ import com.google.android.gms.location.LocationServices;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Locale;
 
-public class GPSActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, ValueEventListener {
+public class GPSActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, ValueEventListener, ListListener {
 
     public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
@@ -61,6 +61,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     LocationManager lm;
     RecyclerView peopleList;
     PeopleListAdapter adapter;
+    String childName;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,8 +79,9 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         lm = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
-        userName = getIntent().getStringExtra("userName");
-        userName = userName.substring(0, userName.indexOf('@'));
+        userName = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
+
+        childName = userName.substring(0, userName.indexOf('.'));
 
         buildGoogleApiClient();
 
@@ -92,7 +94,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
     private void initializeList() {
         peopleList = (RecyclerView) findViewById(R.id.peopleList);
-        adapter = new PeopleListAdapter();
+        adapter = new PeopleListAdapter(this);
         peopleList.setLayoutManager(new LinearLayoutManager(this));
         peopleList.setHasFixedSize(true);
         peopleList.setAdapter(adapter);
@@ -154,7 +156,10 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (item.getItemId() == R.id.logout_item) onlineUsers.unauth();
+        if (item.getItemId() == R.id.logout_item) {
+            onlineUsers.unauth();
+            startActivity(new Intent(this, LoginActivity.class));
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -219,7 +224,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     protected void onStop() {
         mGoogleApiClient.disconnect();
 
-        onlineUsers.child(userName).runTransaction(new Transaction.Handler() {
+        onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
             public Transaction.Result doTransaction(MutableData mutableData) {
                 mutableData.setValue(null);
                 return Transaction.success(mutableData);
@@ -247,8 +252,8 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
             @Override
             public void onLocationChanged(Location location) {
                 mCurrentLocation = location;
-                onlineUsers.child(userName).child("longitude").setValue(location.getLongitude());
-                onlineUsers.child(userName).child("latitude").setValue(location.getLatitude());
+                onlineUsers.child(childName).child("longitude").setValue(location.getLongitude());
+                onlineUsers.child(childName).child("latitude").setValue(location.getLatitude());
             }
 
             @Override
@@ -279,7 +284,6 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
                 lat = (double) item.child("latitude").getValue();
                 longt = (double) item.child("longitude").getValue();
             } catch (NullPointerException e) {
-
             }
 
             namesList.add(item.getKey().toString());
@@ -301,6 +305,11 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     }
 
     public void onCancelled(FirebaseError firebaseError) {
+    }
 
+    public void startChat(String userName) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra("usernameTo", userName);
+        startActivity(intent);
     }
 }
