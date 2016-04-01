@@ -41,6 +41,5 @@ dependencies {
     compile 'com.android.support:support-v4:23.2.1'
     compile 'com.google.android.gms:play-services-location:8.4.0'
     compile 'com.firebase:firebase-token-generator:2.0.0'
-
-
+    compile 'com.firebase:firebase-ui:+'
 }

@@ -126,10 +126,6 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
         }
     }
 
-    private boolean isPasswordValid(String password) {
-        return password.length() > 5;
-    }
-
     private void showProgress(final boolean show) {
 
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);

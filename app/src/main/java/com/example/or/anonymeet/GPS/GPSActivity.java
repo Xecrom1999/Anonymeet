@@ -23,6 +23,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
@@ -34,6 +35,8 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.MutableData;
 import com.firebase.client.Transaction;
 import com.firebase.client.ValueEventListener;
+import com.firebase.ui.FirebaseListAdapter;
+import com.firebase.ui.FirebaseRecyclerViewAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -61,6 +64,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     LocationManager lm;
     RecyclerView peopleList;
     PeopleListAdapter adapter;
+    FirebaseListAdapter listAdapter;
     String childName;
 
     @Override
@@ -98,13 +102,16 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         peopleList.setLayoutManager(new LinearLayoutManager(this));
         peopleList.setHasFixedSize(true);
         peopleList.setAdapter(adapter);
+
+        //listAdapter = new FirebasePeopleListAdapter(this, String.class, R.layout.people_list_item, onlineUsers, this);
+        //peopleList.setAdapter(listAdapter);
     }
 
     @TargetApi(Build.VERSION_CODES.M)
     private void checkForPermission() {
         int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
         if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     0);
             return;
         }
@@ -112,10 +119,10 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 0)
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                } else {
-                    Snackbar.make(peopleList, "Location Permission Denied", Snackbar.LENGTH_SHORT).show();
-                }
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            } else {
+                Snackbar.make(peopleList, "Location Permission Denied", Snackbar.LENGTH_SHORT).show();
+            }
     }
 
     public void locationProvider() {
@@ -244,26 +251,25 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
                 return;
             }
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                }
+        }
+        startLocationUpdates();
+    }
 
-                startLocationUpdates();
-            }
+    @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+        onlineUsers.child(childName).child("longitude").setValue(location.getLongitude());
+        onlineUsers.child(childName).child("latitude").setValue(location.getLatitude());
+    }
 
-            @Override
-            public void onLocationChanged(Location location) {
-                mCurrentLocation = location;
-                onlineUsers.child(childName).child("longitude").setValue(location.getLongitude());
-                onlineUsers.child(childName).child("latitude").setValue(location.getLatitude());
-            }
+    @Override
+    public void onConnectionSuspended(int cause) {
+        mGoogleApiClient.connect();
+    }
 
-            @Override
-            public void onConnectionSuspended(int cause) {
-                mGoogleApiClient.connect();
-            }
-
-            @Override
-            public void onConnectionFailed(ConnectionResult result) {
-            }
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+    }
 
     public void goToMessagesActivity(View view) {
         startActivity(new Intent(this, MessagesActivity.class));
@@ -298,10 +304,12 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
             } catch (IndexOutOfBoundsException e) {
 
             } catch (NullPointerException e) {
-
             }
         }
+
+
         adapter.update(namesList, addressesList);
+
     }
 
     public void onCancelled(FirebaseError firebaseError) {
@@ -311,5 +319,8 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("usernameTo", userName);
         startActivity(intent);
+
     }
+
+
 }
