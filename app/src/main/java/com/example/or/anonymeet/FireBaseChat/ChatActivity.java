@@ -30,6 +30,7 @@ public class ChatActivity extends AppCompatActivity {
     SQLiteDatabase db;
     DB myDB;
     SharedPreferences preferences;
+    SharedPreferences.Editor se;
     boolean active;
     String lastMessage;
 
@@ -61,9 +62,10 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        lastMessage = "";
         Firebase.setAndroidContext(this);
         preferences = getSharedPreferences("data", MODE_PRIVATE);
+        se = preferences.edit();
+        lastMessage = preferences.getString("lastMessage","");
         myEmail = preferences.getString("email", "");
         myEmail = myEmail.substring(0, myEmail.indexOf('.'));
         emailWith = getIntent().getStringExtra("username");
@@ -91,7 +93,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                    if(dataSnapshot.getValue().toString().length()>36 && dataSnapshot.getValue().toString().substring(0,35).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) getMessage.setText(dataSnapshot.getValue().toString().substring(36,dataSnapshot.getValue().toString().length()-1));
+                    if(dataSnapshot.getValue().toString().length()>36 && dataSnapshot.getValue().toString().substring(0, 35).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) getMessage.setText(dataSnapshot.getValue().toString().substring(36,dataSnapshot.getValue().toString().length()-1));
                     else getMessage.setText(dataSnapshot.getValue().toString());
 
 
@@ -110,6 +112,7 @@ public class ChatActivity extends AppCompatActivity {
             myFirebaseRef.child(emailWith).child(myEmail).setValue("cbd9b0a2-d183-45ee-9582-27df3020ff65"+SendMessage.getText().toString());
         }
         myFirebaseRef.child(emailWith).child(myEmail).setValue(SendMessage.getText().toString());
+        se.putString("lastMessage", SendMessage.getText().toString()).commit();
         SendMessage.setText("");
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
