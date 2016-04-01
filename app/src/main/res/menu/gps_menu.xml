@@ -4,7 +4,4 @@
     <item android:id="@+id/logout_item"
         android:title="Logout"/>
 
-    <item android:id="@+id/or_item"
-          android:title="Is Or Gay?"/>
-
 </menu>

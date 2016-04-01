@@ -1,6 +1,7 @@
 package com.example.or.anonymeet.GPS;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -10,16 +11,18 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -44,7 +47,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class GPSActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
+public class GPSActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, ValueEventListener {
 
     public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
@@ -58,11 +61,16 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     private ListView listView;
     private Toolbar toolbar;
     LocationManager lm;
+    RecyclerView peopleList;
+    PeopleListAdapter adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.gps_layout);
+        setContentView(R.layout.gps_activity);
+
+        checkForPermission();
+
         Intent i = new Intent(this, MyService.class);
         startService(i);
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
@@ -78,51 +86,35 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
         listView = (ListView) findViewById(R.id.listView);
 
-        onlineUsers.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
-
-                Collection<String> list = new ArrayList<String>();
-                for (DataSnapshot item : iter) {
-                    Geocoder geocoder = new Geocoder(getApplicationContext());
-                    double lat = 0;
-                    double longt = 0;
-                    try {
-                        lat = (double) item.child("latitude").getValue();
-                        longt = (double) item.child("longitude").getValue();
-                    } catch (NullPointerException e) {
-
-                    }
-                    Address address = null;
-                    try {
-                        address = geocoder.getFromLocation(lat, longt, 1).get(0);
-                        list.add(address.getAddressLine(0));
-                    } catch (IOException e) {
-                    } catch (IndexOutOfBoundsException er) {
-                    }
-                }
-                final String[] arr = list.toArray(new String[list.size()]);
-
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.select_dialog_item, arr);
-                listView.setAdapter(adapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        //Intent intent = new Intent(getApplicationContext(), OtherClass);
-                        //intent.putExtra("userId", arr[position]);
-                        //startActivity(intent);
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
+        onlineUsers.addValueEventListener(this);
 
         locationProvider();
+    }
+
+    private void intializeList() {
+        peopleList = (RecyclerView) findViewById(R.id.peopleList);
+        adapter = new PeopleListAdapter();
+        peopleList.setLayoutManager(new LinearLayoutManager(this));
+        peopleList.setAdapter(adapter);
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    private void checkForPermission() {
+        int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+        if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                    0);
+            return;
+        }
+
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == 0)
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                } else {
+                    Snackbar.make(listView, "Location Permission Denied", Snackbar.LENGTH_SHORT).show();
+                }
     }
 
     public void locationProvider() {
@@ -165,9 +157,6 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
         if (item.getItemId() == R.id.logout_item) onlineUsers.unauth();
 
-        if (item.getItemId() == R.id.or_item)
-            Snackbar.make(listView, "Yes!!!", Snackbar.LENGTH_SHORT).show();
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -192,6 +181,9 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
     protected void startLocationUpdates() {
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
     }
@@ -271,5 +263,38 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
     public void goToMessagesActivity(View view) {
         startActivity(new Intent(this, MessagesActivity.class));
+    }
+
+    public void onDataChange(DataSnapshot dataSnapshot) {
+
+        Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
+
+        Collection<String> list = new ArrayList<String>();
+        for (DataSnapshot item : iter) {
+            Geocoder geocoder = new Geocoder(getApplicationContext());
+            double lat = 0;
+            double longt = 0;
+            try {
+                lat = (double) item.child("latitude").getValue();
+                longt = (double) item.child("longitude").getValue();
+            } catch (NullPointerException e) {
+
+            }
+            Address address = null;
+            try {
+                address = geocoder.getFromLocation(lat, longt, 1).get(0);
+                list.add(address.getAddressLine(0));
+            } catch (IOException e) {
+            } catch (IndexOutOfBoundsException er) {
+            }
+        }
+        final String[] arr = list.toArray(new String[list.size()]);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.select_dialog_item, arr);
+        listView.setAdapter(adapter);
+    }
+
+    public void onCancelled(FirebaseError firebaseError) {
+
     }
 }
