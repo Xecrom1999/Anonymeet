@@ -93,7 +93,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                    if(dataSnapshot.getValue().toString().length()>36 && dataSnapshot.getValue().toString().substring(0, 35).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) getMessage.setText(dataSnapshot.getValue().toString().substring(36,dataSnapshot.getValue().toString().length()-1));
+                    if(dataSnapshot.getValue().toString().length()>36 && dataSnapshot.getValue().toString().substring(0, 35).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) getMessage.setText(dataSnapshot.getValue().toString().substring(36));
                     else getMessage.setText(dataSnapshot.getValue().toString());
 
 
@@ -111,12 +111,13 @@ public class ChatActivity extends AppCompatActivity {
         if(SendMessage.getText().toString().equals(lastMessage)){
             myFirebaseRef.child(emailWith).child(myEmail).setValue("cbd9b0a2-d183-45ee-9582-27df3020ff65"+SendMessage.getText().toString());
         }
-        myFirebaseRef.child(emailWith).child(myEmail).setValue(SendMessage.getText().toString());
+        else myFirebaseRef.child(emailWith).child(myEmail).setValue(SendMessage.getText().toString());
         se.putString("lastMessage", SendMessage.getText().toString()).commit();
         SendMessage.setText("");
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
     }
+
 
 
 
