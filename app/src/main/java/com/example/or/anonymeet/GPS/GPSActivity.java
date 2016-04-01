@@ -107,11 +107,13 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
     @TargetApi(Build.VERSION_CODES.M)
     private void checkForPermission() {
-        int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
-        if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    0);
-            return;
+        if ((int)Build.VERSION.SDK_INT > 23) {
+            int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        0);
+                return;
+            }
         }
     }
 
