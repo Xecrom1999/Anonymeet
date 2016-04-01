@@ -119,6 +119,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
+
     public boolean isActive(){
         return active;
     }
