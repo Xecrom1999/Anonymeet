@@ -24,6 +24,12 @@ import com.example.or.anonymeet.R;
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.security.token.TokenGenerator;
+
+import org.apache.commons.codec.binary.Base64;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A login screen that offers login via email/password.
@@ -89,6 +95,29 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
         final String email = mEmailView.getText().toString();
         final String password = mPasswordView.getText().toString();
 
+        /*HashMap<String, Object> map = new HashMap<String, Object>();
+
+        map.put("uid", "1000");
+        map.put("username", "arielgamrian");
+        map.put("gender", "male");
+
+        String secret = "PcE91WRWFkejynixYnJBSykBgNBlbSoVvOXeVZkc";
+
+        TokenGenerator tokenGenerator = new TokenGenerator(secret);
+        String token = tokenGenerator.createToken(map);
+
+        users.authWithCustomToken(token, new Firebase.AuthResultHandler() {
+            @Override
+            public void onAuthenticated(AuthData authData) {
+                Toast.makeText(getApplicationContext(), "Good", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationError(FirebaseError firebaseError) {
+                Toast.makeText(getApplicationContext(), "Bad", Toast.LENGTH_SHORT).show();
+            }
+        });*/
+
         if (checkBox.isChecked())
             users.createUser(email, password, this);
         else {
@@ -145,7 +174,6 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
 
         final String email = mEmailView.getText().toString();
         final String password = mPasswordView.getText().toString();
-
 
         Intent intent = new Intent(getApplicationContext(), GPSActivity.class);
         intent.putExtra("userName", email);
