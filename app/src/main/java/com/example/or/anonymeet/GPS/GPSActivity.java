@@ -71,9 +71,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gps_activity);
-
         checkForPermission();
-
         Intent i = new Intent(this, MyService.class);
         startService(i);
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
