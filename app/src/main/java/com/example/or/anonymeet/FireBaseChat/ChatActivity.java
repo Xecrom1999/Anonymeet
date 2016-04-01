@@ -1,5 +1,6 @@
 package com.example.or.anonymeet.FireBaseChat;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,7 +25,7 @@ import com.firebase.client.ValueEventListener;
 public class ChatActivity extends AppCompatActivity {
 
     Firebase myFirebaseRef;
-    String emailWith;
+    static String emailWith;
     String myEmail;
     EditText SendMessage;
     TextView getMessage;
@@ -32,8 +33,10 @@ public class ChatActivity extends AppCompatActivity {
     DB myDB;
     SharedPreferences preferences;
     SharedPreferences.Editor se;
-    boolean active;
     String lastMessage;
+    static boolean active;
+    Context context;
+
 
     @Override
     protected void onStart() {
@@ -43,6 +46,7 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+
         active = false;
         super.onDestroy();
     }
@@ -53,24 +57,38 @@ public class ChatActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    public static boolean isActive(){
+        return active;
+    }
+    public static String userWith(){
+        return emailWith;
+    }
+
     @Override
     protected void onStop() {
         active = false;
         super.onStop();
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        Intent i = new Intent(this, MyService.class);
+        startService(i);
         Firebase.setAndroidContext(this);
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        context = this;
+        emailWith = getIntent().getStringExtra("usernameTo");
+        Log.d("hiiiiiiiiiii", emailWith);
+        emailWith = emailWith.substring(0, emailWith.indexOf('.'));
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();
-        lastMessage = preferences.getString("lastMessage","");
+        lastMessage = preferences.getString("lastMessage", "");
         myEmail = preferences.getString("email", "");
         myEmail = myEmail.substring(0, myEmail.indexOf('.'));
-        emailWith = getIntent().getStringExtra("username");
-        emailWith = emailWith.substring(0, emailWith.indexOf('.'));
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         SendMessage = (EditText)findViewById(R.id.sendMessage);
         getMessage = (TextView)findViewById(R.id.getMessage);
@@ -114,12 +132,13 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-    public boolean isActive(){
-        return active;
-    }
-    public String getEmailWith(){
-        return emailWith;
-    }
+
+
+
+
+
+
+
 
 
 

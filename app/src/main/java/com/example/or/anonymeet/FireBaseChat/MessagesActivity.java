@@ -1,26 +1,16 @@
 package com.example.or.anonymeet.FireBaseChat;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Toast;
 
 import com.example.or.anonymeet.R;
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-
-import java.util.ArrayList;
 
 public class MessagesActivity extends AppCompatActivity {
 
@@ -43,10 +33,10 @@ public class MessagesActivity extends AppCompatActivity {
         DB myDB = new DB(this);
         db = myDB.getWritableDatabase();
         recyclerAdapter = new RecyclerAdapter(this, myDB);
-        recyclerAdapter.SetOnItemClickListener(new OnItemClickListener() {
+        recyclerAdapter.SetOnItemClickListener(new myListener() {
             @Override
             public void onItemClick(View view, int position, String name) {
-                Intent myintent = new Intent(context, ChatActivity.class).putExtra("username", recyclerAdapter.contacts.get(position).name);
+                Intent myintent = new Intent(context, ChatActivity.class).putExtra("usernameTo", recyclerAdapter.contacts.get(position).name);
                 startActivity(myintent);
 
             }

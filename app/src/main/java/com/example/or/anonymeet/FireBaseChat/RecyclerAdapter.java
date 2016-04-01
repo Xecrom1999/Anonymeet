@@ -1,17 +1,12 @@
 package com.example.or.anonymeet.FireBaseChat;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -41,7 +36,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     DB myDB;
     SQLiteDatabase db;
     View v;
-    OnItemClickListener mItemClickListener;
+    myListener mItemClickListener;
 
 
     public final static String EXTRA_MESSAGE = "com.mycompany.myfirstapp.MESSAGE";
@@ -111,7 +106,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
         return this.contacts.size();
     }
 
-    public void SetOnItemClickListener(final OnItemClickListener mItemClickListener) {
+    public void SetOnItemClickListener(final myListener mItemClickListener) {
         this.mItemClickListener = mItemClickListener;
     }
 
@@ -135,11 +130,11 @@ class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListen
     ImageView image;
     RecyclerAdapter recyclerAdapter;
     ArrayList<Contact> contacts;
-    OnItemClickListener mItemClickListener;
+    myListener mItemClickListener;
     TextView name;
     int position;
 
-    public MyViewHolder(View v, ArrayList<Contact> c, final RecyclerAdapter r, OnItemClickListener m){
+    public MyViewHolder(View v, ArrayList<Contact> c, final RecyclerAdapter r, myListener m){
         super(v);
         recyclerAdapter = r;
         contacts = c;
@@ -159,14 +154,14 @@ class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-        mItemClickListener.onItemClick(v, getPosition(), name.getText().toString()); //OnItemClickListener mItemClickListener;
+        mItemClickListener.onItemClick(v, getPosition(), name.getText().toString());
     }
 
 
 
 }
 
-   interface OnItemClickListener {
+   interface myListener {
     public void onItemClick(View view , int position, String name);
 
 }

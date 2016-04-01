@@ -56,6 +56,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         boolean gender;
         String usernameTo;
 
+
         public ViewHolder(View itemView) {
             super(itemView);
 

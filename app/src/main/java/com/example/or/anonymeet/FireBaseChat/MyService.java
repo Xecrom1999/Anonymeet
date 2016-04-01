@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -20,7 +21,11 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
-public class MyService extends IntentService {
+public class MyService extends IntentService{
+
+    boolean activityOn;
+    String userWith;
+
     public MyService() {
         super("myService");
     }
@@ -28,12 +33,13 @@ public class MyService extends IntentService {
 
     @Override
     public void onCreate() {
-
-        super.onCreate();
     }
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
+        Log.d("hiiiiiiiiiiiiiii", "started");
+        activityOn = false;
+
         final NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
         String myEmail = preferences.getString("email", "");
@@ -48,21 +54,23 @@ public class MyService extends IntentService {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Log.d("hiiiiiiiiiiiiiiiiii", "Service got");
-                Notification.Builder n = new Notification.Builder(getApplicationContext())
-                        .setContentTitle("New message from a " + "")
-                        .setContentText(dataSnapshot.getValue().toString())
-                        .setSmallIcon(R.drawable.contact)
-                        .setAutoCancel(true)
-                        .setTicker("hiiiiii")
-                        .setDefaults(NotificationCompat.DEFAULT_SOUND);
-                TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
-                Intent i = new Intent(getApplicationContext(), MessagesActivity.class);
-                t.addParentStack(MessagesActivity.class);
-                t.addNextIntent(i);
-                PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-                n.setContentIntent(pendingIntent);
-                nm.notify(0, n.build());
+
+                if (!(ChatActivity.isActive() && ChatActivity.emailWith.equals(dataSnapshot.getKey().toString()))) {
+                    Notification.Builder n = new Notification.Builder(getApplicationContext())
+                            .setContentTitle("New message from a " + "")
+                            .setContentText(dataSnapshot.getValue().toString())
+                            .setSmallIcon(R.drawable.contact)
+                            .setAutoCancel(true)
+                            .setTicker("hiiiiii")
+                            .setDefaults(NotificationCompat.DEFAULT_SOUND);
+                    TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
+                    Intent i = new Intent(getApplicationContext(), MessagesActivity.class);
+                    t.addParentStack(MessagesActivity.class);
+                    t.addNextIntent(i);
+                    PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                    n.setContentIntent(pendingIntent);
+                    nm.notify(0, n.build());
+                }
             }
 
             @Override
@@ -101,4 +109,6 @@ public class MyService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Log.d("hiiiiiiiiiiiiiiiiii", "onHandleIntent");
     }
+
+
 }
