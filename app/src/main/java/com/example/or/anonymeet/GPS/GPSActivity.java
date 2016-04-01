@@ -23,7 +23,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
@@ -36,7 +35,6 @@ import com.firebase.client.MutableData;
 import com.firebase.client.Transaction;
 import com.firebase.client.ValueEventListener;
 import com.firebase.ui.FirebaseListAdapter;
-import com.firebase.ui.FirebaseRecyclerViewAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -64,7 +62,6 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     LocationManager lm;
     RecyclerView peopleList;
     PeopleListAdapter adapter;
-    FirebaseListAdapter listAdapter;
     String childName;
 
     @Override
@@ -100,9 +97,6 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         peopleList.setLayoutManager(new LinearLayoutManager(this));
         peopleList.setHasFixedSize(true);
         peopleList.setAdapter(adapter);
-
-        //listAdapter = new FirebasePeopleListAdapter(this, String.class, R.layout.people_list_item, onlineUsers, this);
-        //peopleList.setAdapter(listAdapter);
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -258,8 +252,23 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-        onlineUsers.child(childName).child("longitude").setValue(location.getLongitude());
-        onlineUsers.child(childName).child("latitude").setValue(location.getLatitude());
+
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+
+        onlineUsers.child(childName).child("latitude").setValue(latitude);
+        onlineUsers.child(childName).child("longitude").setValue(longitude);
+
+        Address address = null;
+        Geocoder geocoder = new Geocoder(getApplicationContext());
+
+        try {
+            address = geocoder.getFromLocation(latitude, longitude, 1).get(0);
+        } catch (IOException e1) {
+        }
+
+        if (address != null)
+        onlineUsers.child(childName).child("address").setValue(address.getAddressLine(0));
     }
 
     @Override
@@ -279,37 +288,16 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
         Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
 
-        Collection<String> namesList = new ArrayList<String>();
-        Collection<String> addressesList = new ArrayList<String>();
+        if (iter != null) {
+            Collection<String> namesList = new ArrayList<String>();
+            Collection<String> addressesList = new ArrayList<String>();
 
-        for (DataSnapshot item : iter) {
-            Geocoder geocoder = new Geocoder(getApplicationContext());
-            double lat = 0;
-            double longt = 0;
-            try {
-                lat = (double) item.child("latitude").getValue();
-                longt = (double) item.child("longitude").getValue();
-            } catch (NullPointerException e) {
+            for (DataSnapshot item : iter) {
+                namesList.add(item.getKey().toString());
+                addressesList.add(item.child("address").getValue().toString());
             }
-
-            namesList.add(item.getKey().toString());
-
-            Address address = null;
-
-            try {
-                address = geocoder.getFromLocation(lat, longt, 1).get(0);
-                addressesList.add(address.getAddressLine(0));
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (IndexOutOfBoundsException e) {
-
-            } catch (NullPointerException e) {
-            }
+            adapter.update(namesList, addressesList);
         }
-
-
-        adapter.update(namesList, addressesList);
-
     }
 
     public void onCancelled(FirebaseError firebaseError) {

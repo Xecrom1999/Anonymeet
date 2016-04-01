@@ -97,7 +97,7 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
 
         /*HashMap<String, Object> map = new HashMap<String, Object>();
 
-        map.put("uid", "1000");
+        map.put("uid", "123456");
         map.put("username", "arielgamrian");
         map.put("gender", "male");
 
