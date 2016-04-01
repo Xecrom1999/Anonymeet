@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -78,23 +79,13 @@ public class ChatActivity extends AppCompatActivity {
         String selectQuery = "SELECT * FROM "+myDB.TABLE_NAME+" WHERE "+myDB.USER+"='"+emailWith+"';";
         Cursor cursor = db.rawQuery(selectQuery, null);
         cursor.moveToFirst();
-        myFirebaseRef.authWithPassword("bobtony@firebase.com", "correcthorsebatterystaple", new Firebase.AuthResultHandler() {
-            @Override
-            public void onAuthenticated(AuthData authData) {
-                System.out.println("User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
-            }
-
-            @Override
-            public void onAuthenticationError(FirebaseError firebaseError) {
-                // there was an error
-            }
-        });
         myFirebaseRef.child(myEmail).child(emailWith).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
-                    if(dataSnapshot.getValue().toString().length()>36 && dataSnapshot.getValue().toString().substring(0, 35).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) getMessage.setText(dataSnapshot.getValue().toString().substring(36));
-                    else getMessage.setText(dataSnapshot.getValue().toString());
+                if(dataSnapshot.getValue().toString().length()>36)
+                Log.d("hiiiiiiiiiiiiiiiiiiii", dataSnapshot.getValue().toString().substring(0, 35));
+                if(dataSnapshot.getValue().toString().length()>36 && dataSnapshot.getValue().toString().substring(0, 35).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) getMessage.setText(dataSnapshot.getValue().toString().substring(36));
+                else getMessage.setText(dataSnapshot.getValue().toString());
 
 
             }
@@ -108,6 +99,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     public void onClick(View view){
+        lastMessage = preferences.getString("lastMessage","");
         if(SendMessage.getText().toString().equals(lastMessage)){
             myFirebaseRef.child(emailWith).child(myEmail).setValue("cbd9b0a2-d183-45ee-9582-27df3020ff65"+SendMessage.getText().toString());
         }

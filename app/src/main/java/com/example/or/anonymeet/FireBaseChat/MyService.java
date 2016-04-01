@@ -50,8 +50,8 @@ public class MyService extends IntentService {
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.d("hiiiiiiiiiiiiiiiiii", "Service got");
                 Notification.Builder n = new Notification.Builder(getApplicationContext())
-                        .setContentTitle("New mail from " + "test@gmail.com")
-                        .setContentText("Subject")
+                        .setContentTitle("New message from a " + "")
+                        .setContentText(dataSnapshot.getValue().toString())
                         .setSmallIcon(R.drawable.contact)
                         .setAutoCancel(true)
                         .setTicker("hiiiiii")
