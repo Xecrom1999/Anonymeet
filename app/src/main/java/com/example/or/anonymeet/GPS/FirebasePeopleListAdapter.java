@@ -19,10 +19,10 @@ public class FirebasePeopleListAdapter extends FirebaseRecyclerViewAdapter<Strin
 
     ArrayList<String> userNames;
     ArrayList<String> addresses;
-    ListListener listener;
+    ListListener listener;Query ref;
 
     public FirebasePeopleListAdapter(Query ref, Class<String> modelClass) {
-        super(ref, modelClass);
+        super(ref, modelClass);this.ref = ref;
     }
 
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -37,7 +37,7 @@ public class FirebasePeopleListAdapter extends FirebaseRecyclerViewAdapter<Strin
         String name = userNames.get(position);
         holder.usernameTo = name;
         holder.name_text.setText(name);
-        if (addresses.size() < 0 )holder.address_text.setText(addresses.get(position));
+        if (addresses.size() > 0 )holder.address_text.setText(addresses.get(position));
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

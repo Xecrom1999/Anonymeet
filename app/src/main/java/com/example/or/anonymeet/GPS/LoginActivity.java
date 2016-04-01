@@ -95,9 +95,9 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
         final String email = mEmailView.getText().toString();
         final String password = mPasswordView.getText().toString();
 
-        /*HashMap<String, Object> map = new HashMap<String, Object>();
+        HashMap<String, Object> map = new HashMap<String, Object>();
 
-        map.put("uid", "1000");
+        map.put("uid", "123456");
         map.put("username", "arielgamrian");
         map.put("gender", "male");
 
@@ -116,14 +116,14 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
             public void onAuthenticationError(FirebaseError firebaseError) {
                 Toast.makeText(getApplicationContext(), "Bad", Toast.LENGTH_SHORT).show();
             }
-        });*/
+        });
 
-        if (checkBox.isChecked())
+        /*if (checkBox.isChecked())
             users.createUser(email, password, this);
         else {
             users.authWithPassword(email, password, this);
             showProgress(true);
-        }
+        }*/
     }
 
     private void showProgress(final boolean show) {
