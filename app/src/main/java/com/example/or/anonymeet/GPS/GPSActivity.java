@@ -23,8 +23,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
 import com.example.or.anonymeet.FireBaseChat.MyService;
@@ -46,6 +44,7 @@ import com.google.android.gms.location.LocationServices;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Locale;
 
 public class GPSActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, ValueEventListener {
 
@@ -57,8 +56,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     private Location mCurrentLocation;
 
     private Firebase onlineUsers;
-    private String userId;
-    private ListView listView;
+    private String userName;
     private Toolbar toolbar;
     LocationManager lm;
     RecyclerView peopleList;
@@ -80,21 +78,23 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         lm = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
-        userId = getIntent().getStringExtra("userId");
+        userName = getIntent().getStringExtra("userName");
+        userName = userName.substring(0, userName.indexOf('@'));
 
         buildGoogleApiClient();
-
-        listView = (ListView) findViewById(R.id.listView);
 
         onlineUsers.addValueEventListener(this);
 
         locationProvider();
+
+        initializeList();
     }
 
-    private void intializeList() {
+    private void initializeList() {
         peopleList = (RecyclerView) findViewById(R.id.peopleList);
         adapter = new PeopleListAdapter();
         peopleList.setLayoutManager(new LinearLayoutManager(this));
+        peopleList.setHasFixedSize(true);
         peopleList.setAdapter(adapter);
     }
 
@@ -106,14 +106,13 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
                     0);
             return;
         }
-
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 0)
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 } else {
-                    Snackbar.make(listView, "Location Permission Denied", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(peopleList, "Location Permission Denied", Snackbar.LENGTH_SHORT).show();
                 }
     }
 
@@ -220,7 +219,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     protected void onStop() {
         mGoogleApiClient.disconnect();
 
-        onlineUsers.child(userId).runTransaction(new Transaction.Handler() {
+        onlineUsers.child(userName).runTransaction(new Transaction.Handler() {
             public Transaction.Result doTransaction(MutableData mutableData) {
                 mutableData.setValue(null);
                 return Transaction.success(mutableData);
@@ -248,8 +247,8 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
             @Override
             public void onLocationChanged(Location location) {
                 mCurrentLocation = location;
-                onlineUsers.child(userId).child("longitude").setValue(location.getLongitude());
-                onlineUsers.child(userId).child("latitude").setValue(location.getLatitude());
+                onlineUsers.child(userName).child("longitude").setValue(location.getLongitude());
+                onlineUsers.child(userName).child("latitude").setValue(location.getLatitude());
             }
 
             @Override
@@ -269,7 +268,9 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
         Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
 
-        Collection<String> list = new ArrayList<String>();
+        Collection<String> namesList = new ArrayList<String>();
+        Collection<String> addressesList = new ArrayList<String>();
+
         for (DataSnapshot item : iter) {
             Geocoder geocoder = new Geocoder(getApplicationContext());
             double lat = 0;
@@ -280,18 +281,23 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
             } catch (NullPointerException e) {
 
             }
+
+            namesList.add(item.getKey().toString());
+
             Address address = null;
+
             try {
                 address = geocoder.getFromLocation(lat, longt, 1).get(0);
-                list.add(address.getAddressLine(0));
+                addressesList.add(address.getAddressLine(0));
             } catch (IOException e) {
-            } catch (IndexOutOfBoundsException er) {
+                e.printStackTrace();
+            } catch (IndexOutOfBoundsException e) {
+
+            } catch (NullPointerException e) {
+
             }
         }
-        final String[] arr = list.toArray(new String[list.size()]);
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.select_dialog_item, arr);
-        listView.setAdapter(adapter);
+        adapter.update(namesList, addressesList);
     }
 
     public void onCancelled(FirebaseError firebaseError) {

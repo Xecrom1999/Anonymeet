@@ -37,7 +37,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".FireBaseChat.MessagesActivity" />
+        <activity android:name=".FireBaseChat.MessagesActivity"
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".GPS.GPSActivity"
             android:screenOrientation="portrait"

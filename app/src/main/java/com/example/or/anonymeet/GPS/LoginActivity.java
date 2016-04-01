@@ -36,7 +36,6 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
     private View mLoginFormView;
     CheckBox checkBox;
     Firebase users;
-    boolean isLoggedIn;
     SharedPreferences preferences;
     Toolbar toolbar;
 
@@ -68,14 +67,12 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
         checkBox = (CheckBox) findViewById(R.id.checkbox);
 
         preferences = getSharedPreferences("data", MODE_PRIVATE);
-        isLoggedIn = preferences.getBoolean("isLoggedIn", false);
-        if (isLoggedIn) {
+
             String email = preferences.getString("email", "");
             String password = preferences.getString("password", "");
 
             mEmailView.setText(email);
             mPasswordView.setText(password);
-        }
 
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -149,13 +146,10 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
         final String email = mEmailView.getText().toString();
         final String password = mPasswordView.getText().toString();
 
-
         Intent intent = new Intent(getApplicationContext(), GPSActivity.class);
-        intent.putExtra("userId", authData.getUid());
+        intent.putExtra("userName", authData.getProviderData().get("email").toString());
         startActivity(intent);
-        isLoggedIn = true;
         SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
-        editor.putBoolean("isLoggedIn", true);
         editor.putString("email", email);
         editor.putString("password", password);
         editor.commit();

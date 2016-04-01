@@ -9,18 +9,22 @@ import android.widget.TextView;
 import com.example.or.anonymeet.R;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
-/**
- * Created by gamrian on 01/04/2016.
- */
 public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.ViewHolder> {
 
     ArrayList<String> names;
     ArrayList<String> addresses;
 
-    public void update(ArrayList<String> names, ArrayList<String> addresses) {
-        this.names = names;
-        this.addresses = addresses;
+    public PeopleListAdapter() {
+        names = new ArrayList<>();
+        addresses = new ArrayList<>();
+    }
+
+    public void update(Collection<String> names, Collection<String> addresses) {
+        this.names = (ArrayList<String>) names;
+        this.addresses = (ArrayList<String>) addresses;
+        notifyDataSetChanged();
     }
 
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
