@@ -1,6 +1,7 @@
 package com.example.or.anonymeet.GPS;
 
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -25,13 +26,19 @@ public class FirebasePeopleListAdapter extends FirebaseRecyclerViewAdapter<Strin
     }
 
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return null;
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.people_list_item, parent, false);
+
+        ViewHolder viewHolder = new ViewHolder(view);
+
+        return viewHolder;
     }
 
     public void onBindViewHolder(ViewHolder holder, int position) {
-
+        String name = userNames.get(position);
+        holder.usernameTo = name;
+        holder.name_text.setText(name);
+        if (addresses.size() < 0 )holder.address_text.setText(addresses.get(position));
     }
-
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 

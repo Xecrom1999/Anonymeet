@@ -42,7 +42,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         String name = userNames.get(position);
         holder.usernameTo = name;
         holder.name_text.setText(name);
-        holder.address_text.setText(addresses.get(position));
+        if (addresses.size() > 0) holder.address_text.setText(addresses.get(position));
     }
 
     public int getItemCount() {
