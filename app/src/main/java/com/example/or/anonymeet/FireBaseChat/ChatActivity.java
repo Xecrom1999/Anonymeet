@@ -118,6 +118,7 @@ public class ChatActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
     }
 
+
     public boolean isActive(){
         return active;
     }
