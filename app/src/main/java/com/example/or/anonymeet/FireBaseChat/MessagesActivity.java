@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.example.or.anonymeet.GPS.GPSActivity;
 import com.example.or.anonymeet.R;
 
 public class MessagesActivity extends AppCompatActivity {
@@ -20,6 +21,19 @@ public class MessagesActivity extends AppCompatActivity {
     Context context;
     SharedPreferences preferences;
     android.support.v4.app.FragmentTransaction transaction;
+
+    @Override
+    public void onBackPressed() {
+        if(GPSActivity.isActive()){
+            finish();
+        }
+        else{
+            Intent i = new Intent(this, GPSActivity.class);
+            startActivity(i);
+        }
+        super.onBackPressed();
+    }
+
     android.support.v4.app.Fragment f;
 
 
@@ -30,7 +44,7 @@ public class MessagesActivity extends AppCompatActivity {
         context = this;
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         recyclerView = (RecyclerView)findViewById(R.id.recycle);
-        DB myDB = new DB(this);
+        MessagesDB myDB = new MessagesDB(this);
         db = myDB.getWritableDatabase();
         recyclerAdapter = new RecyclerAdapter(this, myDB);
         recyclerAdapter.SetOnItemClickListener(new myListener() {

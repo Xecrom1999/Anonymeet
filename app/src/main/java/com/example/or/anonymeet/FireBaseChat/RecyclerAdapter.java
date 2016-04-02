@@ -33,16 +33,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     ArrayList<Contact> contacts;
     LayoutInflater inflater;
-    DB myDB;
+    MessagesDB myDB;
     SQLiteDatabase db;
     View v;
     myListener mItemClickListener;
-
-
-    public final static String EXTRA_MESSAGE = "com.mycompany.myfirstapp.MESSAGE";
     Context context;
 
-    public RecyclerAdapter(Context con, DB d){
+    public RecyclerAdapter(Context con, MessagesDB d){
 
         context = con;
         inflater = LayoutInflater.from(context);
@@ -50,7 +47,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
         db = myDB.getWritableDatabase();
         contacts = new ArrayList<Contact>();
         String[] columns = {myDB.USER};
-        Cursor cursor = db.query(myDB.TABLE_NAME, columns, null, null, null, null, null);
+        Cursor cursor = db.query(myDB.TABLE_NAME_CONV, columns, null, null, null, null, null);
         Contact contact;
         String user;
         for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
@@ -65,7 +62,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     public void syncContacts(){
         contacts = new ArrayList<Contact>();
         String[] columns = {myDB.USER};
-        Cursor cursor = db.query(myDB.TABLE_NAME, columns, null, null, null, null, null);
+        Cursor cursor = db.query(myDB.TABLE_NAME_CONV, columns, null, null, null, null, null);
         Contact contact;
         String user;
         for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
@@ -113,7 +110,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
     public void delete(int position){
 
         String contactName = contacts.get(position).name;
-        db.delete(myDB.TABLE_NAME, myDB.USER + "='" + contactName + "'", null);
+        db.delete(myDB.TABLE_NAME_CONV, myDB.USER + "='" + contactName + "'", null);
         contacts.remove(position);
         if (contacts.size() == 1) {
             notifyDataSetChanged();

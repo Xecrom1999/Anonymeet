@@ -60,6 +60,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     private String userName;
     private Toolbar toolbar;
     LocationManager lm;
+    static boolean active;
     RecyclerView peopleList;
     PeopleListAdapter adapter;
     String childName;
@@ -109,6 +110,10 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
                 return;
             }
         }
+    }
+
+    public static boolean isActive(){
+        return active;
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -200,6 +205,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     @Override
     protected void onStart() {
         super.onStart();
+        active = true;
         mGoogleApiClient.connect();
     }
 
@@ -224,7 +230,6 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     @Override
     protected void onStop() {
         mGoogleApiClient.disconnect();
-
         onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
             public Transaction.Result doTransaction(MutableData mutableData) {
                 mutableData.setValue(null);
@@ -235,6 +240,12 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
             }
         });
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        active = false;
+        super.onDestroy();
     }
 
     @Override
@@ -256,9 +267,6 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
 
-        onlineUsers.child(childName).child("latitude").setValue(latitude);
-        onlineUsers.child(childName).child("longitude").setValue(longitude);
-
         Address address = null;
         Geocoder geocoder = new Geocoder(getApplicationContext());
 
@@ -268,7 +276,12 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         }
 
         if (address != null)
-        onlineUsers.child(childName).child("address").setValue(address.getAddressLine(0));
+            onlineUsers.child(childName).child("address").setValue(address.getAddressLine(0));
+
+        onlineUsers.child(childName).child("latitude").setValue(latitude);
+        onlineUsers.child(childName).child("longitude").setValue(longitude);
+
+
     }
 
     @Override

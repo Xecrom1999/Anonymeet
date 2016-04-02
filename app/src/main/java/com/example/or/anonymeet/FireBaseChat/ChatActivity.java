@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.or.anonymeet.R;
-import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -30,12 +29,13 @@ public class ChatActivity extends AppCompatActivity {
     EditText SendMessage;
     TextView getMessage;
     SQLiteDatabase db;
-    DB myDB;
+    MessagesDB myDB;
     SharedPreferences preferences;
     SharedPreferences.Editor se;
     String lastMessage;
     static boolean active;
     Context context;
+
 
 
     @Override
@@ -86,22 +86,28 @@ public class ChatActivity extends AppCompatActivity {
         emailWith = emailWith.substring(0, emailWith.indexOf('.'));
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();
+
         lastMessage = preferences.getString("lastMessage", "");
         myEmail = preferences.getString("email", "");
         myEmail = myEmail.substring(0, myEmail.indexOf('.'));
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         SendMessage = (EditText)findViewById(R.id.sendMessage);
         getMessage = (TextView)findViewById(R.id.getMessage);
-        myDB = new DB(this);
+        myDB = new MessagesDB(this);
         db = myDB.getWritableDatabase();
-        String selectQuery = "SELECT * FROM "+myDB.TABLE_NAME+" WHERE "+myDB.USER+"='"+emailWith+"';";
-        Cursor cursor = db.rawQuery(selectQuery, null);
-        cursor.moveToFirst();
+        myFirebaseRef.child(myEmail).child(emailWith).setValue("j");
         myFirebaseRef.child(myEmail).child(emailWith).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.getValue().toString().length()>36 && dataSnapshot.getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) getMessage.setText(dataSnapshot.getValue().toString().substring(36));
-                else getMessage.setText(dataSnapshot.getValue().toString());
+                if(dataSnapshot.getValue().toString().length()>36 && dataSnapshot.getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")){
+                    getMessage.setText(dataSnapshot.getValue().toString().substring(36));
+                    myDB.insertMessage(emailWith, dataSnapshot.getValue().toString().substring(36));
+                }
+                else {
+                    getMessage.setText(dataSnapshot.getValue().toString());
+                    myDB.insertMessage(emailWith, dataSnapshot.getValue().toString());
+                }
+
 
 
             }
@@ -115,7 +121,8 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     public void onClick(View view){
-        lastMessage = preferences.getString("lastMessage","");
+        lastMessage = preferences.getString("lastMessage", "");
+        myDB.insertMessage(emailWith, SendMessage.getText().toString());
         if(SendMessage.getText().toString().equals(lastMessage)){
             String message = "cbd9b0a2-d183-45ee-9582-27df3020ff65"+SendMessage.getText().toString();
             myFirebaseRef.child(emailWith).child(myEmail).setValue(message);
@@ -127,6 +134,8 @@ public class ChatActivity extends AppCompatActivity {
         SendMessage.setText("");
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
+
+
     }
 
 

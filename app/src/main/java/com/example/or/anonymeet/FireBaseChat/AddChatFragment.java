@@ -1,15 +1,8 @@
 package com.example.or.anonymeet.FireBaseChat;
 
 
-import android.app.FragmentTransaction;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +19,7 @@ public class AddChatFragment extends Fragment {
 
     EditText user;
     ImageButton add;
-    DB myDB;
+    MessagesDB myDB;
     android.support.v4.app.FragmentTransaction ft;
     Fragment ownF;
     RecyclerAdapter recyclerAdapter;
@@ -45,14 +38,14 @@ public class AddChatFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_add_chat, container, false);
         ownF = this;
-        myDB = new DB(getActivity());
+        myDB = new MessagesDB(getActivity());
         user = (EditText)v.findViewById(R.id.userToAdd);
         add = (ImageButton)v.findViewById(R.id.addUser);
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!user.getText().toString().equals("")){
-                    myDB.insert(user.getText().toString());
+                    myDB.insertUser(user.getText().toString());
                     recyclerAdapter.syncContacts();
                     ft = getFragmentManager().beginTransaction();
                     ft.remove(ownF);
