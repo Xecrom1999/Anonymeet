@@ -45,7 +45,7 @@ public class AddChatFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(!user.getText().toString().equals("")){
-                    myDB.insertUser(user.getText().toString());
+                    myDB.insertUser(user.getText().toString().substring(0, user.getText().toString().indexOf('.')));
                     recyclerAdapter.syncContacts();
                     ft = getFragmentManager().beginTransaction();
                     ft.remove(ownF);

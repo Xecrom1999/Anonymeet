@@ -97,7 +97,6 @@ public class MyService extends IntentService{
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("hiiiiiiiiiiiiiiiiii", "onBind");
         return null;
     }
 
@@ -108,7 +107,7 @@ public class MyService extends IntentService{
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d("hiiiiiiiiiiiiiiiiii", "onHandleIntent");
+
     }
 
 

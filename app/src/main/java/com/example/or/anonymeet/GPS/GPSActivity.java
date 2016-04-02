@@ -297,7 +297,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         startActivity(new Intent(this, MessagesActivity.class));
     }
 
-    public void onDataChange(DataSnapshot dataSnapshot) {
+    /* public void onDataChange(DataSnapshot dataSnapshot) {
 
         Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
 
@@ -311,6 +311,11 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
             }
             adapter.update(namesList, addressesList);
         }
+    } */
+
+    @Override
+    public void onDataChange(DataSnapshot dataSnapshot) {
+
     }
 
     public void onCancelled(FirebaseError firebaseError) {

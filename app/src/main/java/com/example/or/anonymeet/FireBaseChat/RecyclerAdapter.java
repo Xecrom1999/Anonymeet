@@ -80,7 +80,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
         v = inflater.inflate(R.layout.item_recycle_view, parent, false);
 
 
-        MyViewHolder viewHolder = new MyViewHolder(v, contacts, this, mItemClickListener);
+        MyViewHolder viewHolder = new MyViewHolder(v, this, mItemClickListener);
         return viewHolder;
     }
 
@@ -126,15 +126,13 @@ class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListen
 
     ImageView image;
     RecyclerAdapter recyclerAdapter;
-    ArrayList<Contact> contacts;
     myListener mItemClickListener;
     TextView name;
     int position;
 
-    public MyViewHolder(View v, ArrayList<Contact> c, final RecyclerAdapter r, myListener m){
+    public MyViewHolder(View v, final RecyclerAdapter r, myListener m){
         super(v);
         recyclerAdapter = r;
-        contacts = c;
         image = (ImageView) v.findViewById(R.id.contactImage);
         name = (TextView) v.findViewById(R.id.contactName);
         mItemClickListener = m;
