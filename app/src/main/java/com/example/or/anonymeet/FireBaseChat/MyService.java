@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.example.or.anonymeet.GPS.GPSActivity;
 import com.example.or.anonymeet.R;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -45,9 +46,14 @@ public class MyService extends IntentService{
     }
 
     @Override
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
+        isActive = true;
+    }
+
+    @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         Log.d("hiiiiiiiiiiiiiii", "started");
-        isActive = true;
         activityOn = false;
         myDB = new MessagesDB(this);
         db = myDB.getWritableDatabase();
@@ -88,8 +94,9 @@ public class MyService extends IntentService{
                             .setTicker("hiiiiii")
                             .setDefaults(NotificationCompat.DEFAULT_SOUND);
                     TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
-                    Intent i = new Intent(getApplicationContext(), MessagesActivity.class);
-                    t.addParentStack(MessagesActivity.class);
+                    Intent i = new Intent(getApplicationContext(), GPSActivity.class);
+                    i.putExtra("fromNoti", true);
+                    t.addParentStack(GPSActivity.class);
                     t.addNextIntent(i);
                     PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
                     n.setContentIntent(pendingIntent);

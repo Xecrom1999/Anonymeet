@@ -105,20 +105,22 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     public void onClick(View view){
-        lastMessage = preferences.getString("lastMessage", "");
-        myDB.insertMessage(emailWith, SendMessage.getText().toString(), true);
-        recyclerAdapter.syncMessages();
-        if(SendMessage.getText().toString().equals(lastMessage)){
-            String message = "cbd9b0a2-d183-45ee-9582-27df3020ff65"+SendMessage.getText().toString();
-            myFirebaseRef.child(emailWith).child(myEmail).setValue(message);
-            se.putString("lastMessage", message).commit();
-        } else {
-            myFirebaseRef.child(emailWith).child(myEmail).setValue(SendMessage.getText().toString());
-            se.putString("lastMessage", SendMessage.getText().toString()).commit();
+        if(!SendMessage.getText().toString().equals("")) {
+            lastMessage = preferences.getString("lastMessage", "");
+            myDB.insertMessage(emailWith, SendMessage.getText().toString(), true);
+            recyclerAdapter.syncMessages();
+            if (SendMessage.getText().toString().equals(lastMessage)) {
+                String message = "cbd9b0a2-d183-45ee-9582-27df3020ff65" + SendMessage.getText().toString();
+                myFirebaseRef.child(emailWith).child(myEmail).setValue(message);
+                se.putString("lastMessage", message).commit();
+            } else {
+                myFirebaseRef.child(emailWith).child(myEmail).setValue(SendMessage.getText().toString());
+                se.putString("lastMessage", SendMessage.getText().toString()).commit();
+            }
+            SendMessage.setText("");
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
         }
-        SendMessage.setText("");
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
 
 
     }

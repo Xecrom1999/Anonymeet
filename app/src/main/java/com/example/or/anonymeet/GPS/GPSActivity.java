@@ -41,7 +41,6 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
     private String userName;
     private Toolbar toolbar;
     LocationManager lm;
-    static boolean active;
     RecyclerView peopleList;
     PeopleListAdapter adapter;
     static String childName;
@@ -51,9 +50,15 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gps_activity);
+        if(getIntent().getBooleanExtra("fromNoti", false)){
+            Intent i = new Intent(this, MessagesActivity.class);
+            startActivity(i);
+        }
         checkForPermission();
-        Intent i = new Intent(this, MyService.class);
-        startService(i);
+        if(!MyService.isActive) {
+            Intent i = new Intent(this, MyService.class);
+            startService(i);
+        }
 
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
         setSupportActionBar(toolbar);
@@ -99,9 +104,7 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
         }
     }
 
-    public static boolean isActive(){
-        return active;
-    }
+
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 0)

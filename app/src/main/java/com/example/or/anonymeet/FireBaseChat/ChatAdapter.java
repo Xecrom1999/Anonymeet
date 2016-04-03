@@ -41,7 +41,8 @@ public class ChatAdapter extends RecyclerView.Adapter<MessageViewHolder> {
     SQLiteDatabase db;
     String user;
     ArrayList<MyMessage> messages;
-    ViewGroup parent;
+    final int TypeIsMine = 0;
+    final int TypeNotMine = 1;
 
     public ChatAdapter(Context con, MessagesDB d, String u){
         context = con;
@@ -53,20 +54,28 @@ public class ChatAdapter extends RecyclerView.Adapter<MessageViewHolder> {
     }
 
     @Override
+    public int getItemViewType(int position) {
+        if(messages.get(position).isMine) return 0;
+        else return 1;
+    }
+
+
+
+    @Override
     public MessageViewHolder onCreateViewHolder(ViewGroup p, int viewType) {
 
-        parent = p;
         sendV = inflater.inflate(R.layout.send_chat_message, p, false);
         getV = inflater.inflate(R.layout.get_chat_message, p, false);
-        MessageViewHolder viewHolder = new MessageViewHolder(getV);
+        MessageViewHolder viewHolder;
+        if(viewType==TypeIsMine) viewHolder = new MessageViewHolder(sendV);
+        else viewHolder = new MessageViewHolder(getV);
+
         return viewHolder;
     }
 
 
     @Override
     public void onBindViewHolder(MessageViewHolder holder, int position) {
-      //  if(messages.get(position).isMine) holder = new MessageViewHolder(sendV);
-      //  else holder = new MessageViewHolder(getV);
         holder.message = new MyMessage(messages.get(position).message, messages.get(position).isMine);
         holder.text.setText(holder.message.message);
     }
