@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.IntentService;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -25,7 +24,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
@@ -66,7 +64,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     RecyclerView peopleList;
     PeopleListAdapter adapter;
     static String childName;
-    LocationListenerService listenerService;
+    Intent intent;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -99,7 +97,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     }
 
     private void startLocationService() {
-        Intent intent = new Intent(this, LocationListenerService.class);
+        intent = new Intent(getApplicationContext(), LocationListenerService.class);
         startService(intent);
     }
 
@@ -173,12 +171,26 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (item.getItemId() == R.id.logout_item) {
-            onlineUsers.unauth();
-            startActivity(new Intent(this, LoginActivity.class));
-        }
+        if (item.getItemId() == R.id.logout_item) onLogout();
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onLogout() {
+        onlineUsers.unauth();
+
+        stopService(intent);
+
+        onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                mutableData.setValue(null);
+                return Transaction.success(mutableData);
+            }
+
+            public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
+            }
+        });
+        startActivity(new Intent(this, LoginActivity.class));
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -241,7 +253,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     @Override
     protected void onStop() {
         //mGoogleApiClient.disconnect();
-        onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
+        /*onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
             public Transaction.Result doTransaction(MutableData mutableData) {
                 mutableData.setValue(null);
                 return Transaction.success(mutableData);
@@ -249,7 +261,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
             public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
             }
-        });
+        });*/
         super.onStop();
     }
 
@@ -292,7 +304,6 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         onlineUsers.child(childName).child("latitude").setValue(latitude);
         onlineUsers.child(childName).child("longitude").setValue(longitude);
 
-        Log.d("TAG", "Not good if see this");
     }
 
     @Override

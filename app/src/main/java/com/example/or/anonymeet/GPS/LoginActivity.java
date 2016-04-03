@@ -80,6 +80,8 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
                 return false;
             }
         });
+
+        if (users.getAuth() != null) attemptLogin();
     }
 
     public void initializeViews() {

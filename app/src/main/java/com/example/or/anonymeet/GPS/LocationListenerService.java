@@ -8,6 +8,7 @@ import android.app.IntentService;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 
 import com.example.or.anonymeet.FireBaseChat.MyService;
 import com.example.or.anonymeet.R;
+import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -42,7 +44,7 @@ import com.google.android.gms.location.LocationServices;
 import java.io.IOException;
 
 
-public class LocationListenerService extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener{
+public class LocationListenerService extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, Firebase.AuthStateListener {
 
     public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
@@ -51,26 +53,25 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     private LocationRequest mLocationRequest;
     private Location mCurrentLocation;
 
-    String childName;
+    private String childName;
 
-    Firebase onlineUsers;
-
-    public LocationListenerService(String childName) {
-        super("LocationListenerService");
-    }
+    private Firebase onlineUsers;
 
     public LocationListenerService() {
         super("LocationListenerService");
     }
 
+
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        childName = GPSActivity.getChildName();
-
-        Log.d("TAG", childName);
+        String email = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
+        childName = email.substring(0, email.indexOf('.'));
 
         onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
+
+        onlineUsers.addAuthStateListener(this);
 
         buildGoogleApiClient();
 
@@ -126,6 +127,18 @@ public class LocationListenerService extends IntentService implements GoogleApiC
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
 
+        Geocoder geocoder = new Geocoder(getApplicationContext());
+        Address address = null;
+
+        try {
+            address = geocoder.getFromLocation(latitude, longitude, 1).get(0);
+        } catch (IOException e1) {
+        } catch (NullPointerException e){
+        }
+
+        if (address != null)
+            onlineUsers.child(childName).child("address").setValue(address.getAddressLine(0));
+
         onlineUsers.child(childName).child("latitude").setValue(latitude);
         onlineUsers.child(childName).child("longitude").setValue(longitude);
 
@@ -154,4 +167,8 @@ public class LocationListenerService extends IntentService implements GoogleApiC
         Log.d("TAG", "buildGoogleApiClient()");
     }
 
+    public void onAuthStateChanged(AuthData authData) {
+        if (authData == null)
+        stopLocationUpdates();
+    }
 }
