@@ -50,7 +50,6 @@ public class ChatAdapter extends RecyclerView.Adapter<MessageViewHolder> {
         myDB = d;
         db = myDB.getWritableDatabase();
         messages = myDB.getMessagesOfUser(user);
-        messages.add(new MyMessage("hiiii", true));
     }
 
     @Override
@@ -59,7 +58,7 @@ public class ChatAdapter extends RecyclerView.Adapter<MessageViewHolder> {
         parent = p;
         sendV = inflater.inflate(R.layout.send_chat_message, p, false);
         getV = inflater.inflate(R.layout.get_chat_message, p, false);
-        MessageViewHolder viewHolder = new MessageViewHolder(sendV);
+        MessageViewHolder viewHolder = new MessageViewHolder(getV);
         return viewHolder;
     }
 
@@ -69,11 +68,12 @@ public class ChatAdapter extends RecyclerView.Adapter<MessageViewHolder> {
       //  if(messages.get(position).isMine) holder = new MessageViewHolder(sendV);
       //  else holder = new MessageViewHolder(getV);
         holder.message = new MyMessage(messages.get(position).message, messages.get(position).isMine);
+        holder.text.setText(holder.message.message);
     }
 
     public void syncMessages(){
         messages = myDB.getMessagesOfUser(user);
-        notifyItemInserted(messages.size()-1); //TODO: messages are not presented in chat activity
+        notifyDataSetChanged(); //TODO: messages are not presented in chat activity
         }
 
 
@@ -93,8 +93,6 @@ class MessageViewHolder extends RecyclerView.ViewHolder{
     public MessageViewHolder(View v){
         super(v);
         text = (TextView)v.findViewById(R.id.chat);
-        text.setText(message.message);
-
     }
 
 

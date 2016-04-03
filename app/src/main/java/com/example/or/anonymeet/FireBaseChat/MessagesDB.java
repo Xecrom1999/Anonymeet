@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * Created by Or on 02/04/2016.
  */
 public class MessagesDB extends SQLiteOpenHelper {
-    static final int DATABASE_VERSION = 15;
+    static final int DATABASE_VERSION = 18;
     static final String DATABASE_NAME = "Anonymeet.db";
     static final String TABLE_NAME_CONV = "Conversations";
     static final String UID = "_id";
@@ -56,17 +56,21 @@ public class MessagesDB extends SQLiteOpenHelper {
     }
 
     public ArrayList<MyMessage> getMessagesOfUser(String user){
+        Log.d("hiiiiiiiiiiiiiiiii", "hellooooooooo");
         SQLiteDatabase db = getWritableDatabase();
         String[] columns = {MESSAGE,IS_MINE};
         Cursor cursor = db.query('"'+user+'"', columns, null, null, null, null, null);
-        ArrayList<MyMessage> list = new ArrayList<MyMessage>();
-        MyMessage message = new MyMessage();
+        ArrayList<MyMessage> list = new ArrayList<>();
+        boolean f;
+        String m;
+        Log.d("hiiiiiiiiiiiiiiii", "cursor lenght: "+cursor.getCount());
         String i;
         for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
-            message.message = cursor.getString(cursor.getColumnIndex(MESSAGE));
+            m = cursor.getString(cursor.getColumnIndex(MESSAGE));
             i = cursor.getString(cursor.getColumnIndex(IS_MINE));
-            if(i.equals("t")) message.isMine = true;
-            else message.isMine = false;
+            if(i.equals("t")) f = true;
+            else f = false;
+            MyMessage message = new MyMessage(m, f);
             list.add(message);
         }
 

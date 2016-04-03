@@ -60,10 +60,6 @@ public class MessagesActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         f = new AddChatFragment(recyclerAdapter);
 
-
-
-
-
     }
 
     public void addChat(View view){

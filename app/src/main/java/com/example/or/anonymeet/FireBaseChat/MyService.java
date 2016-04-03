@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -24,12 +25,20 @@ import com.firebase.client.ValueEventListener;
 public class MyService extends IntentService{
 
     boolean activityOn;
-    String userWith;
+    MessagesDB myDB;
+    SQLiteDatabase db;
+    public static boolean isActive = false;
 
     public MyService() {
         super("myService");
     }
 
+
+    @Override
+    public void onDestroy() {
+        isActive = false;
+        super.onDestroy();
+    }
 
     @Override
     public void onCreate() {
@@ -38,8 +47,10 @@ public class MyService extends IntentService{
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         Log.d("hiiiiiiiiiiiiiii", "started");
+        isActive = true;
         activityOn = false;
-
+        myDB = new MessagesDB(this);
+        db = myDB.getWritableDatabase();
         final NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
         String myEmail = preferences.getString("email", "");
@@ -55,6 +66,18 @@ public class MyService extends IntentService{
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                if(dataSnapshot.getValue().toString().length()>36 && dataSnapshot.getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")){
+
+                    Log.d("hiiiiiiiiiiiiiiiii", "adds with code");
+                    myDB.insertMessage(dataSnapshot.getKey().toString(), dataSnapshot.getValue().toString().substring(36), false);
+
+
+                }
+                else {
+                    Log.d("hiiiiiiiiiiiiiiiii", "adds without code");
+                    myDB.insertMessage(dataSnapshot.getKey().toString(), dataSnapshot.getValue().toString(), false);
+                }
+
 
                 if (!(ChatActivity.isActive() && ChatActivity.emailWith.equals(dataSnapshot.getKey().toString()))) {
                     Notification.Builder n = new Notification.Builder(getApplicationContext())
@@ -71,6 +94,9 @@ public class MyService extends IntentService{
                     PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
                     n.setContentIntent(pendingIntent);
                     nm.notify(0, n.build());
+                }
+                else{
+                    ChatActivity.recyclerAdapter.syncMessages();
                 }
             }
 

@@ -34,7 +34,6 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.MutableData;
 import com.firebase.client.Transaction;
 import com.firebase.client.ValueEventListener;
-import com.firebase.ui.FirebaseListAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -70,8 +69,10 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gps_activity);
         checkForPermission();
-        Intent i = new Intent(this, MyService.class);
-        startService(i);
+        if(!MyService.isActive) {
+            Intent i = new Intent(this, MyService.class);
+            startService(i);
+        }
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Find People");
@@ -296,8 +297,8 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     public void goToMessagesActivity(View view) {
         startActivity(new Intent(this, MessagesActivity.class));
     }
-
-    /* public void onDataChange(DataSnapshot dataSnapshot) {
+    @Override
+     public void onDataChange(DataSnapshot dataSnapshot) {
 
         Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
 
@@ -307,16 +308,15 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
             for (DataSnapshot item : iter) {
                 namesList.add(item.getKey().toString());
-                addressesList.add(item.child("address").getValue().toString());
+                if(item.child("address").getValue()!=null) {
+                    addressesList.add(item.child("address").getValue().toString());
+                }
             }
             adapter.update(namesList, addressesList);
         }
-    } */
-
-    @Override
-    public void onDataChange(DataSnapshot dataSnapshot) {
-
     }
+
+
 
     public void onCancelled(FirebaseError firebaseError) {
     }

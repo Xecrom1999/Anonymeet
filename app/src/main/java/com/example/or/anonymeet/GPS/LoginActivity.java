@@ -24,10 +24,6 @@ import com.example.or.anonymeet.R;
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.security.token.TokenGenerator;
-
-import org.apache.commons.codec.binary.Base64;
-
 import java.util.HashMap;
 import java.util.Map;
 
