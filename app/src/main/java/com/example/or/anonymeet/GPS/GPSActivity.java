@@ -20,7 +20,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -328,9 +327,12 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
             Collection<String> addressesList = new ArrayList<String>();
 
             for (DataSnapshot item : iter) {
-                namesList.add(item.getKey().toString());
-                if (item.child("address").getValue() != null)
-                addressesList.add(item.child("address").getValue().toString());
+
+                if (item.child("address").getValue() != null) {
+                    namesList.add(item.getKey().toString());
+                    addressesList.add(item.child("address").getValue().toString());
+                }
+
             }
             adapter.update(namesList, addressesList);
         }

@@ -22,13 +22,10 @@ import android.widget.Toast;
 
 import com.example.or.anonymeet.R;
 import com.firebase.client.AuthData;
-import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.client.snapshot.Index;
-import com.firebase.client.snapshot.IndexedNode;
-import com.firebase.client.snapshot.Node;
+import com.firebase.client.ValueEventListener;
 
 
 
@@ -55,7 +52,9 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
         setSupportActionBar(toolbar);
         toolbar.setTitle("Login & Register");
 
-        users = new Firebase("https://anonymeetapp.firebaseio.com/");
+        users = new Firebase("https://anonymeetapp.firebaseio.com/usernames");
+        users.setValue("usernames");
+        users.child("asdfg").setValue("123");
 
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -97,16 +96,39 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
 
     private void attemptLogin() {
 
-        String username = usernameInput.getText().toString();
-        String email = emailInput.getText().toString();
-        String password = passwordInput.getText().toString();
+        final String username = usernameInput.getText().toString();
+        final String email = emailInput.getText().toString();
+        final String password = passwordInput.getText().toString();
+
+        users.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //if (!dataSnapshot.hasChild(username))
+                    //register(email, password, username);
+                Toast.makeText(LoginActivity.this, dataSnapshot.hasChild(username) + "", Toast.LENGTH_SHORT).show();
+                //if (!dataSnapshot.hasChild(username))
+                //users.child(username).setValue(email);
+               // else
+               // Toast.makeText(getApplicationContext(), "Username already exists.", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
 
         if (checkBox.isChecked())
-            users.createUser(email, password, this);
+            users.setValue(username);
         else {
             users.authWithPassword(email, password, this);
             showProgress(true);
         }
+    }
+
+    private void register(String email, String password, String username) {
+        users.createUser(email, password, this);
+        users.child(username).setValue(email);
     }
 
     private void showProgress(final boolean show) {
