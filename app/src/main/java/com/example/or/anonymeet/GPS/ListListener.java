@@ -6,4 +6,6 @@ package com.example.or.anonymeet.GPS;
 public interface ListListener {
 
     void startChat(String userName);
+
+    void noUsers(boolean noUsers);
 }

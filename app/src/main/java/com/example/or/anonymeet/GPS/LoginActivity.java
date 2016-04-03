@@ -105,7 +105,7 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //if (!dataSnapshot.hasChild(username))
                     //register(email, password, username);
-                Toast.makeText(LoginActivity.this, dataSnapshot.hasChild(username) + "", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(LoginActivity.this, dataSnapshot.hasChild(username) + "", Toast.LENGTH_SHORT).show();
                 //if (!dataSnapshot.hasChild(username))
                 //users.child(username).setValue(email);
                // else

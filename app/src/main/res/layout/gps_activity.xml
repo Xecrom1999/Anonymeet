@@ -18,6 +18,20 @@
         android:layout_margin="15dp"
         android:id="@+id/peopleList"/>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_margin="15dp"
+        android:text="No one is online"
+        android:textColor="@android:color/secondary_text_light"
+        android:layout_gravity="center"
+        android:textSize="20dp"
+        android:gravity="center"
+        android:id="@+id/noUsers_text"
+        android:alpha="0.8"
+        android:visibility="gone"
+        />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

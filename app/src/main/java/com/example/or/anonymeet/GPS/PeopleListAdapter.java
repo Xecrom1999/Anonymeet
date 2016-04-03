@@ -14,19 +14,21 @@ import java.util.Collection;
 public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.ViewHolder> {
 
     ArrayList<String> userNames;
-    ArrayList<String> addresses;
+    ArrayList<Integer> distances;
     ListListener listener;
 
     public PeopleListAdapter(ListListener listener) {
         userNames = new ArrayList<>();
-        addresses = new ArrayList<>();
+        distances = new ArrayList<>();
         this.listener = listener;
     }
 
-    public void update(Collection<String> names, Collection<String> addresses) {
+    public void update(Collection<String> names, Collection<Integer> distances) {
         this.userNames = (ArrayList<String>) names;
-        this.addresses = (ArrayList<String>) addresses;
+        this.distances = (ArrayList<Integer>) distances;
         notifyDataSetChanged();
+        if (userNames.size() == 0) listener.noUsers(true);
+        else listener.noUsers(false);
     }
 
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -42,7 +44,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         String name = userNames.get(position);
         holder.usernameTo = name;
         holder.name_text.setText(name);
-        if (addresses != null && addresses.size() > 0) holder.address_text.setText("Address: " + addresses.get(position));
+        if (distances != null && distances.size() > 0) holder.distance_text.setText(distances.get(position) + " meters from you");
     }
 
     public int getItemCount() {
@@ -52,16 +54,14 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView name_text;
-        TextView address_text;
-        boolean gender;
+        TextView distance_text;
         String usernameTo;
-
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             name_text = (TextView) itemView.findViewById(R.id.name_text);
-            address_text = (TextView) itemView.findViewById(R.id.address_text);
+            distance_text = (TextView) itemView.findViewById(R.id.distance_text);
 
             itemView.setOnClickListener(this);
         }

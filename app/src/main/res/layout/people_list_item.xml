@@ -18,11 +18,11 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Address: "
+        android:text="Distance: "
         android:textSize="15dp"
         android:layout_gravity="end"
         android:textColor="@android:color/secondary_text_light"
-        android:id="@+id/address_text"
+        android:id="@+id/distance_text"
         />
 
     <View

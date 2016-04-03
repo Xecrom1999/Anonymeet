@@ -7,15 +7,12 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,26 +31,11 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.MutableData;
 import com.firebase.client.Transaction;
 import com.firebase.client.ValueEventListener;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class GPSActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, ValueEventListener, ListListener {
-
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
-
-    private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocationRequest;
-    private Location mCurrentLocation;
+public class GPSActivity extends AppCompatActivity implements  ValueEventListener, ListListener {
 
     private Firebase onlineUsers;
     private String userName;
@@ -83,8 +65,6 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         userName = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
 
         childName = userName.substring(0, userName.indexOf('.'));
-
-        //buildGoogleApiClient();
 
         onlineUsers.addValueEventListener(this);
 
@@ -190,129 +170,9 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
             }
         });
         startActivity(new Intent(this, LoginActivity.class));
+        finish();
     }
 
-    protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-        createLocationRequest();
-    }
-
-    protected void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-
-        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
-
-        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
-
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-
-    protected void startLocationUpdates() {
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, this);
-    }
-
-    protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-    }
-
-    /*@Override
-    protected void onStart() {
-        super.onStart();
-        active = true;
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (mGoogleApiClient.isConnected()) {
-            startLocationUpdates();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        if (mGoogleApiClient.isConnected()) {
-            stopLocationUpdates();
-        }
-
-        super.onPause();
-    }*/
-
-    @Override
-    protected void onStop() {
-        //mGoogleApiClient.disconnect();
-        /*onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue(null);
-                return Transaction.success(mutableData);
-            }
-
-            public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
-            }
-        });*/
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        active = false;
-        super.onDestroy();
-    }
-
-    @Override
-    public void onConnected(Bundle connectionHint) {
-
-        if (mCurrentLocation == null) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        }
-        startLocationUpdates();
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        mCurrentLocation = location;
-
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
-
-        Address address = null;
-        Geocoder geocoder = new Geocoder(getApplicationContext());
-
-        try {
-            address = geocoder.getFromLocation(latitude, longitude, 1).get(0);
-        } catch (IOException e1) {
-        }
-
-        if (address != null)
-            onlineUsers.child(childName).child("address").setValue(address.getAddressLine(0));
-
-        onlineUsers.child(childName).child("latitude").setValue(latitude);
-        onlineUsers.child(childName).child("longitude").setValue(longitude);
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-    }
 
     public void goToMessagesActivity(View view) {
         startActivity(new Intent(this, MessagesActivity.class));
@@ -323,18 +183,27 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
 
         if (iter != null) {
-            Collection<String> namesList = new ArrayList<String>();
-            Collection<String> addressesList = new ArrayList<String>();
+            Collection<String> namesList = new ArrayList();
+            Collection<Integer> distancesList = new ArrayList();
 
             for (DataSnapshot item : iter) {
 
-                if (item.child("address").getValue() != null) {
+                String email = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
+                if (!item.getKey().toString().equals(email.substring(0, email.indexOf('.')))) {
                     namesList.add(item.getKey().toString());
-                    addressesList.add(item.child("address").getValue().toString());
-                }
 
+                    double latitude = Double.parseDouble(item.child("latitude").getValue().toString());
+                    double longitude = Double.parseDouble(item.child("longitude").getValue().toString());
+
+                    Location targetLocation = new Location("");
+                    targetLocation.setLatitude(latitude);
+                    targetLocation.setLongitude(longitude);
+
+                    float distance = targetLocation.distanceTo(LocationListenerService.getLocation());
+                    distancesList.add((int) distance);
+                }
             }
-            adapter.update(namesList, addressesList);
+            adapter.update(namesList, distancesList);
         }
     }
 
@@ -348,8 +217,8 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
     }
 
-
-    public static String getChildName() {
-        return childName;
+    public void noUsers(boolean noUsers) {
+        peopleList.setVisibility(noUsers ? View.GONE:View.VISIBLE);
+        findViewById(R.id.noUsers_text).setVisibility(noUsers ? View.VISIBLE:View.GONE);
     }
 }

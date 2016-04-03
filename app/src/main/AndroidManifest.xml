@@ -28,7 +28,7 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".GPS.LoginActivity"
-            android:label="@string/title_activity_login">
+            android:label="Anonymeet">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
