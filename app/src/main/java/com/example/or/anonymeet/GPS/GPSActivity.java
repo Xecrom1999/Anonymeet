@@ -189,7 +189,7 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
             for (DataSnapshot item : iter) {
 
                 String email = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
-                if (!item.getKey().toString().equals(email.substring(0, email.indexOf('.')))) {
+                if (!item.getKey().toString().equals(email.substring(0, email.indexOf('.'))) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude")) {
                     namesList.add(item.getKey().toString());
 
                     double latitude = Double.parseDouble(item.child("latitude").getValue().toString());

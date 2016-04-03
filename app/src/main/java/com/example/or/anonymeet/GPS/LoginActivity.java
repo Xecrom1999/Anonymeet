@@ -22,10 +22,8 @@ import android.widget.Toast;
 
 import com.example.or.anonymeet.R;
 import com.firebase.client.AuthData;
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 
 
 
@@ -100,35 +98,12 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
         final String email = emailInput.getText().toString();
         final String password = passwordInput.getText().toString();
 
-        users.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                //if (!dataSnapshot.hasChild(username))
-                    //register(email, password, username);
-                //Toast.makeText(LoginActivity.this, dataSnapshot.hasChild(username) + "", Toast.LENGTH_SHORT).show();
-                //if (!dataSnapshot.hasChild(username))
-                //users.child(username).setValue(email);
-               // else
-               // Toast.makeText(getApplicationContext(), "Username already exists.", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
         if (checkBox.isChecked())
-            users.setValue(username);
+            users.createUser(email, password, this);
         else {
             users.authWithPassword(email, password, this);
             showProgress(true);
         }
-    }
-
-    private void register(String email, String password, String username) {
-        users.createUser(email, password, this);
-        users.child(username).setValue(email);
     }
 
     private void showProgress(final boolean show) {
