@@ -165,6 +165,7 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
     }
 
     public static void logout() {
+        if (childName != null)
         onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
             public Transaction.Result doTransaction(MutableData mutableData) {
                 mutableData.setValue(null);

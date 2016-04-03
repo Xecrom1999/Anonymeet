@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
@@ -83,7 +82,8 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     }
 
     protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        if (mGoogleApiClient.isConnected())
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         GPSActivity.logout();
     }
 
