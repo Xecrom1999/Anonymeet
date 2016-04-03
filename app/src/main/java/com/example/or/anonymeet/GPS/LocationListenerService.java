@@ -18,8 +18,8 @@ import com.google.android.gms.location.LocationServices;
 
 public class LocationListenerService extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, Firebase.AuthStateListener {
 
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 7000;
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 6000;
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 4000;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
