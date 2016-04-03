@@ -37,7 +37,7 @@ import java.util.Collection;
 
 public class GPSActivity extends AppCompatActivity implements  ValueEventListener, ListListener {
 
-    private Firebase onlineUsers;
+    private static Firebase onlineUsers;
     private String userName;
     private Toolbar toolbar;
     LocationManager lm;
@@ -156,10 +156,15 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
     }
 
     private void onLogout() {
+
         onlineUsers.unauth();
 
-        stopService(intent);
+        startActivity(new Intent(this, LoginActivity.class));
 
+        finish();
+    }
+
+    public static void logout() {
         onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
             public Transaction.Result doTransaction(MutableData mutableData) {
                 mutableData.setValue(null);
@@ -169,10 +174,7 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
             public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
             }
         });
-        startActivity(new Intent(this, LoginActivity.class));
-        finish();
     }
-
 
     public void goToMessagesActivity(View view) {
         startActivity(new Intent(this, MessagesActivity.class));

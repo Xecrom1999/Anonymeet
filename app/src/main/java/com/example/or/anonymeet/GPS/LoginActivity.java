@@ -50,9 +50,7 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
         setSupportActionBar(toolbar);
         toolbar.setTitle("Login & Register");
 
-        users = new Firebase("https://anonymeetapp.firebaseio.com/usernames");
-        users.setValue("usernames");
-        users.child("asdfg").setValue("123");
+        users = new Firebase("https://anonymeetapp.firebaseio.com");
 
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
