@@ -31,7 +31,7 @@ public class MyService extends IntentService{
 
     public MyService() {
         super("myService");
-    }
+}
 
 
     @Override

@@ -22,41 +22,41 @@ import android.widget.Toast;
 
 import com.example.or.anonymeet.R;
 import com.firebase.client.AuthData;
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import java.util.HashMap;
-import java.util.Map;
+import com.firebase.client.snapshot.Index;
+import com.firebase.client.snapshot.IndexedNode;
+import com.firebase.client.snapshot.Node;
 
-/**
- * A login screen that offers login via email/password.
- */
+
+
 public class LoginActivity extends AppCompatActivity implements Firebase.AuthResultHandler, Firebase.ResultHandler {
 
-    private EditText mEmailView;
-    private EditText mPasswordView;
+    private EditText usernameInput;
+    private EditText emailInput;
+    private EditText passwordInput;
     private View mProgressView;
     private View mLoginFormView;
     CheckBox checkBox;
     Firebase users;
     SharedPreferences preferences;
     Toolbar toolbar;
+    Button mEmailSignInButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_login);
 
-        toolbar = (Toolbar) findViewById(R.id.toolBar1);
+        initializeViews();
+
         setSupportActionBar(toolbar);
         toolbar.setTitle("Login & Register");
 
-        users = new Firebase("https://anonymeetapp.firebaseio.com");
+        users = new Firebase("https://anonymeetapp.firebaseio.com/");
 
-        mEmailView = (EditText) findViewById(R.id.email);
-
-        mPasswordView = (EditText) findViewById(R.id.password);
-
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,55 +64,40 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
-        checkBox = (CheckBox) findViewById(R.id.checkbox);
-
         preferences = getSharedPreferences("data", MODE_PRIVATE);
 
-            String email = preferences.getString("email", "");
-            String password = preferences.getString("password", "");
+        String email = preferences.getString("email", "");
+        String password = preferences.getString("password", "");
 
-            mEmailView.setText(email);
-            mPasswordView.setText(password);
+        emailInput.setText(email);
+        passwordInput.setText(password);
 
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        passwordInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE)
                     attemptLogin();
                 return false;
-           }
+            }
         });
+    }
+
+    public void initializeViews() {
+        toolbar = (Toolbar) findViewById(R.id.toolBar1);
+        usernameInput = (EditText) findViewById(R.id.username);
+        emailInput = (EditText) findViewById(R.id.email);
+        passwordInput = (EditText) findViewById(R.id.password);
+        mLoginFormView = findViewById(R.id.login_form);
+        mProgressView = findViewById(R.id.login_progress);
+        checkBox = (CheckBox) findViewById(R.id.checkbox);
+        mEmailSignInButton = (Button) findViewById(R.id.button);
     }
 
     private void attemptLogin() {
 
-        final String email = mEmailView.getText().toString();
-        final String password = mPasswordView.getText().toString();
-
-        /*HashMap<String, Object> map = new HashMap<String, Object>();
-
-        map.put("uid", "123456");
-        map.put("username", "arielgamrian");
-        map.put("gender", "male");
-
-        String secret = "PcE91WRWFkejynixYnJBSykBgNBlbSoVvOXeVZkc";
-
-        TokenGenerator tokenGenerator = new TokenGenerator(secret);
-        String token = tokenGenerator.createToken(map);
-
-        users.authWithCustomToken(token, new Firebase.AuthResultHandler() {
-            @Override
-            public void onAuthenticated(AuthData authData) {
-                Toast.makeText(getApplicationContext(), "Good", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onAuthenticationError(FirebaseError firebaseError) {
-                Toast.makeText(getApplicationContext(), "Bad", Toast.LENGTH_SHORT).show();
-            }
-        });*/
+        String username = usernameInput.getText().toString();
+        String email = emailInput.getText().toString();
+        String password = passwordInput.getText().toString();
 
         if (checkBox.isChecked())
             users.createUser(email, password, this);
@@ -125,7 +110,7 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
     private void showProgress(final boolean show) {
 
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(passwordInput.getWindowToken(), 0);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
@@ -159,14 +144,13 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
 
     @Override
     public void onError(FirebaseError firebaseError) {
-        mEmailView.setError(firebaseError.getMessage());
+        emailInput.setError(firebaseError.getMessage());
     }
 
     public void onAuthenticated(final AuthData authData) {
 
-        final String email = mEmailView.getText().toString();
-        final String password = mPasswordView.getText().toString();
-
+        final String email = emailInput.getText().toString();
+        final String password = passwordInput.getText().toString();
         Intent intent = new Intent(getApplicationContext(), GPSActivity.class);
         intent.putExtra("userName", email);
         startActivity(intent);
@@ -179,7 +163,7 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
 
     @Override
     public void onAuthenticationError(FirebaseError firebaseError) {
-        mEmailView.setError(firebaseError.getMessage());
+        emailInput.setError(firebaseError.getMessage());
         showProgress(false);
     }
 }

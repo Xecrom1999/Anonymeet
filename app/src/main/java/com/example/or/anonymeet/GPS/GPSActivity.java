@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.IntentService;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,9 +21,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
@@ -62,17 +65,17 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     static boolean active;
     RecyclerView peopleList;
     PeopleListAdapter adapter;
-    String childName;
+    static String childName;
+    LocationListenerService listenerService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gps_activity);
         checkForPermission();
-        if(!MyService.isActive) {
-            Intent i = new Intent(this, MyService.class);
-            startService(i);
-        }
+        Intent i = new Intent(this, MyService.class);
+        startService(i);
+
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Find People");
@@ -84,13 +87,20 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
         childName = userName.substring(0, userName.indexOf('.'));
 
-        buildGoogleApiClient();
+        //buildGoogleApiClient();
 
         onlineUsers.addValueEventListener(this);
 
         locationProvider();
 
         initializeList();
+
+        startLocationService();
+    }
+
+    private void startLocationService() {
+        Intent intent = new Intent(this, LocationListenerService.class);
+        startService(intent);
     }
 
     private void initializeList() {
@@ -203,7 +213,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
-    @Override
+    /*@Override
     protected void onStart() {
         super.onStart();
         active = true;
@@ -226,11 +236,11 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         }
 
         super.onPause();
-    }
+    }*/
 
     @Override
     protected void onStop() {
-        mGoogleApiClient.disconnect();
+        //mGoogleApiClient.disconnect();
         onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
             public Transaction.Result doTransaction(MutableData mutableData) {
                 mutableData.setValue(null);
@@ -282,7 +292,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
         onlineUsers.child(childName).child("latitude").setValue(latitude);
         onlineUsers.child(childName).child("longitude").setValue(longitude);
 
-
+        Log.d("TAG", "Not good if see this");
     }
 
     @Override
@@ -297,8 +307,8 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     public void goToMessagesActivity(View view) {
         startActivity(new Intent(this, MessagesActivity.class));
     }
-    @Override
-     public void onDataChange(DataSnapshot dataSnapshot) {
+
+    public void onDataChange(DataSnapshot dataSnapshot) {
 
         Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
 
@@ -308,15 +318,12 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
 
             for (DataSnapshot item : iter) {
                 namesList.add(item.getKey().toString());
-                if(item.child("address").getValue()!=null) {
-                    addressesList.add(item.child("address").getValue().toString());
-                }
+                if (item.child("address").getValue() != null)
+                addressesList.add(item.child("address").getValue().toString());
             }
             adapter.update(namesList, addressesList);
         }
     }
-
-
 
     public void onCancelled(FirebaseError firebaseError) {
     }
@@ -329,4 +336,7 @@ public class GPSActivity extends AppCompatActivity implements ConnectionCallback
     }
 
 
+    public static String getChildName() {
+        return childName;
+    }
 }
