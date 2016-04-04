@@ -30,23 +30,26 @@ public class MessagesDB extends SQLiteOpenHelper {
 
     public void insertUser(String user){
         SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(USER, user);
-        db.insert(TABLE_NAME_CONV, null, values);
-        db.execSQL("CREATE TABLE IF NOT EXISTS "+'"'+user+'"'+" ("+
-                UID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
-                MESSAGE+" varchar(225), " +
-                IS_MINE+" char(1));");
-    }
-    public void insertMessage(String user, String message, boolean isMine){
-        SQLiteDatabase db = getWritableDatabase();
         boolean f = false;
         String[] columns = {USER};
         Cursor cursor = db.query('"' + TABLE_NAME_CONV + '"', columns, null, null, null, null, null);
         for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
             if(cursor.getString(cursor.getColumnIndex(USER)).equals(user)) f = true;
         }
-        if(!f)insertUser(user);
+        if(!f) {
+            ContentValues values = new ContentValues();
+            values.put(USER, user);
+            db.insert(TABLE_NAME_CONV, null, values);
+        }
+            db.execSQL("CREATE TABLE IF NOT EXISTS " + '"' + user + '"' + " (" +
+                    UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    MESSAGE + " varchar(225), " +
+                    IS_MINE + " char(1));");
+
+    }
+    public void insertMessage(String user, String message, boolean isMine){
+        SQLiteDatabase db = getWritableDatabase();
+        insertUser(user);
         ContentValues values = new ContentValues();
         values.put(MESSAGE, message);
         String i;
