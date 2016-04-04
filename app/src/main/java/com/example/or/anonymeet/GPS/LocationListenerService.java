@@ -37,7 +37,7 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         String email = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
-        childName = email.substring(0, email.indexOf('.'));
+        childName = email.substring(0, email.indexOf(".com"));
 
         onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
 

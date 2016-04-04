@@ -111,6 +111,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
         String contactName = contacts.get(position).name;
         db.delete(myDB.TABLE_NAME_CONV, myDB.USER + "='" + contactName + "'", null);
+        db.execSQL("DROP TABLE IF EXISTS " + '"' + contactName + '"');
         contacts.remove(position);
         if (contacts.size() == 1) {
             notifyDataSetChanged();

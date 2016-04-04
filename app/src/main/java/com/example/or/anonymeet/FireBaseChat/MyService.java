@@ -28,7 +28,7 @@ public class MyService extends IntentService{
     boolean activityOn;
     MessagesDB myDB;
     SQLiteDatabase db;
-    public static boolean isActive = false;
+    public static boolean isActive;
 
     public MyService() {
         super("myService");
@@ -37,6 +37,7 @@ public class MyService extends IntentService{
 
     @Override
     public void onDestroy() {
+        Log.d("hiiiiii", "onDestroy");
         isActive = false;
         super.onDestroy();
     }
@@ -48,12 +49,13 @@ public class MyService extends IntentService{
     @Override
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
-        isActive = true;
+
     }
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         Log.d("hiiiiiiiiiiiiiii", "started");
+        isActive = true;
         activityOn = false;
         myDB = new MessagesDB(this);
         db = myDB.getWritableDatabase();
@@ -105,6 +107,7 @@ public class MyService extends IntentService{
                 else{
                     ChatActivity.recyclerAdapter.syncMessages();
                 }
+                if(MessagesActivity.isActive)MessagesActivity.recyclerAdapter.syncContacts();
             }
 
             @Override

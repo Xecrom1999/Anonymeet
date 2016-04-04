@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * Created by Or on 02/04/2016.
  */
 public class MessagesDB extends SQLiteOpenHelper {
-    static final int DATABASE_VERSION = 18;
+    static final int DATABASE_VERSION = 23;
     static final String DATABASE_NAME = "Anonymeet.db";
     static final String TABLE_NAME_CONV = "Conversations";
     static final String UID = "_id";
@@ -40,6 +40,13 @@ public class MessagesDB extends SQLiteOpenHelper {
     }
     public void insertMessage(String user, String message, boolean isMine){
         SQLiteDatabase db = getWritableDatabase();
+        boolean f = false;
+        String[] columns = {USER};
+        Cursor cursor = db.query('"' + TABLE_NAME_CONV + '"', columns, null, null, null, null, null);
+        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
+            if(cursor.getString(cursor.getColumnIndex(USER)).equals(user)) f = true;
+        }
+        if(!f)insertUser(user);
         ContentValues values = new ContentValues();
         values.put(MESSAGE, message);
         String i;
@@ -97,18 +104,17 @@ public class MessagesDB extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS "+TABLE_NAME_CONV);
-        try{
-        String  selectQuery = "SELECT * FROM "+TABLE_NAME_CONV+";";
-        Cursor cursor = db.rawQuery(selectQuery, null);
+        String[] columns = {USER};
+        Cursor cursor = db.query('"' + TABLE_NAME_CONV + '"', columns, null, null, null, null, null);
         String user;
         for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
 
             user = cursor.getString(cursor.getColumnIndex(USER));
-            db.execSQL("DROP TABLE IF EXISTS "+user);
+            db.execSQL("DROP TABLE IF EXISTS "+'"'+user+'"');
 
-        } }
-        catch (Exception e){}
+        }
+        db.execSQL("DROP TABLE IF EXISTS "+TABLE_NAME_CONV);
+
 
         onCreate(db);
     }

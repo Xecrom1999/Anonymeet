@@ -16,9 +16,35 @@ import com.example.or.anonymeet.R;
 public class MessagesActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
-    RecyclerAdapter recyclerAdapter;
+    static RecyclerAdapter recyclerAdapter;
     SQLiteDatabase db;
     Context context;
+
+    @Override
+    protected void onPostResume() {
+        isActive = true;
+        super.onPostResume();
+    }
+
+    @Override
+    protected void onStop() {
+        isActive = false;
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        isActive = false;
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onStart() {
+        isActive = true;
+        super.onStart();
+    }
+
+    static boolean isActive=false;
     SharedPreferences preferences;
     android.support.v4.app.FragmentTransaction transaction;
     android.support.v4.app.Fragment f;

@@ -23,6 +23,7 @@ import android.view.View;
 
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
+import com.example.or.anonymeet.FireBaseChat.MessagesDB;
 import com.example.or.anonymeet.FireBaseChat.MyService;
 import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
@@ -69,7 +70,7 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
         onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
         userName = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
 
-        childName = userName.substring(0, userName.indexOf('.'));
+        childName = userName.substring(0, userName.indexOf(".com"));
 
         onlineUsers.addValueEventListener(this);
 
@@ -194,7 +195,7 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
             for (DataSnapshot item : iter) {
 
                 String email = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
-                if (!item.getKey().toString().equals(email.substring(0, email.indexOf('.'))) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude")) {
+                if (!item.getKey().toString().equals(email.substring(0, email.indexOf(".com"))) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude")) {
                     namesList.add(item.getKey().toString());
 
                     double latitude = Double.parseDouble(item.child("latitude").getValue().toString());
@@ -216,6 +217,8 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
     }
 
     public void startChat(String userName) {
+        MessagesDB myDB = new MessagesDB(this);
+        myDB.insertUser(userName);
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("usernameTo", userName);
         startActivity(intent);
