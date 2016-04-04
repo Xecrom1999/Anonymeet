@@ -4,11 +4,13 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -104,8 +106,6 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
             }
         }
     }
-
-
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 0)
@@ -222,8 +222,17 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("usernameTo", userName);
         startActivity(intent);
-
     }
+
+    private boolean checkInternetConnection() {
+        //TODO: show text when there's no connection to the Internet;
+        ConnectivityManager conMgr = (ConnectivityManager) getSystemService (Context.CONNECTIVITY_SERVICE);
+
+        if (conMgr.getActiveNetworkInfo() != null && conMgr.getActiveNetworkInfo().isAvailable() && conMgr.getActiveNetworkInfo().isConnected())
+            return true;
+
+        return false;
+        }
 
     public void noUsers(boolean noUsers) {
         peopleList.setVisibility(noUsers ? View.GONE:View.VISIBLE);
