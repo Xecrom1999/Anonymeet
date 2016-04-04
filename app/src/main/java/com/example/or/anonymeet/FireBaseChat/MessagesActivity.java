@@ -40,11 +40,10 @@ public class MessagesActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-        isActive = true;
         super.onStart();
     }
 
-    static boolean isActive=false;
+    static boolean isActive;
     SharedPreferences preferences;
     android.support.v4.app.FragmentTransaction transaction;
     android.support.v4.app.Fragment f;
@@ -54,6 +53,7 @@ public class MessagesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages);
+        isActive = true;
         context = this;
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         recyclerView = (RecyclerView)findViewById(R.id.recycle);

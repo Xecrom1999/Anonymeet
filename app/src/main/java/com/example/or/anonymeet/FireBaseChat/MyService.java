@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.example.or.anonymeet.GPS.GPSActivity;
 import com.example.or.anonymeet.R;
+import com.firebase.client.AuthData;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -106,8 +107,11 @@ public class MyService extends IntentService{
                 }
                 else{
                     ChatActivity.recyclerAdapter.syncMessages();
+                    ChatActivity.scrollDown();
                 }
-                if(MessagesActivity.isActive)MessagesActivity.recyclerAdapter.syncContacts();
+                if(MessagesActivity.isActive){
+                    MessagesActivity.recyclerAdapter.syncContacts();
+                }
             }
 
             @Override
@@ -125,6 +129,16 @@ public class MyService extends IntentService{
 
             }
         });
+        Firebase myFirebase = new Firebase("https://anonymeetapp.firebaseio.com");
+        myFirebase.addAuthStateListener(new Firebase.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(AuthData authData) {
+                if (authData == null) {
+                    myDB.deleteAll();
+                }
+            }
+        });
+
         return START_STICKY;
     }
 

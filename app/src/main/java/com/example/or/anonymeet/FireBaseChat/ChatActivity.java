@@ -41,7 +41,7 @@ public class ChatActivity extends AppCompatActivity {
     String lastMessage;
     static boolean active = false;
     Context context;
-    RecyclerView recyclerView;
+    static RecyclerView recyclerView;
     static ChatAdapter recyclerAdapter;
 
 
@@ -100,6 +100,7 @@ public class ChatActivity extends AppCompatActivity {
         myEmail = myEmail.substring(0, myEmail.indexOf('.'));
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         SendMessage = (EditText)findViewById(R.id.sendMessage);
+        recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.messages.size() - 1);
 
 
     }
@@ -122,20 +123,10 @@ public class ChatActivity extends AppCompatActivity {
             imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
         }
 
-
     }
 
+    public static void scrollDown(){
+        recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.getItemCount()-2);
 
-
-
-
-
-
-
-
-
-
-
-
-
+    }
 }

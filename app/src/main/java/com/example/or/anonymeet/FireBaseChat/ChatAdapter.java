@@ -82,7 +82,7 @@ public class ChatAdapter extends RecyclerView.Adapter<MessageViewHolder> {
 
     public void syncMessages(){
         messages = myDB.getMessagesOfUser(user);
-        notifyDataSetChanged(); //TODO: messages are not presented in chat activity
+        notifyItemInserted(getItemCount()-1);
         }
 
 

@@ -71,6 +71,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
             contact = new Contact(user);
             contacts.add(contact);
         }
+        notifyDataSetChanged();
 
     }
 

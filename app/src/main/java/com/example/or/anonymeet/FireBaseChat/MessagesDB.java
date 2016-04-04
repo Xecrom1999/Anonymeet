@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * Created by Or on 02/04/2016.
  */
 public class MessagesDB extends SQLiteOpenHelper {
-    static final int DATABASE_VERSION = 24;
+    static final int DATABASE_VERSION = 25;
     static final String DATABASE_NAME = "Anonymeet.db";
     static final String TABLE_NAME_CONV = "Conversations";
     static final String UID = "_id";
@@ -74,7 +74,7 @@ public class MessagesDB extends SQLiteOpenHelper {
         ArrayList<MyMessage> list = new ArrayList<>();
         boolean f;
         String m;
-        Log.d("hiiiiiiiiiiiiiiii", "cursor lenght: "+cursor.getCount());
+        Log.d("hiiiiiiiiiiiiiiii", "cursor lenght: " + cursor.getCount());
         String i;
         for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
             m = cursor.getString(cursor.getColumnIndex(MESSAGE));
@@ -108,6 +108,23 @@ public class MessagesDB extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        String[] columns = {USER};
+        Cursor cursor = db.query('"' + TABLE_NAME_CONV + '"', columns, null, null, null, null, null);
+        String user;
+        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
+
+            user = cursor.getString(cursor.getColumnIndex(USER));
+            db.execSQL("DROP TABLE IF EXISTS "+'"'+user+'"');
+
+        }
+        db.execSQL("DROP TABLE IF EXISTS "+TABLE_NAME_CONV);
+
+
+        onCreate(db);
+    }
+
+    public void deleteAll(){
+        SQLiteDatabase db = getWritableDatabase();
         String[] columns = {USER};
         Cursor cursor = db.query('"' + TABLE_NAME_CONV + '"', columns, null, null, null, null, null);
         String user;
