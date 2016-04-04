@@ -234,6 +234,7 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
         return false;
         }
 
+
     public void noUsers(boolean noUsers) {
         peopleList.setVisibility(noUsers ? View.GONE:View.VISIBLE);
         findViewById(R.id.noUsers_text).setVisibility(noUsers ? View.VISIBLE:View.GONE);
