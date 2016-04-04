@@ -2,11 +2,18 @@ package com.example.or.anonymeet.GPS;
 
 import android.Manifest;
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
@@ -26,7 +33,6 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     public static Location mCurrentLocation;
 
     private String childName;
-
     private Firebase onlineUsers;
 
     public LocationListenerService() {
@@ -70,7 +76,6 @@ public class LocationListenerService extends IntentService implements GoogleApiC
         mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
 
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
     }
 
     protected void startLocationUpdates() {
@@ -98,16 +103,35 @@ public class LocationListenerService extends IntentService implements GoogleApiC
         onlineUsers.child(childName).child("longitude").setValue(longitude);
     }
 
+    public void buildNotification() {
+        final NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Notification.Builder n = new Notification.Builder(getApplicationContext())
+                .setContentTitle("Long time no see!")
+                .setContentText("Pleas enable location service.")
+                .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+                .setAutoCancel(true)
+                .setTicker("Something")
+                .setDefaults(NotificationCompat.DEFAULT_SOUND);
+        TaskStackBuilder t = TaskStackBuilder.create(this);
+        Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        t.addNextIntent(i);
+        PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        n.setContentIntent(pendingIntent);
+        nm.notify(0, n.build());
+    }
+
     protected void onHandleIntent(Intent intent) {
     }
 
     @Override
     public void onConnectionSuspended(int cause) {
         mGoogleApiClient.connect();
+        Log.d("TAG", "cause: " + cause);
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
+        Log.d("TAG", result.getErrorMessage());
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -120,8 +144,10 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     }
 
     public void onAuthStateChanged(AuthData authData) {
-        if (authData == null)
-        stopLocationUpdates();
+        if (authData == null) {
+            stopLocationUpdates();
+            stopSelf();
+        }
     }
 
     public static Location getLocation() {
