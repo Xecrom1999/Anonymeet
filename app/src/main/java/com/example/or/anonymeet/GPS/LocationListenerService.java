@@ -191,7 +191,7 @@ public class LocationListenerService extends IntentService implements GoogleApiC
                 case GpsStatus.GPS_EVENT_STARTED:
                     break;
                 case GpsStatus.GPS_EVENT_STOPPED:
-                    if (onlineUsers.getAuth() != null)
+                    if (onlineUsers.getAuth() != null && !GPSActivity.isRunning())
                     buildNotification();
                     break;
             }

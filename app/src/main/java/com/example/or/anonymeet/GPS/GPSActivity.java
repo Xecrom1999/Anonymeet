@@ -49,6 +49,8 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
     static String childName;
     Intent intent;
 
+    static boolean isRunning;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -238,5 +240,21 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
     public void noUsers(boolean noUsers) {
         peopleList.setVisibility(noUsers ? View.GONE:View.VISIBLE);
         findViewById(R.id.noUsers_text).setVisibility(noUsers ? View.VISIBLE:View.GONE);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        isRunning = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isRunning = false;
+    }
+
+    public static boolean isRunning() {
+        return isRunning;
     }
 }
