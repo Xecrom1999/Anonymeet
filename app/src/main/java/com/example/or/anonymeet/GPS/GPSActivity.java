@@ -168,7 +168,6 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
         myDB.deleteAll();
         Intent i = new Intent(this, MyService.class);
         stopService(i);
-
         startActivity(new Intent(this, LoginActivity.class));
 
         finish();
