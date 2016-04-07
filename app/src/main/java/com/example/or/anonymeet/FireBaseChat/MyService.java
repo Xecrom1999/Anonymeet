@@ -29,6 +29,8 @@ public class MyService extends IntentService{
     boolean activityOn;
     MessagesDB myDB;
     SQLiteDatabase db;
+    Firebase myFirebase;
+    Firebase myFirebaseChat;
     public static boolean isActive;
 
     public MyService() {
@@ -38,13 +40,14 @@ public class MyService extends IntentService{
 
     @Override
     public void onDestroy() {
-        Log.d("hiiiiii", "onDestroy");
-        isActive = false;
         super.onDestroy();
+        isActive = false;
+        Log.d("hiiiiii", "onDestroy");
     }
 
     @Override
     public void onCreate() {
+
     }
 
     @Override
@@ -64,9 +67,9 @@ public class MyService extends IntentService{
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
         String myEmail = preferences.getString("email", "");
         myEmail = myEmail.substring(0, myEmail.indexOf('.'));
-        Firebase myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
-        myFirebaseRef = myFirebaseRef.child(myEmail);
-        myFirebaseRef.addChildEventListener(new ChildEventListener() {
+        myFirebaseChat = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
+        myFirebaseChat = myFirebaseChat.child(myEmail);
+        myFirebaseChat.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
@@ -75,20 +78,23 @@ public class MyService extends IntentService{
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                if(dataSnapshot.getValue().toString().length()>36 && dataSnapshot.getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")){
+                if (dataSnapshot.getValue().toString().length() > 36 && dataSnapshot.getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
 
                     Log.d("hiiiiiiiiiiiiiiiii", "adds with code");
                     myDB.insertMessage(dataSnapshot.getKey().toString(), dataSnapshot.getValue().toString().substring(36), false);
 
 
-                }
-                else {
+                } else {
                     Log.d("hiiiiiiiiiiiiiiiii", "adds without code");
                     myDB.insertMessage(dataSnapshot.getKey().toString(), dataSnapshot.getValue().toString(), false);
                 }
 
 
-                if (!(ChatActivity.isActive() && ChatActivity.emailWith.equals(dataSnapshot.getKey().toString()))) {
+                if (ChatActivity.isActive() && ChatActivity.emailWith.equals(dataSnapshot.getKey().toString())) {
+                    ChatActivity.recyclerAdapter.syncMessages();
+                    ChatActivity.scrollDown();
+                } else {
+
                     Notification.Builder n = new Notification.Builder(getApplicationContext())
                             .setContentTitle("New message from a " + "")
                             .setContentText(dataSnapshot.getValue().toString())
@@ -105,12 +111,9 @@ public class MyService extends IntentService{
                     n.setContentIntent(pendingIntent);
                     nm.notify(0, n.build());
                 }
-                else{
-                    ChatActivity.recyclerAdapter.syncMessages();
-                    ChatActivity.scrollDown();
-                }
-                if(MessagesActivity.isActive){
+                if (MessagesActivity.isActive) {
                     MessagesActivity.recyclerAdapter.syncContacts();
+
                 }
             }
 
@@ -129,15 +132,7 @@ public class MyService extends IntentService{
 
             }
         });
-        Firebase myFirebase = new Firebase("https://anonymeetapp.firebaseio.com");
-        myFirebase.addAuthStateListener(new Firebase.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(AuthData authData) {
-                if (authData == null) {
-                    myDB.deleteAll();
-                }
-            }
-        });
+        myFirebase = new Firebase("https://anonymeetapp.firebaseio.com");
 
         return START_STICKY;
     }

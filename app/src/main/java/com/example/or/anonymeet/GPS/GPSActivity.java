@@ -55,15 +55,16 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gps_activity);
+        if(!MyService.isActive) {
+            Intent i = new Intent(this, MyService.class);
+            startService(i);
+        }
         if(getIntent().getBooleanExtra("fromNoti", false)){
             Intent i = new Intent(this, MessagesActivity.class);
             startActivity(i);
         }
         checkForPermission();
-        if(!MyService.isActive) {
-            Intent i = new Intent(this, MyService.class);
-            startService(i);
-        }
+
 
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
         setSupportActionBar(toolbar);
@@ -163,6 +164,10 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
     private void onLogout() {
 
         onlineUsers.unauth();
+        MessagesDB myDB = new MessagesDB(this);
+        myDB.deleteAll();
+        Intent i = new Intent(this, MyService.class);
+        stopService(i);
 
         startActivity(new Intent(this, LoginActivity.class));
 
