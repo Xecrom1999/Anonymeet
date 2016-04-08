@@ -148,7 +148,7 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
 
         final String email = emailInput.getText().toString();
         final String password = passwordInput.getText().toString();
-        Intent intent = new Intent(getApplicationContext(), GPSActivity.class);
+        Intent intent = new Intent(getApplicationContext(), FindPeopleActivity.class);
         intent.putExtra("userName", email);
         startActivity(intent);
         SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();

@@ -16,19 +16,28 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
     ArrayList<String> userNames;
     ArrayList<Integer> distances;
     ListListener listener;
+    public static boolean noUsers;
 
     public PeopleListAdapter(ListListener listener) {
         userNames = new ArrayList<>();
         distances = new ArrayList<>();
         this.listener = listener;
+        noUsers = true;
     }
 
     public void update(Collection<String> names, Collection<Integer> distances) {
         this.userNames = (ArrayList<String>) names;
         this.distances = (ArrayList<Integer>) distances;
         notifyDataSetChanged();
-        if (userNames.size() == 0) listener.noUsers(true);
-        else listener.noUsers(false);
+        if (FindPeopleActivity.isRunning())
+            if (userNames.size() == 0) {
+                noUsers = true;
+                FindPeopleActivity.showMessage();
+            }
+            else {
+                noUsers = false;
+                FindPeopleActivity.hideMessage();
+            }
     }
 
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

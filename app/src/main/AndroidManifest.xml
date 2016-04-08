@@ -39,7 +39,7 @@
             android:name=".FireBaseChat.MessagesActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".GPS.GPSActivity"
+            android:name=".GPS.FindPeopleActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
 

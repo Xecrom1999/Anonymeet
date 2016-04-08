@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.example.or.anonymeet.GPS.GPSActivity;
+import com.example.or.anonymeet.GPS.FindPeopleActivity;
 import com.example.or.anonymeet.R;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -84,9 +84,9 @@ public class MyService extends IntentService{
                             .setTicker("hiiiiii")
                             .setDefaults(NotificationCompat.DEFAULT_SOUND);
                     TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
-                    Intent i = new Intent(getApplicationContext(), GPSActivity.class);
+                    Intent i = new Intent(getApplicationContext(), FindPeopleActivity.class);
                     i.putExtra("fromNoti", true);
-                    t.addParentStack(GPSActivity.class);
+                    t.addParentStack(FindPeopleActivity.class);
                     t.addNextIntent(i);
                     PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
                     n.setContentIntent(pendingIntent);

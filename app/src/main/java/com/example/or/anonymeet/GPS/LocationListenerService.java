@@ -45,6 +45,8 @@ public class LocationListenerService extends IntentService implements GoogleApiC
 
     GPSTracker gpsTracker;
 
+    public static boolean providerEnabled;
+
     public LocationListenerService() {
         super("LocationListenerService");
     }
@@ -128,13 +130,14 @@ public class LocationListenerService extends IntentService implements GoogleApiC
         final NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Notification.Builder n;
 
-            n = new Notification.Builder(getApplicationContext())
-                    .setContentTitle("Long time no see!")
-                    .setContentText("Pleas enable location service.")
-                    .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-                    .setAutoCancel(true)
-                    .setDefaults(NotificationCompat.DEFAULT_SOUND);
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) n.setColor(Color.parseColor("#ff5722"));
+        n = new Notification.Builder(getApplicationContext())
+                .setContentTitle("Long time no see!")
+                .setContentText("Pleas enable location service.")
+                .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+                .setAutoCancel(true)
+                .setDefaults(NotificationCompat.DEFAULT_SOUND);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
+            n.setColor(Color.parseColor("#ff5722"));
 
         TaskStackBuilder t = TaskStackBuilder.create(this);
         Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -184,7 +187,6 @@ public class LocationListenerService extends IntentService implements GoogleApiC
         LocationManager locationManager;
 
         public GPSTracker() {
-            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
             setupGPS();
         }
 
@@ -197,19 +199,51 @@ public class LocationListenerService extends IntentService implements GoogleApiC
             locationManager.addGpsStatusListener(this);
         }
 
+        public void startListening() {
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            locationManager.addGpsStatusListener(this);
+        }
+
+        public void stopListening() {
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            locationManager.removeUpdates((android.location.LocationListener) this);
+        }
+
         @Override
         public void onGpsStatusChanged(int event) {
+
             switch (event) {
                 case GpsStatus.GPS_EVENT_STARTED:
-                    if (onlineUsers.getAuth() != null)
-                        startLocationUpdates();
+                    providerEnabled = true;
+                    startLocationUpdates();
+                    if (FindPeopleActivity.isRunning())
+                        FindPeopleActivity.hideMessage();
                     break;
+
                 case GpsStatus.GPS_EVENT_STOPPED:
-                    stopLocationUpdates();
-                    if (onlineUsers.getAuth() != null && !GPSActivity.isRunning())
-                    buildNotification();
+                    providerEnabled = false;
+                    if (childName != null)
+                        onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
+                            public Transaction.Result doTransaction(MutableData mutableData) {
+                                mutableData.setValue(null);
+                                return Transaction.success(mutableData);
+                            }
+
+                            public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
+                            }
+                        });
+                    if (!FindPeopleActivity.isRunning())
+                        buildNotification();
+                    else FindPeopleActivity.showMessage();
                     break;
+
             }
         }
+
     }
+
 }

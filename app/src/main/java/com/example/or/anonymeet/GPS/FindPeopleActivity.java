@@ -22,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
@@ -38,23 +39,27 @@ import com.firebase.client.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class GPSActivity extends AppCompatActivity implements  ValueEventListener, ListListener {
+public class FindPeopleActivity extends AppCompatActivity implements  ValueEventListener, ListListener {
 
     private static Firebase onlineUsers;
     private String userName;
     private Toolbar toolbar;
     LocationManager lm;
-    RecyclerView peopleList;
+    static RecyclerView peopleList;
     PeopleListAdapter adapter;
     static String childName;
     Intent intent;
 
     static boolean isRunning;
+    static TextView noUsers_text;
+
+    static final String noUsers_message = "No online users near by.";
+    static final String locationDisabled_message = "Touch to enable location services.";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.gps_activity);
+        setContentView(R.layout.find_people_activity);
         if(!MyService.isActive) {
             Intent i = new Intent(this, MyService.class);
             startService(i);
@@ -65,6 +70,7 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
         }
         checkForPermission();
 
+        noUsers_text = (TextView) findViewById(R.id.noUsers_text);
 
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
         setSupportActionBar(toolbar);
@@ -79,7 +85,7 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
 
         onlineUsers.addValueEventListener(this);
 
-        locationProvider();
+        //locationProvider();
 
         initializeList();
 
@@ -240,10 +246,20 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
         return false;
         }
 
+    public static void showMessage() {
 
-    public void noUsers(boolean noUsers) {
-        peopleList.setVisibility(noUsers ? View.GONE:View.VISIBLE);
-        findViewById(R.id.noUsers_text).setVisibility(noUsers ? View.VISIBLE:View.GONE);
+        peopleList.setVisibility(View.GONE);
+        noUsers_text.setVisibility(View.VISIBLE);
+        if (!LocationListenerService.providerEnabled) noUsers_text.setText(locationDisabled_message);
+        else noUsers_text.setText(noUsers_message);
+    }
+
+    public static void hideMessage() {
+        if (LocationListenerService.providerEnabled && !PeopleListAdapter.noUsers) {
+            peopleList.setVisibility(View.VISIBLE);
+            noUsers_text.setVisibility(View.GONE);
+            noUsers_text.setText("");
+        }
     }
 
     @Override
@@ -260,5 +276,12 @@ public class GPSActivity extends AppCompatActivity implements  ValueEventListene
 
     public static boolean isRunning() {
         return isRunning;
+    }
+
+    public void enableLocationServices(View view) {
+        if (!LocationListenerService.providerEnabled) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
+        }
     }
 }

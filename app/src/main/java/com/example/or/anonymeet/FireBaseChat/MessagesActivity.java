@@ -10,7 +10,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.example.or.anonymeet.GPS.GPSActivity;
 import com.example.or.anonymeet.R;
 
 public class MessagesActivity extends AppCompatActivity {
