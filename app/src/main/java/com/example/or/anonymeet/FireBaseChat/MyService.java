@@ -4,25 +4,19 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.app.TaskStackBuilder;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.example.or.anonymeet.GPS.GPSActivity;
 import com.example.or.anonymeet.R;
-import com.firebase.client.AuthData;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 
 public class MyService extends IntentService{
 
@@ -37,23 +31,11 @@ public class MyService extends IntentService{
         super("myService");
 }
 
-
     @Override
     public void onDestroy() {
-        super.onDestroy();
         isActive = false;
         Log.d("hiiiiii", "onDestroy");
-    }
-
-    @Override
-    public void onCreate() {
-
-    }
-
-    @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-
+        super.onDestroy();
     }
 
     @Override
@@ -74,7 +56,6 @@ public class MyService extends IntentService{
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
             }
-
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
@@ -135,19 +116,6 @@ public class MyService extends IntentService{
         myFirebase = new Firebase("https://anonymeetapp.firebaseio.com");
 
         return START_STICKY;
-    }
-
-
-
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
     }
 
     @Override

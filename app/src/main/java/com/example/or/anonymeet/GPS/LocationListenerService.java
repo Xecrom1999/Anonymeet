@@ -20,7 +20,11 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.firebase.client.AuthData;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.MutableData;
+import com.firebase.client.Transaction;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -95,9 +99,18 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     }
 
     protected void stopLocationUpdates() {
+        if (childName != null)
+            onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
+                public Transaction.Result doTransaction(MutableData mutableData) {
+                    mutableData.setValue(null);
+                    return Transaction.success(mutableData);
+                }
+
+                public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
+                }
+            });
         if (mGoogleApiClient.isConnected())
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        GPSActivity.logout();
     }
 
     @Override
@@ -113,7 +126,7 @@ public class LocationListenerService extends IntentService implements GoogleApiC
 
     public void buildNotification() {
         final NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Notification.Builder n = null;
+        Notification.Builder n;
 
             n = new Notification.Builder(getApplicationContext())
                     .setContentTitle("Long time no see!")
@@ -182,15 +195,17 @@ public class LocationListenerService extends IntentService implements GoogleApiC
                 return;
             }
             locationManager.addGpsStatusListener(this);
-
         }
 
         @Override
         public void onGpsStatusChanged(int event) {
             switch (event) {
                 case GpsStatus.GPS_EVENT_STARTED:
+                    if (onlineUsers.getAuth() != null)
+                        startLocationUpdates();
                     break;
                 case GpsStatus.GPS_EVENT_STOPPED:
+                    stopLocationUpdates();
                     if (onlineUsers.getAuth() != null && !GPSActivity.isRunning())
                     buildNotification();
                     break;
