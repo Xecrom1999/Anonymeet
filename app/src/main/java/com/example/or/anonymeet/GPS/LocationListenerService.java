@@ -131,11 +131,12 @@ public class LocationListenerService extends IntentService implements GoogleApiC
         Notification.Builder n;
 
         n = new Notification.Builder(getApplicationContext())
-                .setContentTitle("Long time no see!")
-                .setContentText("Pleas enable location service.")
+                .setContentTitle("Anonymeet")
+                .setContentText("Don't forget you are still visible to other users.")
                 .setSmallIcon(android.R.drawable.ic_menu_mylocation)
                 .setAutoCancel(true)
-                .setDefaults(NotificationCompat.DEFAULT_SOUND);
+                .setDefaults(NotificationCompat.DEFAULT_SOUND)
+                .setOngoing(true);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
             n.setColor(Color.parseColor("#ff5722"));
 
@@ -172,9 +173,11 @@ public class LocationListenerService extends IntentService implements GoogleApiC
 
     public void onAuthStateChanged(AuthData authData) {
         if (authData == null) {
+            NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(0);
             stopLocationUpdates();
             stopSelf();
-        }
+        } else buildNotification();
     }
 
     public static Location getLocation() {
@@ -197,20 +200,6 @@ public class LocationListenerService extends IntentService implements GoogleApiC
                 return;
             }
             locationManager.addGpsStatusListener(this);
-        }
-
-        public void startListening() {
-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            locationManager.addGpsStatusListener(this);
-        }
-
-        public void stopListening() {
-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            locationManager.removeUpdates((android.location.LocationListener) this);
         }
 
         @Override
@@ -237,7 +226,7 @@ public class LocationListenerService extends IntentService implements GoogleApiC
                             }
                         });
                     if (!FindPeopleActivity.isRunning())
-                        buildNotification();
+                        onlineUsers.unauth();
                     else FindPeopleActivity.showMessage();
                     break;
 
