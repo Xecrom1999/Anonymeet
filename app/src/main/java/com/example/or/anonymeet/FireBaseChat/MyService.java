@@ -82,6 +82,7 @@ public class MyService extends IntentService{
                             .setSmallIcon(R.drawable.contact)
                             .setAutoCancel(true)
                             .setTicker("hiiiiii")
+                            .setPriority(Notification.PRIORITY_HIGH)
                             .setDefaults(NotificationCompat.DEFAULT_SOUND);
                     TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
                     Intent i = new Intent(getApplicationContext(), FindPeopleActivity.class);

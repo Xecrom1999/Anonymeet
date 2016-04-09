@@ -1,6 +1,7 @@
 package com.example.or.anonymeet.GPS;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -13,8 +14,8 @@ import android.graphics.Color;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -126,22 +127,24 @@ public class LocationListenerService extends IntentService implements GoogleApiC
         onlineUsers.child(childName).child("longitude").setValue(longitude);
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void buildNotification() {
         final NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Notification.Builder n;
-
+        Long[] lonsg = {Long.valueOf(0)};
         n = new Notification.Builder(getApplicationContext())
                 .setContentTitle("Anonymeet")
-                .setContentText("Don't forget you are still visible to other users.")
+                .setContentText("Status: online")
                 .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-                .setAutoCancel(true)
+                .setShowWhen(false)
                 .setDefaults(NotificationCompat.DEFAULT_SOUND)
+                .setVibrate(new long[]{Long.valueOf(0)})
                 .setOngoing(true);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
             n.setColor(Color.parseColor("#ff5722"));
 
         TaskStackBuilder t = TaskStackBuilder.create(this);
-        Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        Intent i = new Intent(this, FindPeopleActivity.class);
         t.addNextIntent(i);
         PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         n.setContentIntent(pendingIntent);

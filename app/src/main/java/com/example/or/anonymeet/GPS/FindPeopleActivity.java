@@ -32,8 +32,6 @@ import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.client.MutableData;
-import com.firebase.client.Transaction;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
@@ -172,24 +170,9 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         onlineUsers.unauth();
         MessagesDB myDB = new MessagesDB(this);
         myDB.deleteAll();
-        Intent i = new Intent(this, MyService.class);
-        stopService(i);
         startActivity(new Intent(this, LoginActivity.class));
 
         finish();
-    }
-
-    public static void logout() {
-        if (childName != null)
-        onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue(null);
-                return Transaction.success(mutableData);
-            }
-
-            public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
-            }
-        });
     }
 
     public void goToMessagesActivity(View view) {

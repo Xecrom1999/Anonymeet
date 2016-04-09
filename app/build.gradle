@@ -9,8 +9,6 @@ android {
         exclude 'META-INF/NOTICE'
     }
 
-
-
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
 
@@ -30,7 +28,6 @@ android {
         }
     }
 }
-
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
