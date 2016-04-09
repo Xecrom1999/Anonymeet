@@ -19,6 +19,7 @@ public class MessagesActivity extends AppCompatActivity {
     SQLiteDatabase db;
     Context context;
 
+
     @Override
     protected void onPostResume() {
         isActive = true;
