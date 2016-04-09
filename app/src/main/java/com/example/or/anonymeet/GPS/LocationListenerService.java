@@ -18,7 +18,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
@@ -32,7 +31,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-public class LocationListenerService extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, Firebase.AuthStateListener {
+public class LocationListenerService extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, Firebase.AuthStateListener, GpsStatus.Listener {
 
     public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 6000;
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 4000;
@@ -52,12 +51,16 @@ public class LocationListenerService extends IntentService implements GoogleApiC
 
     public static Context ctx;
 
+    boolean visible;
+
     public LocationListenerService() {
         super("LocationListenerService");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        visible = true;
 
         ctx = this;
 
@@ -74,6 +77,8 @@ public class LocationListenerService extends IntentService implements GoogleApiC
 
         mGoogleApiClient.connect();
 
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         setupGPS();
 
         if (FindPeopleActivity.isRunning())
@@ -83,12 +88,10 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     }
 
     private void setupGPS() {
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        locationManager.addGpsStatusListener(new GPSTracker());
+        locationManager.addGpsStatusListener(this);
     }
 
     @Override
@@ -139,12 +142,14 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     @Override
     public void onLocationChanged(Location location) {
 
-        mCurrentLocation = location;
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
+        if (visible) {
+            mCurrentLocation = location;
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
 
-        onlineUsers.child(childName).child("latitude").setValue(latitude);
-        onlineUsers.child(childName).child("longitude").setValue(longitude);
+            onlineUsers.child(childName).child("latitude").setValue(latitude);
+            onlineUsers.child(childName).child("longitude").setValue(longitude);
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -178,12 +183,10 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     @Override
     public void onConnectionSuspended(int cause) {
         mGoogleApiClient.connect();
-        Log.d("TAG", "cause: " + cause);
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
-        Log.d("TAG", result.getErrorMessage());
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -197,9 +200,6 @@ public class LocationListenerService extends IntentService implements GoogleApiC
 
     public void onAuthStateChanged(AuthData authData) {
         if (authData == null) {
-            NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(0);
-            stopLocationUpdates();
             stopSelf();
         }
     }
@@ -212,48 +212,51 @@ public class LocationListenerService extends IntentService implements GoogleApiC
         notificationManager.cancel(0);
     }
 
+    @Override
+    public void onDestroy() {
+        visible = false;
+        LocationListenerService.cancelNotification();
+        onlineUsers.removeAuthStateListener(this);
+        stopLocationUpdates();
+        mGoogleApiClient.disconnect();
+        hideMe();
+        super.onDestroy();
+    }
 
-    public class GPSTracker implements android.location.GpsStatus.Listener {
+    public void onGpsStatusChanged(int event) {
 
-        public GPSTracker() {
+        switch (event) {
+            case GpsStatus.GPS_EVENT_STARTED:
+                providerEnabled = true;
+                mGoogleApiClient.connect();
+                if (FindPeopleActivity.isRunning())
+                    FindPeopleActivity.hideMessage();
+                break;
 
+            case GpsStatus.GPS_EVENT_STOPPED:
+                providerEnabled = false;
+                hideMe();
+                if (childName != null)
+                    hideMe();
+                if (FindPeopleActivity.isRunning())
+                    FindPeopleActivity.showMessage();
+                else {
+                    stopSelf();
+                }
+                break;
         }
+    }
 
-        @Override
-        public void onGpsStatusChanged(int event) {
-
-            switch (event) {
-                case GpsStatus.GPS_EVENT_STARTED:
-                    providerEnabled = true;
-                    startLocationUpdates();
-                    if (FindPeopleActivity.isRunning())
-                        FindPeopleActivity.hideMessage();
-                    break;
-
-                case GpsStatus.GPS_EVENT_STOPPED:
-                    providerEnabled = false;
-
-                    if (childName != null)
-                        onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
-                            public Transaction.Result doTransaction(MutableData mutableData) {
-                                mutableData.setValue(null);
-                                return Transaction.success(mutableData);
-                            }
-
-                            public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
-                            }
-                        });
-                    if (FindPeopleActivity.isRunning())
-                        FindPeopleActivity.showMessage();
-                    else {
-                        LocationListenerService.cancelNotification();
-                        stopLocationUpdates();
-                        stopSelf();
-                    }
-                    break;
+    private void hideMe() {
+        onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                mutableData.setValue(null);
+                return Transaction.success(mutableData);
             }
-        }
 
+            public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
+            }
+        });
     }
 
 }
