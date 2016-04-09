@@ -42,11 +42,15 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     public static Location mCurrentLocation;
 
     private String childName;
-    private Firebase onlineUsers;
-
-    GPSTracker gpsTracker;
+    private static Firebase onlineUsers;
 
     public static boolean providerEnabled;
+
+    LocationManager locationManager;
+
+    static NotificationManager notificationManager;
+
+    public static Context ctx;
 
     public LocationListenerService() {
         super("LocationListenerService");
@@ -55,8 +59,12 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        ctx = this;
+
         String email = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
         childName = email.substring(0, email.indexOf(".com"));
+
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
 
@@ -66,9 +74,21 @@ public class LocationListenerService extends IntentService implements GoogleApiC
 
         mGoogleApiClient.connect();
 
-        gpsTracker = new GPSTracker();
+        setupGPS();
+
+        if (FindPeopleActivity.isRunning())
+        cancelNotification();
 
         return START_STICKY;
+    }
+
+    private void setupGPS() {
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locationManager.addGpsStatusListener(new GPSTracker());
     }
 
     @Override
@@ -128,27 +148,28 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    public void buildNotification() {
-        final NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Notification.Builder n;
-        Long[] lonsg = {Long.valueOf(0)};
-        n = new Notification.Builder(getApplicationContext())
-                .setContentTitle("Anonymeet")
-                .setContentText("Status: online")
-                .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-                .setShowWhen(false)
-                .setDefaults(NotificationCompat.DEFAULT_SOUND)
-                .setVibrate(new long[]{Long.valueOf(0)})
-                .setOngoing(true);
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
-            n.setColor(Color.parseColor("#ff5722"));
+    public static void buildNotification() {
+        if (onlineUsers.getAuth() != null) {
+            Notification.Builder n;
+            Long[] lonsg = {Long.valueOf(0)};
+            n = new Notification.Builder(ctx)
+                    .setContentTitle("Anonymeet")
+                    .setContentText("Status: online")
+                    .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+                    .setShowWhen(false)
+                    .setDefaults(NotificationCompat.DEFAULT_SOUND)
+                    .setVibrate(new long[]{Long.valueOf(0)})
+                    .setOngoing(true);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
+                n.setColor(Color.parseColor("#ff5722"));
 
-        TaskStackBuilder t = TaskStackBuilder.create(this);
-        Intent i = new Intent(this, FindPeopleActivity.class);
-        t.addNextIntent(i);
-        PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        n.setContentIntent(pendingIntent);
-        nm.notify(0, n.build());
+            TaskStackBuilder t = TaskStackBuilder.create(ctx);
+            Intent i = new Intent(ctx, FindPeopleActivity.class);
+            t.addNextIntent(i);
+            PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            n.setContentIntent(pendingIntent);
+            notificationManager.notify(0, n.build());
+        }
     }
 
     protected void onHandleIntent(Intent intent) {
@@ -180,29 +201,22 @@ public class LocationListenerService extends IntentService implements GoogleApiC
             notificationManager.cancel(0);
             stopLocationUpdates();
             stopSelf();
-        } else buildNotification();
+        }
     }
 
     public static Location getLocation() {
         return mCurrentLocation;
     }
 
+    public static void cancelNotification() {
+        notificationManager.cancel(0);
+    }
+
 
     public class GPSTracker implements android.location.GpsStatus.Listener {
 
-        LocationManager locationManager;
-
         public GPSTracker() {
-            setupGPS();
-        }
 
-        private void setupGPS() {
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            locationManager.addGpsStatusListener(this);
         }
 
         @Override
@@ -218,6 +232,7 @@ public class LocationListenerService extends IntentService implements GoogleApiC
 
                 case GpsStatus.GPS_EVENT_STOPPED:
                     providerEnabled = false;
+
                     if (childName != null)
                         onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
                             public Transaction.Result doTransaction(MutableData mutableData) {
@@ -228,11 +243,14 @@ public class LocationListenerService extends IntentService implements GoogleApiC
                             public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
                             }
                         });
-                    if (!FindPeopleActivity.isRunning())
-                        onlineUsers.unauth();
-                    else FindPeopleActivity.showMessage();
+                    if (FindPeopleActivity.isRunning())
+                        FindPeopleActivity.showMessage();
+                    else {
+                        LocationListenerService.cancelNotification();
+                        stopLocationUpdates();
+                        stopSelf();
+                    }
                     break;
-
             }
         }
 

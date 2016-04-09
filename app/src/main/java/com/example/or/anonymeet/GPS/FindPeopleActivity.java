@@ -160,9 +160,25 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (item.getItemId() == R.id.logout_item) onLogout();
+        if (item.getItemId() == R.id.logout_item) logoutMessage();
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void logoutMessage() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Are you sure?");
+        builder.setMessage("You will lose all of your data.");
+        builder.setPositiveButton("Logout", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                onLogout();
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+
+        Dialog dialog = builder.create();
+        dialog.show();
     }
 
     private void onLogout() {
@@ -249,12 +265,18 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     protected void onStart() {
         super.onStart();
         isRunning = true;
+        try {
+            LocationListenerService.cancelNotification();
+        } catch (NullPointerException e){
+
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         isRunning = false;
+        LocationListenerService.buildNotification();
     }
 
     public static boolean isRunning() {
