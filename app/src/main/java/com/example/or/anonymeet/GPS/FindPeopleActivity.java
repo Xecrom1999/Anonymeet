@@ -19,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,6 +48,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     PeopleListAdapter adapter;
     static String childName;
     Intent intent;
+    Intent notiIntent;
 
     static boolean isRunning;
     static TextView noUsers_text;
@@ -58,9 +60,10 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.find_people_activity);
+        notiIntent = new Intent(this, MyService.class);
         if(!MyService.isActive) {
-            Intent i = new Intent(this, MyService.class);
-            startService(i);
+            startService(notiIntent);
+
         }
         if(getIntent().getBooleanExtra("fromNoti", false)){
             Intent i = new Intent(this, MessagesActivity.class);
@@ -172,6 +175,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         builder.setPositiveButton("Logout", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+
                 onLogout();
             }
         });
@@ -182,10 +186,12 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     }
 
     private void onLogout() {
-
+        stopService(notiIntent);
+        Log.d("hiiiiiiiiiiiiii", "logout");
         onlineUsers.unauth();
         MessagesDB myDB = new MessagesDB(this);
         myDB.deleteAll();
+
         startActivity(new Intent(this, LoginActivity.class));
 
         finish();
