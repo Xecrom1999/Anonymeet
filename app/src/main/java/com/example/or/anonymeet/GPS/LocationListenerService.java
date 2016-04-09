@@ -258,5 +258,4 @@ public class LocationListenerService extends IntentService implements GoogleApiC
             }
         });
     }
-
 }
