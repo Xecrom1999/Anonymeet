@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -164,6 +165,7 @@ public class LocationListenerService extends IntentService implements GoogleApiC
                     .setShowWhen(false)
                     .setDefaults(NotificationCompat.DEFAULT_SOUND)
                     .setVibrate(new long[]{Long.valueOf(0)})
+                    .setSound(Uri.EMPTY)
                     .setOngoing(true);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
                 n.setColor(Color.parseColor("#ff5722"));
