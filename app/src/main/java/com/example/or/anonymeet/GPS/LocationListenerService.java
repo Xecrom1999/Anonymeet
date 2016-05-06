@@ -34,8 +34,8 @@ import com.google.android.gms.location.LocationServices;
 
 public class LocationListenerService extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, Firebase.AuthStateListener, GpsStatus.Listener {
 
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 6000;
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 4000;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -165,7 +165,7 @@ public class LocationListenerService extends IntentService implements GoogleApiC
                     .setShowWhen(false)
                     .setDefaults(NotificationCompat.DEFAULT_SOUND)
                     .setVibrate(new long[]{Long.valueOf(0)})
-                    .setSound(Uri.EMPTY)
+                    .setSound(null)
                     .setOngoing(true);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
                 n.setColor(Color.parseColor("#ff5722"));

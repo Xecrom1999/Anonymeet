@@ -56,19 +56,22 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     static final String noUsers_message = "No online users near by.";
     static final String locationDisabled_message = "Touch to enable location services.";
 
+    String nickname;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.find_people_activity);
-        notiIntent = new Intent(this, MyService.class);
-        if(!MyService.isActive) {
-            startService(notiIntent);
 
-        }
+        nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "Unknown");
+
+        notiIntent = new Intent(this, MyService.class);
+
         if(getIntent().getBooleanExtra("fromNoti", false)){
             Intent i = new Intent(this, MessagesActivity.class);
             startActivity(i);
         }
+
         checkForPermission();
 
         noUsers_text = (TextView) findViewById(R.id.noUsers_text);
@@ -84,11 +87,16 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
         childName = userName.substring(0, userName.indexOf(".com"));
 
-        onlineUsers.addValueEventListener(this);
-
-        //locationProvider();
-
         initializeList();
+
+        startServices();
+    }
+
+    private void startServices() {
+        if(!MyService.isActive) {
+            startService(notiIntent);
+        }
+        onlineUsers.addValueEventListener(this);
 
         startLocationService();
     }
@@ -165,6 +173,8 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
         if (item.getItemId() == R.id.logout_item) logoutMessage();
 
+        if (item.getItemId() == R.id.settings_item) startActivity(new Intent(this, SettingsActivity.class));
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -212,12 +222,12 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
             for (DataSnapshot item : iter) {
 
                 String email = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
-                if (!item.getKey().toString().equals(email.substring(0, email.indexOf(".com"))) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude")) {
+                email = email.substring(0, email.indexOf(".com"));
+                if (!email.equals(item.getKey().toString()) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude")) {
                     namesList.add(item.getKey().toString());
 
                     double latitude = Double.parseDouble(item.child("latitude").getValue().toString());
                     double longitude = Double.parseDouble(item.child("longitude").getValue().toString());
-
                     Location targetLocation = new Location("");
                     targetLocation.setLatitude(latitude);
                     targetLocation.setLongitude(longitude);

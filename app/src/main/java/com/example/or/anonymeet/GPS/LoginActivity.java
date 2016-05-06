@@ -9,6 +9,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,9 +31,9 @@ import com.firebase.client.FirebaseError;
 
 public class LoginActivity extends AppCompatActivity implements Firebase.AuthResultHandler, Firebase.ResultHandler {
 
-    private EditText usernameInput;
     private EditText emailInput;
     private EditText passwordInput;
+    private EditText nicknameInput;
     private View mProgressView;
     private View mLoginFormView;
     CheckBox checkBox;
@@ -81,7 +83,7 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
 
     public void initializeViews() {
         toolbar = (Toolbar) findViewById(R.id.toolBar1);
-        usernameInput = (EditText) findViewById(R.id.username);
+        nicknameInput = (EditText) findViewById(R.id.nickname);
         emailInput = (EditText) findViewById(R.id.email);
         passwordInput = (EditText) findViewById(R.id.password);
         mLoginFormView = findViewById(R.id.login_form);
@@ -92,11 +94,13 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
 
     private void attemptLogin() {
 
-        final String username = usernameInput.getText().toString();
         final String email = emailInput.getText().toString();
         final String password = passwordInput.getText().toString();
+        final String nickname = nicknameInput.getText().toString();
 
-        if (checkBox.isChecked())
+        if (nickname.length() < 2) nicknameInput.setError("Nickname must be at least 3 letters.");
+
+        else if (checkBox.isChecked())
             users.createUser(email, password, this);
         else {
             users.authWithPassword(email, password, this);
@@ -148,12 +152,13 @@ public class LoginActivity extends AppCompatActivity implements Firebase.AuthRes
 
         final String email = emailInput.getText().toString();
         final String password = passwordInput.getText().toString();
+        final String nickname = nicknameInput.getText().toString();
         Intent intent = new Intent(getApplicationContext(), FindPeopleActivity.class);
-        intent.putExtra("userName", email);
         startActivity(intent);
         SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
         editor.putString("email", email);
         editor.putString("password", password);
+        editor.putString("nickname", nickname);
         editor.commit();
         finish();
     }
