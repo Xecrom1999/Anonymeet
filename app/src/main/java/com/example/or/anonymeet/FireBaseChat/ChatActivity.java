@@ -100,7 +100,20 @@ public class ChatActivity extends AppCompatActivity {
         myEmail = myEmail.substring(0, myEmail.indexOf('.'));
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         SendMessage = (EditText)findViewById(R.id.sendMessage);
+        myFirebaseRef.child(myEmail).child(emailWith).child("read").setValue(true);
         recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.messages.size() - 1);
+        myFirebaseRef.child(myEmail).child(emailWith).child("read").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue()==false) myFirebaseRef.child(myEmail).child(emailWith).child("read").setValue(true);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
 
 
     }
@@ -112,12 +125,13 @@ public class ChatActivity extends AppCompatActivity {
             recyclerAdapter.syncMessages();
             if (SendMessage.getText().toString().equals(lastMessage)) {
                 String message = "cbd9b0a2-d183-45ee-9582-27df3020ff65" + SendMessage.getText().toString();
-                myFirebaseRef.child(emailWith).child(myEmail).setValue(message);
+                myFirebaseRef.child(emailWith).child(myEmail).child("message").setValue(message);
                 se.putString("lastMessage", message).commit();
             } else {
-                myFirebaseRef.child(emailWith).child(myEmail).setValue(SendMessage.getText().toString());
+                myFirebaseRef.child(emailWith).child(myEmail).child("message").setValue(SendMessage.getText().toString());
                 se.putString("lastMessage", SendMessage.getText().toString()).commit();
             }
+            myFirebaseRef.child(emailWith).child(myEmail).child("read").setValue(false);
             SendMessage.setText("");
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
