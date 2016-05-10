@@ -19,11 +19,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
@@ -175,6 +177,12 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
         if (item.getItemId() == R.id.settings_item) startActivity(new Intent(this, SettingsActivity.class));
 
+        if (item.getItemId() == R.id.number_item) {
+            TelephonyManager manager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+            Toast.makeText(getApplicationContext(), " manager.getLine1Number()", Toast.LENGTH_SHORT);
+        }
+
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -223,6 +231,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
                 String email = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
                 email = email.substring(0, email.indexOf(".com"));
+                //asdas
                 if (!email.equals(item.getKey().toString()) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude")) {
                     namesList.add(item.getKey().toString());
 
