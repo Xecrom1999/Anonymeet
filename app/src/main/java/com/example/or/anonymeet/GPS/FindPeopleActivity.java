@@ -75,6 +75,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         }
 
         checkForPermission();
+        checkForPermission2();
 
         noUsers_text = (TextView) findViewById(R.id.noUsers_text);
 
@@ -92,6 +93,17 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         initializeList();
 
         startServices();
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    private void checkForPermission2() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.READ_PHONE_STATE);
+            if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.READ_PHONE_STATE}, 0);
+                return;
+            }
+        }
     }
 
     private void startServices() {
@@ -119,8 +131,8 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     @TargetApi(Build.VERSION_CODES.M)
     private void checkForPermission() {
         if (Build.VERSION.SDK_INT >= 23) {
-            int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
-            if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
+            int hasPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            if (hasPermission != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
                 return;
             }
@@ -179,7 +191,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
         if (item.getItemId() == R.id.number_item) {
             TelephonyManager manager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-            Toast.makeText(getApplicationContext(), " manager.getLine1Number()", Toast.LENGTH_SHORT);
+            Log.d("TAG", "Phone number: " + manager.getLine1Number());
         }
 
 
