@@ -1,171 +1,60 @@
 package com.example.or.anonymeet.GPS;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.or.anonymeet.R;
-import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
 
 
 
-public class LoginActivity extends AppCompatActivity implements Firebase.AuthResultHandler, Firebase.ResultHandler {
+public class LoginActivity extends AppCompatActivity {
 
-    private EditText emailInput;
-    private EditText passwordInput;
-    private EditText nicknameInput;
-    private View mProgressView;
-    private View mLoginFormView;
-    CheckBox checkBox;
     Firebase users;
     SharedPreferences preferences;
+    EditText nicknameInput;
     Toolbar toolbar;
-    Button mEmailSignInButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.register_login);
+        setContentView(R.layout.login_layout);
 
         initializeViews();
 
         setSupportActionBar(toolbar);
-        toolbar.setTitle("Login & Register");
+
+        toolbar.setTitle("Getting Started");
 
         users = new Firebase("https://anonymeetapp.firebaseio.com");
 
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
-
         preferences = getSharedPreferences("data", MODE_PRIVATE);
 
-        String email = preferences.getString("email", "");
-        String password = preferences.getString("password", "");
-
-        emailInput.setText(email);
-        passwordInput.setText(password);
-
-        passwordInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE)
-                    attemptLogin();
-                return false;
-            }
-        });
-
-        if (users.getAuth() != null) attemptLogin();
     }
 
     public void initializeViews() {
         toolbar = (Toolbar) findViewById(R.id.toolBar1);
         nicknameInput = (EditText) findViewById(R.id.nickname);
-        emailInput = (EditText) findViewById(R.id.email);
-        passwordInput = (EditText) findViewById(R.id.password);
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
-        checkBox = (CheckBox) findViewById(R.id.checkbox);
-        mEmailSignInButton = (Button) findViewById(R.id.button);
     }
 
-    private void attemptLogin() {
+    public void login(View view) {
+        String nickname = nicknameInput.getText().toString();
+        if (nickname.length() < 4) nicknameInput.setError("Nickname too short.");
 
-        final String email = emailInput.getText().toString();
-        final String password = passwordInput.getText().toString();
-        final String nickname = nicknameInput.getText().toString();
+        else if (userNameExists(nickname)) nicknameInput.setError("Nickname already exists.");
 
-        if (nickname.length() < 2) nicknameInput.setError("Nickname must be at least 3 letters.");
-
-        else if (checkBox.isChecked())
-            users.createUser(email, password, this);
         else {
-            users.authWithPassword(email, password, this);
-            showProgress(true);
+            users.child("Users").child(nickname).setValue(nickname);
+            preferences.edit().putString("nickname", nickname).commit();
+            startActivity(new Intent(this, FindPeopleActivity.class));
         }
     }
 
-    private void showProgress(final boolean show) {
-
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(passwordInput.getWindowToken(), 0);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-    }
-
-    public void onSuccess() {
-        Toast.makeText(getApplicationContext(), "Successfully registered!", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onError(FirebaseError firebaseError) {
-        emailInput.setError(firebaseError.getMessage());
-    }
-
-    public void onAuthenticated(final AuthData authData) {
-
-        final String email = emailInput.getText().toString();
-        final String password = passwordInput.getText().toString();
-        final String nickname = nicknameInput.getText().toString();
-        Intent intent = new Intent(getApplicationContext(), FindPeopleActivity.class);
-        startActivity(intent);
-        SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
-        editor.putString("email", email);
-        editor.putString("password", password);
-        editor.putString("nickname", nickname);
-        editor.commit();
-        finish();
-    }
-
-    @Override
-    public void onAuthenticationError(FirebaseError firebaseError) {
-        emailInput.setError(firebaseError.getMessage());
-        showProgress(false);
+    private boolean userNameExists(String nickname) {
+        return false;
     }
 }

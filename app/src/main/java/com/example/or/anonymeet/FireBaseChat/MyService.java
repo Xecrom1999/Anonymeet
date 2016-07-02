@@ -64,7 +64,9 @@ public class MyService extends IntentService implements ChildEventListener{
         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
         String myEmail = preferences.getString("email", "");
-        myEmail = myEmail.substring(0, myEmail.indexOf('.'));
+        //TODO changed
+        // myEmail = myEmail.substring(0, myEmail.indexOf('.'));
+        myEmail = "emailTest";
         myFirebaseChat = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         myFirebaseChat = myFirebaseChat.child(myEmail);
         myFirebaseChat.addChildEventListener(this);
