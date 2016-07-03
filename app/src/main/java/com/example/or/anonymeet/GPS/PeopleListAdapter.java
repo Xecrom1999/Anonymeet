@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.or.anonymeet.R;
@@ -15,6 +16,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
 
     ArrayList<String> userNames;
     ArrayList<Integer> distances;
+    ArrayList<String> genders;
     ListListener listener;
     public static boolean noUsers;
 
@@ -25,9 +27,10 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         noUsers = true;
     }
 
-    public void update(Collection<String> names, Collection<Integer> distances) {
+    public void update(Collection<String> names, Collection<Integer> distances, Collection<String> genders) {
         this.userNames = (ArrayList<String>) names;
         this.distances = (ArrayList<Integer>) distances;
+        this.genders = (ArrayList<String>) genders;
         notifyDataSetChanged();
         if (FindPeopleActivity.isRunning())
             if (userNames.size() == 0) {
@@ -54,6 +57,9 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         holder.usernameTo = name;
         holder.name_text.setText(name);
         if (distances != null && distances.size() > 0) holder.distance_text.setText(distances.get(position) + " meters from you");
+
+        if (genders.get(position).equals("male")) holder.gender_img.setImageResource(R.mipmap.male);
+        else holder.gender_img.setImageResource(R.mipmap.female);
     }
 
     public int getItemCount() {
@@ -64,6 +70,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
 
         TextView name_text;
         TextView distance_text;
+        ImageView gender_img;
         String usernameTo;
 
         public ViewHolder(View itemView) {
@@ -71,7 +78,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
 
             name_text = (TextView) itemView.findViewById(R.id.name_text);
             distance_text = (TextView) itemView.findViewById(R.id.distance_text);
-
+            gender_img = (ImageView) itemView.findViewById(R.id.gender_img);
             itemView.setOnClickListener(this);
         }
 

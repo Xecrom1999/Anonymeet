@@ -146,8 +146,11 @@ public class LocationListenerService extends IntentService implements GoogleApiC
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
 
+            String gender = getSharedPreferences("data", MODE_PRIVATE).getString("gender", "");
+
             onlineUsers.child(nickname).child("latitude").setValue(latitude);
             onlineUsers.child(nickname).child("longitude").setValue(longitude);
+            onlineUsers.child(nickname).child("gender").setValue(gender);
         }
     }
 
@@ -159,7 +162,6 @@ public class LocationListenerService extends IntentService implements GoogleApiC
                     .setContentText("Status: online")
                     .setSmallIcon(android.R.drawable.ic_menu_mylocation)
                     .setShowWhen(false)
-                    .setDefaults(NotificationCompat.DEFAULT_SOUND)
                     .setVibrate(new long[]{Long.valueOf(0)})
                     .setSound(null)
                     .setOngoing(true);

@@ -4,10 +4,4 @@
     <item android:id="@+id/logout_item"
         android:title="Logout"/>
 
-    <item android:id="@+id/settings_item"
-        android:title="Settings"/>
-
-    <item android:id="@+id/number_item"
-        android:title="Show my phone number"/>
-
 </menu>

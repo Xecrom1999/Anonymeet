@@ -51,4 +51,34 @@
         android:elevation="50dp"
         />
 
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/login_button"
+        android:layout_marginLeft="10dp"
+        android:layout_alignBottom="@id/login_button"
+        android:checkedButton="@+id/male_button"
+        android:orientation="horizontal"
+        android:paddingBottom="15dp"
+        android:id="@+id/radioGroup">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Male"
+            android:textSize="17sp"
+            android:id="@+id/male_button"
+            android:textStyle="bold"/>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Female"
+            android:textSize="17sp"
+            android:id="@+id/female_button"
+            android:layout_marginLeft="10dp"
+            android:textStyle="bold" />
+
+    </RadioGroup>
+
 </RelativeLayout>

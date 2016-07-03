@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.example.or.anonymeet.R;
@@ -22,6 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     SharedPreferences preferences;
     EditText nicknameInput;
     Toolbar toolbar;
+    RadioButton female_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +46,13 @@ public class LoginActivity extends AppCompatActivity {
     public void initializeViews() {
         toolbar = (Toolbar) findViewById(R.id.toolBar1);
         nicknameInput = (EditText) findViewById(R.id.nickname);
+        female_button = (RadioButton) findViewById(R.id.female_button);
     }
 
     public void login(View view) {
 
         final String nickname = nicknameInput.getText().toString();
+
 
         users.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -62,8 +67,12 @@ public class LoginActivity extends AppCompatActivity {
                 else if (userNameExists(nickname)) nicknameInput.setError("Nickname already exists.");
 
                 else {
-                    users.child(nickname).setValue(nickname);
-                    preferences.edit().putString("nickname", nickname).commit();
+
+                    String gender = "male";
+                    if (female_button.isChecked()) gender = "female";
+
+                    users.child(nickname).setValue(gender);
+                    preferences.edit().putString("nickname", nickname).putString("gender", gender).commit();
                     startActivity(new Intent(getApplicationContext(), FindPeopleActivity.class));
                     finish();
                 }

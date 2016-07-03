@@ -22,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
@@ -61,6 +62,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.find_people_activity);
+
 
 
         nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
@@ -207,12 +209,13 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         if (iter != null) {
             Collection<String> namesList = new ArrayList();
             Collection<Integer> distancesList = new ArrayList();
+            Collection<String> gendersList = new ArrayList();
 
             for (DataSnapshot item : iter) {
 
                 String nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
-                if (!nickname.equals(item.getKey().toString()) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude")) {
+                if (!nickname.equals(item.getKey().toString()) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude") && item.hasChild("gender")) {
                     namesList.add(item.getKey().toString());
 
                     double latitude = Double.parseDouble(item.child("latitude").getValue().toString());
@@ -223,9 +226,11 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
                     float distance = targetLocation.distanceTo(LocationListenerService.getLocation());
                     distancesList.add((int) distance);
+
+                    gendersList.add(item.child("gender").getValue().toString());
                 }
             }
-            adapter.update(namesList, distancesList);
+            adapter.update(namesList, distancesList, gendersList);
         }
     }
 
