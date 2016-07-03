@@ -19,15 +19,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.telephony.PhoneNumberUtils;
-import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesDB;
@@ -36,9 +31,9 @@ import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.MutableData;
+import com.firebase.client.Transaction;
 import com.firebase.client.ValueEventListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationSettingsRequest;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,7 +41,7 @@ import java.util.Collection;
 public class FindPeopleActivity extends AppCompatActivity implements  ValueEventListener, ListListener {
 
     private static Firebase onlineUsers;
-    private String userName;
+    private static Firebase users;
     private Toolbar toolbar;
     LocationManager lm;
     static RecyclerView peopleList;
@@ -67,9 +62,8 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         super.onCreate(savedInstanceState);
         setContentView(R.layout.find_people_activity);
 
-        nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
-        Toast.makeText(getApplicationContext(), nickname, Toast.LENGTH_SHORT).show();
+        nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
         notiIntent = new Intent(this, MyService.class);
 
@@ -78,8 +72,8 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
             startActivity(i);
         }
 
-        //checkForPermission();
-        //checkForPermission2();
+        checkForPermission();
+        checkForPermission2();
         
         noUsers_text = (TextView) findViewById(R.id.noUsers_text);
 
@@ -90,11 +84,32 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         lm = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
-        userName = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
+        users = new Firebase("https://anonymeetapp.firebaseio.com/Users");
 
         initializeList();
 
         startServices();
+
+        hideMessage();
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    private void checkForPermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            int hasPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            if (hasPermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+                return;
+            }
+        }
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == 0)
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            } else {
+                Snackbar.make(peopleList, "Location Permission Denied", Snackbar.LENGTH_SHORT).show();
+            }
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -102,7 +117,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         if (Build.VERSION.SDK_INT >= 23) {
             int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.READ_PHONE_STATE);
             if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_PHONE_STATE}, 0);
+                requestPermissions(new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
                 return;
             }
         }
@@ -130,25 +145,6 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         peopleList.setAdapter(adapter);
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
-    private void checkForPermission() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            int hasPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
-            if (hasPermission != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-                return;
-            }
-        }
-    }
-
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == 0)
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            } else {
-                Snackbar.make(peopleList, "Location Permission Denied", Snackbar.LENGTH_SHORT).show();
-            }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.gps_menu, menu);
@@ -160,32 +156,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
         if (item.getItemId() == R.id.logout_item) logoutMessage();
 
-        if (item.getItemId() == R.id.settings_item) startActivity(new Intent(this, SettingsActivity.class));
-
-        if (item.getItemId() == R.id.number_item) {
-            TelephonyManager manager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-            Log.d("TAG", "phone: " + getCountryZipCode());
-        }
-
         return super.onOptionsItemSelected(item);
-    }
-
-    public String getCountryZipCode(){
-        String CountryID="";
-        String CountryZipCode="";
-
-        TelephonyManager manager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
-        //getNetworkCountryIso
-        CountryID= manager.getSimCountryIso().toUpperCase();
-        String[] rl=this.getResources().getStringArray(R.array.CountryCodes);
-        for(int i=0;i<rl.length;i++){
-            String[] g=rl[i].split(",");
-            if(g[1].trim().equals(CountryID.trim())){
-                CountryZipCode=g[0];
-                break;
-            }
-        }
-        return CountryZipCode;
     }
 
     private void logoutMessage() {
@@ -195,7 +166,6 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         builder.setPositiveButton("Logout", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
                 onLogout();
             }
         });
@@ -207,10 +177,19 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
     private void onLogout() {
         stopService(notiIntent);
-        Log.d("hiiiiiiiiiiiiii", "logout");
-        onlineUsers.unauth();
         MessagesDB myDB = new MessagesDB(this);
         myDB.deleteAll();
+
+        users.child(nickname).runTransaction(new Transaction.Handler() {
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                mutableData.setValue(null);
+                return Transaction.success(mutableData);
+            }
+
+            public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
+            }
+        });
+
 
         startActivity(new Intent(this, LoginActivity.class));
 
@@ -231,10 +210,9 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
             for (DataSnapshot item : iter) {
 
-                //String email = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
-                String email = "emailTest";
+                String nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
-                if (!email.equals(item.getKey().toString()) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude")) {
+                if (!nickname.equals(item.getKey().toString()) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude")) {
                     namesList.add(item.getKey().toString());
 
                     double latitude = Double.parseDouble(item.child("latitude").getValue().toString());

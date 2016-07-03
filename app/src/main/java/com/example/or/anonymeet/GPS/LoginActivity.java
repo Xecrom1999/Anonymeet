@@ -7,9 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
-import com.example.or.anonymeet.R;
-import com.firebase.client.Firebase;
+import android.widget.Toast;
 
+import com.example.or.anonymeet.R;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -30,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
 
         toolbar.setTitle("Getting Started");
 
-        users = new Firebase("https://anonymeetapp.firebaseio.com");
+        users = new Firebase("https://anonymeetapp.firebaseio.com/Users");
 
         preferences = getSharedPreferences("data", MODE_PRIVATE);
 
@@ -42,19 +46,40 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login(View view) {
-        String nickname = nicknameInput.getText().toString();
-        if (nickname.length() < 4) nicknameInput.setError("Nickname too short.");
 
-        else if (userNameExists(nickname)) nicknameInput.setError("Nickname already exists.");
+        final String nickname = nicknameInput.getText().toString();
 
-        else {
-            users.child("Users").child(nickname).setValue(nickname);
-            preferences.edit().putString("nickname", nickname).commit();
-            startActivity(new Intent(this, FindPeopleActivity.class));
-        }
+        users.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                boolean exists = dataSnapshot.hasChild(nickname);
+
+                if (exists) nicknameInput.setError("Nickname already exists.");
+
+                else if (nickname.length() < 4) nicknameInput.setError("Nickname too short.");
+
+                else if (userNameExists(nickname)) nicknameInput.setError("Nickname already exists.");
+
+                else {
+                    users.child(nickname).setValue(nickname);
+                    preferences.edit().putString("nickname", nickname).commit();
+                    startActivity(new Intent(getApplicationContext(), FindPeopleActivity.class));
+                    finish();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {}
+        });
+
+
+
     }
 
     private boolean userNameExists(String nickname) {
+
         return false;
     }
 }

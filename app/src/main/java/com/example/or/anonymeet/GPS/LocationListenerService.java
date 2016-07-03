@@ -14,11 +14,12 @@ import android.graphics.Color;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
@@ -32,16 +33,16 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-public class LocationListenerService extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, Firebase.AuthStateListener, GpsStatus.Listener {
+public class LocationListenerService extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, GpsStatus.Listener {
 
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 20000;
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 15000;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     public static Location mCurrentLocation;
 
-    private String childName;
+    private String nickname;
     private static Firebase onlineUsers;
 
     public static boolean providerEnabled;
@@ -65,16 +66,12 @@ public class LocationListenerService extends IntentService implements GoogleApiC
 
         ctx = this;
 
-        String email = getSharedPreferences("data", MODE_PRIVATE).getString("email", "");
-        //childName = email.substring(0, email.indexOf(".com"));
-        childName = "emailTest";
+        nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
-
-        onlineUsers.addAuthStateListener(this);
-
+        
         buildGoogleApiClient();
 
         mGoogleApiClient.connect();
@@ -127,8 +124,8 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     }
 
     protected void stopLocationUpdates() {
-        if (childName != null)
-            onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
+        if (nickname != null)
+            onlineUsers.child(nickname).runTransaction(new Transaction.Handler() {
                 public Transaction.Result doTransaction(MutableData mutableData) {
                     mutableData.setValue(null);
                     return Transaction.success(mutableData);
@@ -149,16 +146,14 @@ public class LocationListenerService extends IntentService implements GoogleApiC
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
 
-            onlineUsers.child(childName).child("latitude").setValue(latitude);
-            onlineUsers.child(childName).child("longitude").setValue(longitude);
+            onlineUsers.child(nickname).child("latitude").setValue(latitude);
+            onlineUsers.child(nickname).child("longitude").setValue(longitude);
         }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public static void buildNotification() {
-        if (onlineUsers.getAuth() != null) {
             Notification.Builder n;
-            Long[] lonsg = {Long.valueOf(0)};
             n = new Notification.Builder(ctx)
                     .setContentTitle("Anonymeet")
                     .setContentText("Status: online")
@@ -176,8 +171,7 @@ public class LocationListenerService extends IntentService implements GoogleApiC
             t.addNextIntent(i);
             PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
             n.setContentIntent(pendingIntent);
-            notificationManager.notify(0, n.build());
-        }
+            //notificationManager.notify(0, n.build());
     }
 
     protected void onHandleIntent(Intent intent) {
@@ -201,12 +195,6 @@ public class LocationListenerService extends IntentService implements GoogleApiC
         createLocationRequest();
     }
 
-    public void onAuthStateChanged(AuthData authData) {
-        if (authData == null) {
-            stopSelf();
-        }
-    }
-
     public static Location getLocation() {
         return mCurrentLocation;
     }
@@ -219,7 +207,6 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     public void onDestroy() {
         visible = false;
         LocationListenerService.cancelNotification();
-        onlineUsers.removeAuthStateListener(this);
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
         hideMe();
@@ -239,7 +226,7 @@ public class LocationListenerService extends IntentService implements GoogleApiC
             case GpsStatus.GPS_EVENT_STOPPED:
                 providerEnabled = false;
                 hideMe();
-                if (childName != null)
+                if (nickname != null)
                     hideMe();
                 if (FindPeopleActivity.isRunning())
                     FindPeopleActivity.showMessage();
@@ -251,7 +238,7 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     }
 
     private void hideMe() {
-        onlineUsers.child(childName).runTransaction(new Transaction.Handler() {
+        onlineUsers.child(nickname).runTransaction(new Transaction.Handler() {
             public Transaction.Result doTransaction(MutableData mutableData) {
                 mutableData.setValue(null);
                 return Transaction.success(mutableData);

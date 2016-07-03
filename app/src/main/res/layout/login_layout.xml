@@ -38,16 +38,17 @@
     <Button
         android:id="@+id/login_button"
         android:onClick="login"
-        android:padding="15dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/nickname"
         android:layout_alignLeft="@id/nickname"
-        android:background="#FF5722"
-        android:text="Start To Anonymeet"
+        android:background="@drawable/ripple_button"
+        android:text="Anonymeet"
         android:textSize="17sp"
         android:textAllCaps="false"
         android:textColor="@android:color/white"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="10dp"
+        android:elevation="50dp"
+        />
 
 </RelativeLayout>

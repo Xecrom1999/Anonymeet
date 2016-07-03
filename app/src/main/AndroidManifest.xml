@@ -51,7 +51,6 @@
             android:name=".GPS.LocationListenerService"
             android:exported="false" />
 
-        <activity android:name=".GPS.SettingsActivity"></activity>
     </application>
 
 </manifest>

@@ -38,6 +38,11 @@
         android:layout_height="wrap_content"
         android:text="Messages Activity"
         android:onClick="goToMessagesActivity"
-        android:layout_gravity="center_horizontal"/>
+        android:textColor="@android:color/white"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/ripple_button"
+        android:textSize="17sp"
+        android:textAllCaps="false"
+        />
 
 </LinearLayout>
