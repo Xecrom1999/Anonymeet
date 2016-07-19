@@ -63,12 +63,9 @@ public class MyService extends IntentService implements ChildEventListener{
         db = myDB.getWritableDatabase();
         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
-        String myEmail = preferences.getString("email", "");
-        //TODO changed
-        // myEmail = myEmail.substring(0, myEmail.indexOf('.'));
-        myEmail = "emailTest";
+        String myNickname = preferences.getString("nickname", "");
         myFirebaseChat = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
-        myFirebaseChat = myFirebaseChat.child(myEmail);
+        myFirebaseChat = myFirebaseChat.child(myNickname);
         myFirebaseChat.addChildEventListener(this);
         return START_STICKY;
     }
@@ -86,8 +83,9 @@ public class MyService extends IntentService implements ChildEventListener{
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-        if (dataSnapshot.getValue().toString().length() > 36 && dataSnapshot.getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
+        Log.d("hiiiiiiiiiiiiiiiiiiiiii", dataSnapshot.getValue().toString());
 
+        if (dataSnapshot.getValue().toString().length() > 36 && dataSnapshot.getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
 
             myDB.insertMessage(dataSnapshot.getKey().toString(), dataSnapshot.getValue().toString().substring(36), false);
 
@@ -98,7 +96,7 @@ public class MyService extends IntentService implements ChildEventListener{
         }
 
 
-        if (ChatActivity.isActive() && ChatActivity.emailWith.equals(dataSnapshot.getKey().toString())) {
+        if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {
             ChatActivity.recyclerAdapter.syncMessages();
             ChatActivity.scrollDown();
         } else {
@@ -121,7 +119,7 @@ public class MyService extends IntentService implements ChildEventListener{
             nm.notify(0, n.build());
         }
         if (MessagesActivity.isActive) {
-            MessagesActivity.recyclerAdapter.syncContacts();
+            MessagesActivity.usersAdapter.syncContacts();
 
         }
     }

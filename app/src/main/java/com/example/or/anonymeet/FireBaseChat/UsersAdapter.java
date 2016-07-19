@@ -29,17 +29,20 @@ class Contact{
 
 }
 
-public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
+public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder> {
 
     ArrayList<Contact> contacts;
     LayoutInflater inflater;
     MessagesDB myDB;
     SQLiteDatabase db;
     View v;
-    myListener mItemClickListener;
+    MyListener mItemClickListener;
     Context context;
+    UsersAdapter adapter = this;
 
-    public RecyclerAdapter(Context con, MessagesDB d){
+    public UsersAdapter(Context con, MessagesDB d, MyListener myListener){
+
+        this.mItemClickListener = myListener;
 
         context = con;
         inflater = LayoutInflater.from(context);
@@ -81,7 +84,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
         v = inflater.inflate(R.layout.item_recycle_view, parent, false);
 
 
-        MyViewHolder viewHolder = new MyViewHolder(v, this, mItemClickListener);
+        MyViewHolder viewHolder = new MyViewHolder(v, this);
         return viewHolder;
     }
 
@@ -104,11 +107,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
         return this.contacts.size();
     }
 
-    public void SetOnItemClickListener(final myListener mItemClickListener) {
+    public void SetOnItemClickListener(final MyListener mItemClickListener) {
         this.mItemClickListener = mItemClickListener;
     }
 
-    public void delete(int position){
+    public void delete(int position) {
 
         String contactName = contacts.get(position).name;
         db.delete(myDB.TABLE_NAME_CONV, myDB.USER + "='" + contactName + "'", null);
@@ -121,45 +124,39 @@ public class RecyclerAdapter extends RecyclerView.Adapter<MyViewHolder> {
         }
     }
 
+    class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+
+        ImageView image;
+        TextView name;
+        int position;
+
+        public MyViewHolder(View v, UsersAdapter adapter){
+            super(v);
+            image = (ImageView) v.findViewById(R.id.contactImage);
+            name = (TextView) v.findViewById(R.id.contactName);
+            v.setOnClickListener(this);
+            v.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    UsersAdapter.this.adapter.delete(getPosition());
+                    return false;
+                }
+            });
+
+        }
+
+        @Override
+        public void onClick(View v) {
+            mItemClickListener.onItemClick(v, getPosition(), name.getText().toString());
+        }
+    }
 
 }
 
-class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-
-    ImageView image;
-    RecyclerAdapter recyclerAdapter;
-    myListener mItemClickListener;
-    TextView name;
-    int position;
-
-    public MyViewHolder(View v, final RecyclerAdapter r, myListener m){
-        super(v);
-        recyclerAdapter = r;
-        image = (ImageView) v.findViewById(R.id.contactImage);
-        name = (TextView) v.findViewById(R.id.contactName);
-        mItemClickListener = m;
-        v.setOnClickListener(this);
-        v.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                r.delete(getPosition());
-                return false;
-            }
-        });
-
-    }
-
-    @Override
-    public void onClick(View v) {
-        mItemClickListener.onItemClick(v, getPosition(), name.getText().toString());
-    }
 
 
+   interface MyListener {
 
-}
-
-   interface myListener {
     public void onItemClick(View view , int position, String name);
-
 }
 

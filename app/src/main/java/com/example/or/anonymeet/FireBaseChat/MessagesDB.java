@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * Created by Or on 02/04/2016.
  */
 public class MessagesDB extends SQLiteOpenHelper {
-    static final int DATABASE_VERSION = 25;
+    static final int DATABASE_VERSION = 26;
     static final String DATABASE_NAME = "Anonymeet.db";
     static final String TABLE_NAME_CONV = "Conversations";
     static final String UID = "_id";
@@ -61,13 +61,11 @@ public class MessagesDB extends SQLiteOpenHelper {
             db.insert('"'+user+'"', null, values);
         }
         catch (Exception e){
-            Log.d("hiiiiiiiiiiiii", "tryed to insert a message but no such user");
         }
 
     }
 
     public ArrayList<MyMessage> getMessagesOfUser(String user){
-        Log.d("hiiiiiiiiiiiiiiiii", "hellooooooooo");
         SQLiteDatabase db = getWritableDatabase();
         String[] columns = {MESSAGE,IS_MINE};
         Cursor cursor = db.query('"'+user+'"', columns, null, null, null, null, null);

@@ -1,38 +1,28 @@
 package com.example.or.anonymeet.FireBaseChat;
 
-import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.firebase.client.core.Path;
-import com.firebase.client.snapshot.IndexedNode;
-import com.firebase.client.snapshot.Node;
-
-import java.util.ArrayList;
 
 
 public class ChatActivity extends AppCompatActivity {
 
     Firebase myFirebaseRef;
-    static String emailWith;
-    String myEmail;
+    static String userWith;
+    String myNickname;
     EditText SendMessage;
     SQLiteDatabase db;
     MessagesDB myDB;
@@ -69,7 +59,7 @@ public class ChatActivity extends AppCompatActivity {
         return active;
     }
     public static String userWith(){
-        return emailWith;
+        return userWith;
     }
 
     @Override
@@ -86,33 +76,21 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
         Firebase.setAndroidContext(this);
         context = this;
-        emailWith = getIntent().getStringExtra("usernameTo");
+        userWith = getIntent().getStringExtra("usernameTo");
         myDB = new MessagesDB(this);
         db = myDB.getWritableDatabase();
         recyclerView = (RecyclerView)findViewById(R.id.chatList);
-        recyclerAdapter = new ChatAdapter(this, myDB, emailWith);
+        recyclerAdapter = new ChatAdapter(this, myDB, userWith);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(recyclerAdapter);
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();
         lastMessage = preferences.getString("lastMessage", "");
-        myEmail = preferences.getString("email", "");
-        myEmail = myEmail.substring(0, myEmail.indexOf('.'));
+        myNickname = preferences.getString("nickname", "");
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         SendMessage = (EditText)findViewById(R.id.sendMessage);
-        myFirebaseRef.child(myEmail).child(emailWith).child("read").setValue(true);
         recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.messages.size() - 1);
-        myFirebaseRef.child(myEmail).child(emailWith).child("read").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.getValue()==false) myFirebaseRef.child(myEmail).child(emailWith).child("read").setValue(true);
-            }
 
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
 
 
 
@@ -121,17 +99,16 @@ public class ChatActivity extends AppCompatActivity {
     public void onClick(View view){
         if(!SendMessage.getText().toString().equals("")) {
             lastMessage = preferences.getString("lastMessage", "");
-            myDB.insertMessage(emailWith, SendMessage.getText().toString(), true);
+            myDB.insertMessage(userWith, SendMessage.getText().toString(), true);
             recyclerAdapter.syncMessages();
             if (SendMessage.getText().toString().equals(lastMessage)) {
                 String message = "cbd9b0a2-d183-45ee-9582-27df3020ff65" + SendMessage.getText().toString();
-                myFirebaseRef.child(emailWith).child(myEmail).child("message").setValue(message);
+                myFirebaseRef.child(userWith).child(myNickname).child("message").setValue(message);
                 se.putString("lastMessage", message).commit();
             } else {
-                myFirebaseRef.child(emailWith).child(myEmail).child("message").setValue(SendMessage.getText().toString());
+                myFirebaseRef.child(userWith).child(myNickname).child("message").setValue(SendMessage.getText().toString());
                 se.putString("lastMessage", SendMessage.getText().toString()).commit();
             }
-            myFirebaseRef.child(emailWith).child(myEmail).child("read").setValue(false);
             SendMessage.setText("");
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);

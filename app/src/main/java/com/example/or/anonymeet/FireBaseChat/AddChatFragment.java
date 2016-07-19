@@ -22,12 +22,12 @@ public class AddChatFragment extends Fragment {
     MessagesDB myDB;
     android.support.v4.app.FragmentTransaction ft;
     Fragment ownF;
-    RecyclerAdapter recyclerAdapter;
+    UsersAdapter recyclerAdapter;
 
     public AddChatFragment() {
         // Required empty public constructor
     }
-    public AddChatFragment(RecyclerAdapter r) {
+    public AddChatFragment(UsersAdapter r) {
         recyclerAdapter = r;
     }
 

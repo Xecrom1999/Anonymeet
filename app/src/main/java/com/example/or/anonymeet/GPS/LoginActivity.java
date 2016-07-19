@@ -31,7 +31,14 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
 
-        initializeViews();
+        preferences = getSharedPreferences("data", MODE_PRIVATE);
+
+        if(!preferences.getString("nickname", "").equals("")){
+            startActivity(new Intent(getApplicationContext(), FindPeopleActivity.class));
+            finish();
+        }
+
+            initializeViews();
 
         setSupportActionBar(toolbar);
 
@@ -39,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
 
         users = new Firebase("https://anonymeetapp.firebaseio.com/Users");
 
-        preferences = getSharedPreferences("data", MODE_PRIVATE);
+
 
     }
 

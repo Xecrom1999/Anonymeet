@@ -76,7 +76,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
         checkForPermission();
         checkForPermission2();
-        
+
         noUsers_text = (TextView) findViewById(R.id.noUsers_text);
 
         toolbar = (Toolbar) findViewById(R.id.toolBar2);

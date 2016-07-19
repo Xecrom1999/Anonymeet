@@ -12,10 +12,10 @@ import android.view.View;
 
 import com.example.or.anonymeet.R;
 
-public class MessagesActivity extends AppCompatActivity {
+public class MessagesActivity extends AppCompatActivity implements MyListener{
 
     RecyclerView recyclerView;
-    static RecyclerAdapter recyclerAdapter;
+    static UsersAdapter usersAdapter;
     SQLiteDatabase db;
     Context context;
 
@@ -59,29 +59,26 @@ public class MessagesActivity extends AppCompatActivity {
         recyclerView = (RecyclerView)findViewById(R.id.recycle);
         MessagesDB myDB = new MessagesDB(this);
         db = myDB.getWritableDatabase();
-        recyclerAdapter = new RecyclerAdapter(this, myDB);
-        recyclerAdapter.SetOnItemClickListener(new myListener() {
-            @Override
-            public void onItemClick(View view, int position, String name) {
-                Intent myintent = new Intent(context, ChatActivity.class).putExtra("usernameTo", recyclerAdapter.contacts.get(position).name);
-                startActivity(myintent);
-
-            }
-
-        });
-        recyclerView.setAdapter(recyclerAdapter);
+        usersAdapter = new UsersAdapter(this, myDB, this);
+        recyclerView.setAdapter(usersAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        f = new AddChatFragment(recyclerAdapter);
+        f = new AddChatFragment(usersAdapter);
 
     }
 
     public void addChat(View view){
 
-            f = new AddChatFragment(recyclerAdapter);
+            f = new AddChatFragment(usersAdapter);
             transaction = getSupportFragmentManager().beginTransaction();
             transaction.add(R.id.frame, f);
             transaction.show(f);
             transaction.commit();
 
+    }
+
+    @Override
+    public void onItemClick(View view, int position, String name) {
+        Intent myintent = new Intent(context, ChatActivity.class).putExtra("usernameTo", usersAdapter.contacts.get(position).name);
+        startActivity(myintent);
     }
 }
