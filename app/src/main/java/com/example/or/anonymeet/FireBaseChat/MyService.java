@@ -49,9 +49,9 @@ public class MyService extends Service implements ChildEventListener{
         myFirebaseChat = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         myFirebaseChat = myFirebaseChat.child(myNickname);
         myFirebaseChat.addChildEventListener(this);
-
-
-
+        preferences = getSharedPreferences("data", MODE_PRIVATE);
+        se = preferences.edit();
+        se.putString("check", "").commit();
 
 
     }
@@ -88,7 +88,7 @@ public class MyService extends Service implements ChildEventListener{
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         if(dataSnapshot.child("message").getValue()!=null) {
-            se.putString("check", dataSnapshot.child("message").getValue().toString());
+            se.putString("check", dataSnapshot.child("message").getValue().toString()).commit();
         }
     }
 
@@ -96,14 +96,11 @@ public class MyService extends Service implements ChildEventListener{
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
         String message;
-        if (dataSnapshot.child("read").getValue().toString().equals("false")) {
-            Log.i("hiiiiiiiiii", "a message has been recieved");
+        //TODO: find out if read or message was changed
+        if ((dataSnapshot.child("message").getValue()!=null)&&(!dataSnapshot.child("message").getValue().toString().equals(preferences.getString("check", "")))) {
+            Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
             if (dataSnapshot.child("message").getValue().toString().length() > 36 && dataSnapshot.child("message").getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
-
                 message = dataSnapshot.child("message").getValue().toString().substring(36);
-                myDB.insertMessage(dataSnapshot.getKey().toString(), dataSnapshot.child("message").getValue().toString().substring(36), false);
-
-
             } else {
                 message = dataSnapshot.child("message").getValue().toString();
             }
@@ -138,6 +135,7 @@ public class MyService extends Service implements ChildEventListener{
 
             }
         }
+        se.putString("check", dataSnapshot.child("message").getValue().toString()).commit();
     }
 
     @Override

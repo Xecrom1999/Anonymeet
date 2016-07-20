@@ -121,21 +121,24 @@ public class ChatActivity extends AppCompatActivity {
 
     public void onClick(View view){
         if(!SendMessage.getText().toString().equals("")) {
+            String message;
             lastMessage = preferences.getString("lastMessage", "");
             myDB.insertMessage(userWith, SendMessage.getText().toString(), true);
             recyclerAdapter.syncMessages();
             if (SendMessage.getText().toString().equals(lastMessage)) {
-                String message = "cbd9b0a2-d183-45ee-9582-27df3020ff65" + SendMessage.getText().toString();
-                myFirebaseRef.child(userWith).child(myNickname).child("message").setValue(message);
-                se.putString("lastMessage", message).commit();
+                message = "cbd9b0a2-d183-45ee-9582-27df3020ff65" + SendMessage.getText().toString();
+
             } else {
-                myFirebaseRef.child(userWith).child(myNickname).child("message").setValue(SendMessage.getText().toString());
-                se.putString("lastMessage", SendMessage.getText().toString()).commit();
+                message = SendMessage.getText().toString();
+
             }
+            myFirebaseRef.child(userWith).child(myNickname).child("message").setValue(message);
+            se.putString("lastMessage", message).commit();
             SendMessage.setText("");
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             scrollDown();
             myFirebaseRef.child(userWith).child(myNickname).child("read").setValue("false");
+
         }
 
     }
