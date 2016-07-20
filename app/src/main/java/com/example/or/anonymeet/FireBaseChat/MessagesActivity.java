@@ -55,6 +55,11 @@ public class MessagesActivity extends AppCompatActivity implements MyListener{
         setContentView(R.layout.activity_messages);
         isActive = true;
         context = this;
+        if(getIntent().getBooleanExtra("fromNoti", false)){
+            Intent i = new Intent(this, ChatActivity.class);
+            i.putExtra("usernameTo", getIntent().getStringExtra("usernameTo"));
+            startActivity(i);
+        }
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         recyclerView = (RecyclerView)findViewById(R.id.recycle);
         MessagesDB myDB = new MessagesDB(this);
