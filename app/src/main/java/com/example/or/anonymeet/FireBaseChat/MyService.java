@@ -95,17 +95,19 @@ public class MyService extends Service implements ChildEventListener{
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
+        String message;
         if (dataSnapshot.child("read").getValue().toString().equals("false")) {
             Log.i("hiiiiiiiiii", "a message has been recieved");
-            if (dataSnapshot.getValue().toString().length() > 36 && dataSnapshot.child("message").getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
+            if (dataSnapshot.child("message").getValue().toString().length() > 36 && dataSnapshot.child("message").getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
 
+                message = dataSnapshot.child("message").getValue().toString().substring(36);
                 myDB.insertMessage(dataSnapshot.getKey().toString(), dataSnapshot.child("message").getValue().toString().substring(36), false);
 
 
             } else {
-
-                myDB.insertMessage(dataSnapshot.getKey().toString(), dataSnapshot.child("message").getValue().toString(), false);
+                message = dataSnapshot.child("message").getValue().toString();
             }
+            myDB.insertMessage(dataSnapshot.getKey().toString(), message, false);
 
 
             if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {
@@ -114,8 +116,8 @@ public class MyService extends Service implements ChildEventListener{
             } else {
 
                 Notification.Builder n = new Notification.Builder(getApplicationContext())
-                        .setContentTitle("New message from ")
-                        .setContentText(dataSnapshot.getValue().toString())
+                        .setContentTitle("New message from " + dataSnapshot.getKey().toString())
+                        .setContentText(dataSnapshot.child("message").getValue().toString())
                         .setSmallIcon(R.drawable.contact)
                         .setAutoCancel(true)
                         .setTicker("hiiiiii")
@@ -124,6 +126,7 @@ public class MyService extends Service implements ChildEventListener{
                 TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
                 Intent i = new Intent(getApplicationContext(), FindPeopleActivity.class);
                 i.putExtra("fromNoti", true);
+                i.putExtra("usernameFrom", dataSnapshot.getKey().toString());
                 t.addParentStack(FindPeopleActivity.class);
                 t.addNextIntent(i);
                 PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -133,8 +136,6 @@ public class MyService extends Service implements ChildEventListener{
             if (MessagesActivity.isActive) {
                 MessagesActivity.usersAdapter.syncContacts();
 
-
-                se.putString("check", dataSnapshot.child("message").getValue().toString());
             }
         }
     }

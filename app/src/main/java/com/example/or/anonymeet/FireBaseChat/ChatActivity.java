@@ -134,7 +134,6 @@ public class ChatActivity extends AppCompatActivity {
             }
             SendMessage.setText("");
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
             scrollDown();
             myFirebaseRef.child(userWith).child(myNickname).child("read").setValue("false");
         }
@@ -144,7 +143,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
     public static void scrollDown(){
-        recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.getItemCount() - 2);
+        recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.getItemCount() - 1);
         myFirebaseRef.child(myNickname).child(userWith).child("read").setValue("true");
     }
 }
