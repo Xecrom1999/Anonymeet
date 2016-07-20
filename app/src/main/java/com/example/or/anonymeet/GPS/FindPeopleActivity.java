@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -22,7 +23,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
@@ -63,10 +63,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         super.onCreate(savedInstanceState);
         setContentView(R.layout.find_people_activity);
 
-
-
         nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
-
 
         if(getIntent().getBooleanExtra("fromNoti", false)){
             Intent i = new Intent(this, MessagesActivity.class);
@@ -192,6 +189,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
             }
         });
 
+        getSharedPreferences("data", MODE_PRIVATE).edit().clear().commit();
 
         startActivity(new Intent(this, LoginActivity.class));
 

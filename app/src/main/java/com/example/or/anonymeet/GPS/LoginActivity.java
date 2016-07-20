@@ -38,15 +38,13 @@ public class LoginActivity extends AppCompatActivity {
             finish();
         }
 
-            initializeViews();
+        initializeViews();
 
         setSupportActionBar(toolbar);
 
         toolbar.setTitle("Getting Started");
 
         users = new Firebase("https://anonymeetapp.firebaseio.com/Users");
-
-
 
     }
 
@@ -83,7 +81,6 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(new Intent(getApplicationContext(), FindPeopleActivity.class));
                     finish();
                 }
-
             }
 
             @Override

@@ -6,6 +6,7 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
@@ -16,12 +17,9 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -33,10 +31,10 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-public class LocationListenerService extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, GpsStatus.Listener {
+public class LocationListenerService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, GpsStatus.Listener {
 
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 20000;
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 15000;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 3000;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -56,7 +54,6 @@ public class LocationListenerService extends IntentService implements GoogleApiC
     boolean visible;
 
     public LocationListenerService() {
-        super("LocationListenerService");
     }
 
     @Override
@@ -83,7 +80,7 @@ public class LocationListenerService extends IntentService implements GoogleApiC
         if (FindPeopleActivity.isRunning())
         cancelNotification();
 
-        return START_STICKY;
+        return super.onStartCommand(intent, flags, startId);
     }
 
     private void setupGPS() {
@@ -213,6 +210,12 @@ public class LocationListenerService extends IntentService implements GoogleApiC
         mGoogleApiClient.disconnect();
         hideMe();
         super.onDestroy();
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     public void onGpsStatusChanged(int event) {
