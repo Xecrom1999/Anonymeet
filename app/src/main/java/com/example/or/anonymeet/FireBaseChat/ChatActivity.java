@@ -119,7 +119,6 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-
     public void onClick(View view){
         if(!SendMessage.getText().toString().equals("")) {
             lastMessage = preferences.getString("lastMessage", "");
