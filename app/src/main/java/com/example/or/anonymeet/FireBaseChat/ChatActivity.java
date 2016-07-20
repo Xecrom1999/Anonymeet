@@ -136,6 +136,7 @@ public class ChatActivity extends AppCompatActivity {
             se.putString("lastMessage", message).commit();
             SendMessage.setText("");
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
             scrollDown();
             myFirebaseRef.child(userWith).child(myNickname).child("read").setValue("false");
 
