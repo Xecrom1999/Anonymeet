@@ -4,10 +4,13 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -18,47 +21,26 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 
-public class MyService extends IntentService implements ChildEventListener{
+public class MyService extends Service implements ChildEventListener{
 
-    boolean activityOn;
+
     MessagesDB myDB;
     SQLiteDatabase db;
     Firebase myFirebaseChat;
     NotificationManager nm;
+    SharedPreferences preferences;
+    SharedPreferences.Editor se;
     public static boolean isActive;
 
     public MyService() {
-        super("myService");
+
 }
 
     @Override
     public void onCreate() {
         super.onCreate();
-
-
-
-    }
-
-    @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-    }
-
-    @Override
-    public void onDestroy() {
-        myFirebaseChat.removeEventListener(this);
-        isActive = false;
-        super.onDestroy();
-    }
-
-
-
-
-    @Override
-    public int onStartCommand(final Intent intent, int flags, int startId) {
-        Log.d("hiiiiiiiiiiiiiii", "started");
+        Log.i("hiiiiiiiiiiii", "onCreate");
         isActive = true;
-        activityOn = false;
         myDB = new MessagesDB(this);
         db = myDB.getWritableDatabase();
         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -67,60 +49,94 @@ public class MyService extends IntentService implements ChildEventListener{
         myFirebaseChat = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         myFirebaseChat = myFirebaseChat.child(myNickname);
         myFirebaseChat.addChildEventListener(this);
-        return START_STICKY;
+
+
+
+
+
     }
+
+
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-
+    public void onDestroy() {
+        Log.i("hiiiiiiiiiiii", "onCreate");
+        myFirebaseChat.removeEventListener(this);
+        isActive = false;
+        super.onDestroy();
     }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+
+    @Override
+    public int onStartCommand(final Intent intent, int flags, int startId) {
+        Log.i("hiiiiiiiiiiii", "onStartCommand");
+        preferences = getSharedPreferences("data", MODE_PRIVATE);
+        se = preferences.edit();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+
+
 
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
+        if(dataSnapshot.child("message").getValue()!=null) {
+            se.putString("check", dataSnapshot.child("message").getValue().toString());
+        }
     }
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-        Log.d("hiiiiiiiiiiiiiiiiiiiiii", dataSnapshot.getValue().toString());
 
-        if (dataSnapshot.getValue().toString().length() > 36 && dataSnapshot.getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
+        if (dataSnapshot.child("message").getValue()!= null) {
+            if (!dataSnapshot.child("message").getValue().toString().equals(preferences.getString("check", ""))) {
+                Log.i("hiiiiiiiiii", "a message has been recieved");
+                if (dataSnapshot.getValue().toString().length() > 36 && dataSnapshot.child("message").getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
 
-            myDB.insertMessage(dataSnapshot.getKey().toString(), dataSnapshot.getValue().toString().substring(36), false);
-
-
-        } else {
-
-            myDB.insertMessage(dataSnapshot.getKey().toString(), dataSnapshot.getValue().toString(), false);
-        }
+                    myDB.insertMessage(dataSnapshot.getKey().toString(), dataSnapshot.child("message").getValue().toString().substring(36), false);
 
 
-        if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {
-            ChatActivity.recyclerAdapter.syncMessages();
-            ChatActivity.scrollDown();
-        } else {
+                } else {
 
-            Notification.Builder n = new Notification.Builder(getApplicationContext())
-                    .setContentTitle("New message from a " + "")
-                    .setContentText(dataSnapshot.getValue().toString())
-                    .setSmallIcon(R.drawable.contact)
-                    .setAutoCancel(true)
-                    .setTicker("hiiiiii")
-                    .setPriority(Notification.PRIORITY_HIGH)
-                    .setDefaults(NotificationCompat.DEFAULT_SOUND);
-            TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
-            Intent i = new Intent(getApplicationContext(), FindPeopleActivity.class);
-            i.putExtra("fromNoti", true);
-            t.addParentStack(FindPeopleActivity.class);
-            t.addNextIntent(i);
-            PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-            n.setContentIntent(pendingIntent);
-            nm.notify(0, n.build());
-        }
-        if (MessagesActivity.isActive) {
-            MessagesActivity.usersAdapter.syncContacts();
+                    myDB.insertMessage(dataSnapshot.getKey().toString(), dataSnapshot.child("message").getValue().toString(), false);
+                }
 
+
+                if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {
+                    ChatActivity.recyclerAdapter.syncMessages();
+                    ChatActivity.scrollDown();
+                } else {
+
+                    Notification.Builder n = new Notification.Builder(getApplicationContext())
+                            .setContentTitle("New message from ")
+                            .setContentText(dataSnapshot.getValue().toString())
+                            .setSmallIcon(R.drawable.contact)
+                            .setAutoCancel(true)
+                            .setTicker("hiiiiii")
+                            .setPriority(Notification.PRIORITY_HIGH)
+                            .setDefaults(NotificationCompat.DEFAULT_SOUND);
+                    TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
+                    Intent i = new Intent(getApplicationContext(), FindPeopleActivity.class);
+                    i.putExtra("fromNoti", true);
+                    t.addParentStack(FindPeopleActivity.class);
+                    t.addNextIntent(i);
+                    PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                    n.setContentIntent(pendingIntent);
+                    nm.notify(0, n.build());
+                }
+                if (MessagesActivity.isActive) {
+                    MessagesActivity.usersAdapter.syncContacts();
+
+                }
+            }
+            se.putString("check", dataSnapshot.child("message").getValue().toString());
         }
     }
 

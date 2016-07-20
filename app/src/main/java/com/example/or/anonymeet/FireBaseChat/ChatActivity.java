@@ -7,9 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
@@ -20,12 +22,13 @@ import com.firebase.client.ValueEventListener;
 
 public class ChatActivity extends AppCompatActivity {
 
-    Firebase myFirebaseRef;
+    static Firebase myFirebaseRef;
     static String userWith;
-    String myNickname;
+    static String myNickname;
     EditText SendMessage;
     SQLiteDatabase db;
     MessagesDB myDB;
+    ImageView isRead;
     SharedPreferences preferences;
     SharedPreferences.Editor se;
     String lastMessage;
@@ -90,6 +93,26 @@ public class ChatActivity extends AppCompatActivity {
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         SendMessage = (EditText)findViewById(R.id.sendMessage);
         recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.messages.size() - 1);
+        isRead = (ImageView)findViewById(R.id.read);
+        myFirebaseRef.child(myNickname).child(userWith).child("read").setValue("true");
+        myFirebaseRef.child(userWith).child(myNickname).child("read").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if(dataSnapshot.getValue()!=null){
+                    if(dataSnapshot.getValue().toString().equals("true")){
+                        isRead.setImageResource(R.drawable.read);
+                    }
+                    else isRead.setImageResource(R.drawable.unread);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
 
 
 
@@ -109,15 +132,19 @@ public class ChatActivity extends AppCompatActivity {
                 myFirebaseRef.child(userWith).child(myNickname).child("message").setValue(SendMessage.getText().toString());
                 se.putString("lastMessage", SendMessage.getText().toString()).commit();
             }
+            myFirebaseRef.child(userWith).child(myNickname).child("read").setValue("false");
             SendMessage.setText("");
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
+            scrollDown();
         }
 
     }
 
-    public static void scrollDown(){
-        recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.getItemCount()-2);
 
+
+    public static void scrollDown(){
+        recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.getItemCount() - 2);
+        myFirebaseRef.child(myNickname).child(userWith).child("read").setValue("true");
     }
 }

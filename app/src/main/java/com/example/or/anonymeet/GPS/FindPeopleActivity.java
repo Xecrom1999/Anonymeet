@@ -67,7 +67,6 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
         nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
-        notiIntent = new Intent(this, MyService.class);
 
         if(getIntent().getBooleanExtra("fromNoti", false)){
             Intent i = new Intent(this, MessagesActivity.class);
@@ -126,9 +125,10 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     }
 
     private void startServices() {
-        if(!MyService.isActive) {
+       // if(!MyService.isActive) {
+            notiIntent = new Intent(this, MyService.class);
             startService(notiIntent);
-        }
+       // }
         onlineUsers.addValueEventListener(this);
 
         startLocationService();
