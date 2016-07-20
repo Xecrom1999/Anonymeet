@@ -132,11 +132,11 @@ public class ChatActivity extends AppCompatActivity {
                 myFirebaseRef.child(userWith).child(myNickname).child("message").setValue(SendMessage.getText().toString());
                 se.putString("lastMessage", SendMessage.getText().toString()).commit();
             }
-            myFirebaseRef.child(userWith).child(myNickname).child("read").setValue("false");
             SendMessage.setText("");
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(SendMessage.getWindowToken(), 0);
             scrollDown();
+            myFirebaseRef.child(userWith).child(myNickname).child("read").setValue("false");
         }
 
     }

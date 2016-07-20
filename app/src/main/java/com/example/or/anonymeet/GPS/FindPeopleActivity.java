@@ -281,6 +281,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         }
     }
 
+
     @Override
     protected void onStop() {
         super.onStop();
