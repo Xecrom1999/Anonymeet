@@ -7,14 +7,17 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="#f2f2f2"
     android:layoutDirection="ltr"
-    tools:context="com.example.or.anonymeet.ChatActivity">
+    tools:context="com.example.or.anonymeet.FireBaseChat.ChatActivity">
     <ImageButton
         android:src="@android:drawable/ic_menu_send"
         android:onClick="onClick"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
         android:id="@+id/send"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true" />
 
