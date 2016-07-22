@@ -250,9 +250,10 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
     public void startChat(String userName, String gender) {
         MessagesDB myDB = new MessagesDB(this);
-        myDB.insertUser(userName, gender);
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("usernameTo", userName);
+        intent.putExtra("userWasExisted", myDB.userExists(userName));
+        myDB.insertUser(userName, gender);
         startActivity(intent);
     }
 
