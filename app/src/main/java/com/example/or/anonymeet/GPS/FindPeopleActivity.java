@@ -315,9 +315,9 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
     public void enableLocationServices(View view) {
 
-        locationChecker(LocationListenerService.getApi(), this);
+        if (Build.VERSION.SDK_INT >= 22) locationChecker(LocationListenerService.getApi(), this);
 
-       /* if (!LocationListenerService.providerEnabled) {
+        else if (!LocationListenerService.providerEnabled) {
             final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivityForResult(intent, 0);
 
@@ -342,7 +342,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
               }
           });
             manager.removeGpsStatusListener(listener);
-        }*/
+        }
     }
 
     public void locationChecker(GoogleApiClient mGoogleApiClient, final Activity activity) {
