@@ -320,6 +320,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
           manager.addGpsStatusListener(new GpsStatus.Listener() {
               @Override
               public void onGpsStatusChanged(int event) {
+                  if (event == GpsStatus.GPS_EVENT_STARTED) finishActivity(0);
               }
           });
             manager.removeGpsStatusListener(listener);
