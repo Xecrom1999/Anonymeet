@@ -124,10 +124,10 @@ public class ChatActivity extends AppCompatActivity {
         myFirebaseRef.child(userWith).child(myNickname).child("arrived").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.exists() && !getIntent().getBooleanExtra("userWasExisted", false)){
+                if(!dataSnapshot.exists() || !getIntent().getBooleanExtra("userWasExisted", false)){
                     arrived.setVisibility(View.INVISIBLE);
                     isRead.setVisibility(View.INVISIBLE);
-                } else if(dataSnapshot.getValue().toString().equals("true")){
+                } else if(dataSnapshot.exists() && dataSnapshot.getValue().toString().equals("true")){
                     arrived.setVisibility(View.INVISIBLE);
                     isRead.setVisibility(View.VISIBLE);
                 }
