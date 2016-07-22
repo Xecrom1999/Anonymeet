@@ -15,30 +15,29 @@ import java.util.ArrayList;
  * Created by Or on 02/04/2016.
  */
 public class MessagesDB extends SQLiteOpenHelper {
-    static final int DATABASE_VERSION = 26;
+    static final int DATABASE_VERSION = 36;
     static final String DATABASE_NAME = "Anonymeet.db";
     static final String TABLE_NAME_CONV = "Conversations";
     static final String UID = "_id";
     static final String USER = "User";
+    static final String Gender = "Gender";
     static final String MESSAGE = "Message";
     static final String IS_MINE = "IsMine";
 
     private static final String CREATE_TABLE_CONV = "CREATE TABLE IF NOT EXISTS "+TABLE_NAME_CONV+" ("+
             UID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
-            USER+" varchar(225));";
+            USER+" varchar(225), "+
+            Gender+" varchar(225));";
 
 
-    public void insertUser(String user){
+    public void insertUser(String user, String gender){
         SQLiteDatabase db = getWritableDatabase();
-        boolean f = false;
-        String[] columns = {USER};
-        Cursor cursor = db.query('"' + TABLE_NAME_CONV + '"', columns, null, null, null, null, null);
-        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
-            if(cursor.getString(cursor.getColumnIndex(USER)).equals(user)) f = true;
-        }
+        boolean f = userExists(user);
         if(!f) {
             ContentValues values = new ContentValues();
             values.put(USER, user);
+            Log.i("ddddd", gender);
+            values.put(Gender, gender);
             db.insert(TABLE_NAME_CONV, null, values);
         }
             db.execSQL("CREATE TABLE IF NOT EXISTS " + '"' + user + '"' + " (" +
@@ -48,9 +47,21 @@ public class MessagesDB extends SQLiteOpenHelper {
 
     }
 
+    public boolean userExists(String user){
+        SQLiteDatabase db = getWritableDatabase();
+        boolean f = false;
+        String[] columns = {USER};
+        Cursor cursor = db.query('"' + TABLE_NAME_CONV + '"', columns, null, null, null, null, null);
+        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
+            if(cursor.getString(cursor.getColumnIndex(USER)).equals(user)) f = true;
+        }
+
+        return f;
+
+    }
+
     public void insertMessage(String user, String message, boolean isMine){
         SQLiteDatabase db = getWritableDatabase();
-        insertUser(user);
         ContentValues values = new ContentValues();
         values.put(MESSAGE, message);
         String i;

@@ -20,6 +20,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
+
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -204,6 +206,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
 
     @Override
     public void onDestroy() {
+        Log.d("TAG", "onDestroy");
         visible = false;
         LocationListenerService.cancelNotification();
         stopLocationUpdates();
@@ -226,6 +229,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
                 mGoogleApiClient.connect();
                 if (FindPeopleActivity.isRunning())
                     FindPeopleActivity.hideMessage();
+
                 break;
 
             case GpsStatus.GPS_EVENT_STOPPED:

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +21,13 @@ import java.util.ArrayList;
 class Contact{
     int photo;
     String name;
+    String gender;
 
-    public Contact(String name){
-        this.photo= R.drawable.contact;
+    public Contact(String name, String gender){
+
+        this.gender = gender;
+        if(gender.equals("male"))this.photo = R.drawable.boy2;
+        else this.photo= R.drawable.girl2;
         this.name=name;
 
     }
@@ -48,30 +53,23 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         inflater = LayoutInflater.from(context);
         myDB = d;
         db = myDB.getWritableDatabase();
-        contacts = new ArrayList<Contact>();
-        String[] columns = {myDB.USER};
-        Cursor cursor = db.query(myDB.TABLE_NAME_CONV, columns, null, null, null, null, null);
-        Contact contact;
-        String user;
-        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
-
-            user = cursor.getString(cursor.getColumnIndex(myDB.USER));
-            contact = new Contact(user);
-            contacts.add(contact);
-        }
+        syncContacts();
 
     }
 
     public void syncContacts(){
         contacts = new ArrayList<Contact>();
-        String[] columns = {myDB.USER};
+        String[] columns = {myDB.USER, myDB.Gender};
         Cursor cursor = db.query(myDB.TABLE_NAME_CONV, columns, null, null, null, null, null);
         Contact contact;
         String user;
+        String gender;
         for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
 
             user = cursor.getString(cursor.getColumnIndex(myDB.USER));
-            contact = new Contact(user);
+            gender = cursor.getString(cursor.getColumnIndex(myDB.Gender));
+            Log.i("cccccccccccccc", gender);
+            contact = new Contact(user, gender);
             contacts.add(contact);
         }
         notifyDataSetChanged();

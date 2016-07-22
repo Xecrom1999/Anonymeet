@@ -67,18 +67,6 @@ public class MessagesActivity extends AppCompatActivity implements MyListener{
         usersAdapter = new UsersAdapter(this, myDB, this);
         recyclerView.setAdapter(usersAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        f = new AddChatFragment(usersAdapter);
-
-    }
-
-    public void addChat(View view){
-
-            f = new AddChatFragment(usersAdapter);
-            transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.frame, f);
-            transaction.show(f);
-            transaction.commit();
-
     }
 
     @Override

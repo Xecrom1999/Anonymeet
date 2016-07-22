@@ -20,10 +20,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesDB;
@@ -47,12 +50,10 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     LocationManager lm;
     static RecyclerView peopleList;
     PeopleListAdapter adapter;
-    Intent intent;
+    Intent locIntent;
     Intent notiIntent;
-
     static boolean isRunning;
     static TextView noUsers_text;
-
     static final String noUsers_message = "No online users near by.";
     static final String locationDisabled_message = "Touch to enable location services.";
 
@@ -63,6 +64,8 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         super.onCreate(savedInstanceState);
         setContentView(R.layout.find_people_activity);
 
+        locIntent = new Intent(getApplicationContext(), LocationListenerService.class);
+
         nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
         if(getIntent().getBooleanExtra("fromNoti", false)){
@@ -71,6 +74,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
             i.putExtra("usernameTo", getIntent().getStringExtra("usernameFrom"));
             startActivity(i);
         }
+
 
         checkForPermission();
         checkForPermission2();
@@ -91,6 +95,8 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         startServices();
 
         hideMessage();
+
+
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -104,14 +110,6 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         }
     }
 
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == 0)
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            } else {
-                Snackbar.make(peopleList, "Location Permission Denied", Snackbar.LENGTH_SHORT).show();
-            }
-    }
-
     @TargetApi(Build.VERSION_CODES.M)
     private void checkForPermission2() {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -121,6 +119,14 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
                 return;
             }
         }
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == 0)
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            } else {
+                Snackbar.make(peopleList, "Location Permission Denied", Snackbar.LENGTH_SHORT).show();
+            }
     }
 
     private void startServices() {
@@ -134,8 +140,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     }
 
     private void startLocationService() {
-        intent = new Intent(getApplicationContext(), LocationListenerService.class);
-        startService(intent);
+        startService(locIntent);
     }
 
     private void initializeList() {
@@ -178,15 +183,15 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
     private void onLogout() {
         stopService(notiIntent);
+        stopService(locIntent);
         MessagesDB myDB = new MessagesDB(this);
         myDB.deleteAll();
 
-        users.child(nickname).runTransaction(new Transaction.Handler() {
+        onlineUsers.child(nickname).runTransaction(new Transaction.Handler() {
             public Transaction.Result doTransaction(MutableData mutableData) {
                 mutableData.setValue(null);
                 return Transaction.success(mutableData);
             }
-
             public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
             }
         });
@@ -237,9 +242,9 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     public void onCancelled(FirebaseError firebaseError) {
     }
 
-    public void startChat(String userName) {
+    public void startChat(String userName, String gender) {
         MessagesDB myDB = new MessagesDB(this);
-        myDB.insertUser(userName);
+        myDB.insertUser(userName, gender);
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("usernameTo", userName);
         startActivity(intent);

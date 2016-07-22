@@ -20,6 +20,7 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 public class MyService extends Service implements ChildEventListener{
 
@@ -27,9 +28,11 @@ public class MyService extends Service implements ChildEventListener{
     MessagesDB myDB;
     SQLiteDatabase db;
     Firebase myFirebaseChat;
+    Firebase myFirebaseUsers;
     NotificationManager nm;
     SharedPreferences preferences;
     SharedPreferences.Editor se;
+    String gender;
     public static boolean isActive;
 
     public MyService() {
@@ -46,6 +49,7 @@ public class MyService extends Service implements ChildEventListener{
         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
         String myNickname = preferences.getString("nickname", "");
+        myFirebaseUsers = new Firebase("https://anonymeetapp.firebaseio.com/Users");
         myFirebaseChat = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         myFirebaseChat = myFirebaseChat.child(myNickname);
         myFirebaseChat.addChildEventListener(this);
@@ -104,7 +108,25 @@ public class MyService extends Service implements ChildEventListener{
             } else {
                 message = dataSnapshot.child("message").getValue().toString();
             }
+            if(!myDB.userExists(dataSnapshot.getKey().toString())){
+                myFirebaseUsers.child(dataSnapshot.getKey().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        gender = dataSnapshot.getValue().toString();
+                        Log.i("cccccc", gender);
+
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+
+                myDB.insertUser(dataSnapshot.getKey().toString(), "female");
+            }
             myDB.insertMessage(dataSnapshot.getKey().toString(), message, false);
+
 
 
             if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {
@@ -113,7 +135,7 @@ public class MyService extends Service implements ChildEventListener{
             } else {
 
                 Notification.Builder n = new Notification.Builder(getApplicationContext())
-                        .setContentTitle("New message from " + dataSnapshot.getKey().toString())
+                        .setContentTitle(dataSnapshot.getKey().toString() + "sent a message")
                         .setContentText(dataSnapshot.child("message").getValue().toString())
                         .setSmallIcon(R.drawable.contact)
                         .setAutoCancel(true)

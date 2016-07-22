@@ -56,6 +56,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         String name = userNames.get(position);
         holder.usernameTo = name;
         holder.name_text.setText(name);
+        holder.gender = genders.get(position);
         if (distances != null && distances.size() > 0) holder.distance_text.setText(distances.get(position) + " meters from you");
 
         if (genders.get(position).equals("male")) holder.gender_img.setImageResource(R.mipmap.male);
@@ -72,6 +73,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         TextView distance_text;
         ImageView gender_img;
         String usernameTo;
+        String gender;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -83,7 +85,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         }
 
         public void onClick(View v) {
-            listener.startChat(usernameTo);
+            listener.startChat(usernameTo, gender);
         }
     }
 }
