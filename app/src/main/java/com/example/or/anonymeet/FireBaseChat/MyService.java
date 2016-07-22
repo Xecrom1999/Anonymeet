@@ -58,14 +58,13 @@ public class MyService extends Service implements ChildEventListener{
         se = preferences.edit();
         se.putString("check", "").commit();
 
-
     }
 
 
 
     @Override
     public void onDestroy() {
-        Log.i("hiiiiiiiiiiii", "onCreate");
+        Log.i("hiiiiiiiiiiii", "onDestroy");
         myFirebaseChat.removeEventListener(this);
         isActive = false;
         super.onDestroy();
@@ -135,7 +134,7 @@ public class MyService extends Service implements ChildEventListener{
             } else {
 
                 Notification.Builder n = new Notification.Builder(getApplicationContext())
-                        .setContentTitle(dataSnapshot.getKey().toString() + "sent a message")
+                        .setContentTitle(dataSnapshot.getKey().toString() + " sent a message")
                         .setContentText(cleanCode(dataSnapshot.child("message").getValue().toString()))
                         .setSmallIcon(R.drawable.contact)
                         .setAutoCancel(true)
