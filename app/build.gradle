@@ -8,7 +8,7 @@ android {
         exclude 'META-INF/NOTICE'
     }
 
-    compileSdkVersion 'Google Apis:Google Apis:23'
+    compileSdkVersion 22
     buildToolsVersion "23.0.2"
 
     defaultConfig {

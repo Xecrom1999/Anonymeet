@@ -100,9 +100,9 @@ public class MyService extends Service implements ChildEventListener{
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-
+        Log.i("hiiiiiiiiii", "child changed");
         //finding out if read or message was changed
-        if ((dataSnapshot.child("message").getValue()!=null)&&(!dataSnapshot.child("message").getValue().toString().equals(preferences.getString("check", "")))) {
+        if ((!dataSnapshot.child("message").getValue().toString().equals(null))&&(!dataSnapshot.child("message").getValue().toString().equals(preferences.getString("check", "")))) {
             Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
             if (dataSnapshot.child("message").getValue().toString().length() > 36 && dataSnapshot.child("message").getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
                 message = dataSnapshot.child("message").getValue().toString().substring(36);
