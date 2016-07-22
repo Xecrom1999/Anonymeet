@@ -94,9 +94,9 @@ public class ChatActivity extends AppCompatActivity {
         SendMessage = (EditText)findViewById(R.id.sendMessage);
         recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.messages.size() - 1);
         isRead = (ImageView)findViewById(R.id.read);
-        SendMessage.setOnClickListener(new View.OnClickListener() {
+        recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
-            public void onClick(View v) {
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
                 scrollDown();
             }
         });
