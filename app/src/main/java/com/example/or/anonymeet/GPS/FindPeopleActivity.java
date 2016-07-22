@@ -88,6 +88,10 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
             i.putExtra("usernameTo", getIntent().getStringExtra("usernameFrom"));
             startActivity(i);
         }
+        if(getIntent().getBooleanExtra("fromNotiFew", false)){
+            Intent i = new Intent(this, MessagesActivity.class);
+            startActivity(i);
+        }
 
         checkForPermission();
 

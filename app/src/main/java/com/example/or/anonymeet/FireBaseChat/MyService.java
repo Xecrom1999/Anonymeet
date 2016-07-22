@@ -34,6 +34,7 @@ public class MyService extends Service implements ChildEventListener{
     SharedPreferences.Editor se;
     String gender;
     String message;
+    int numOfNoti = 0;
     public static boolean isActive;
 
     public MyService() {
@@ -109,6 +110,7 @@ public class MyService extends Service implements ChildEventListener{
                 myFirebaseUsers.child(dataSnapshot.getKey().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        myFirebaseChat.child()
                         gender = dataSnapshot.child("gender").getValue().toString();
                         myDB.insertUser(dataSnapshot.getKey().toString(), gender);
                         myDB.insertMessage(dataSnapshot.getKey().toString(), message, false);
@@ -133,23 +135,10 @@ public class MyService extends Service implements ChildEventListener{
                 ChatActivity.scrollDown();
             } else {
 
-                Notification.Builder n = new Notification.Builder(getApplicationContext())
-                        .setContentTitle(dataSnapshot.getKey().toString() + " sent a message")
-                        .setContentText(cleanCode(dataSnapshot.child("message").getValue().toString()))
-                        .setSmallIcon(R.drawable.contact)
-                        .setAutoCancel(true)
-                        .setTicker("hiiiiii")
-                        .setPriority(Notification.PRIORITY_HIGH)
-                        .setDefaults(NotificationCompat.DEFAULT_SOUND);
-                TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
-                Intent i = new Intent(getApplicationContext(), FindPeopleActivity.class);
-                i.putExtra("fromNoti", true);
-                i.putExtra("usernameFrom", dataSnapshot.getKey().toString());
-                t.addParentStack(FindPeopleActivity.class);
-                t.addNextIntent(i);
-                PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-                n.setContentIntent(pendingIntent);
-                nm.notify(0, n.build());
+                numOfNoti+=1;
+                if(numOfNoti == 1) notifyOne(dataSnapshot.getKey().toString(), cleanCode(dataSnapshot.child("message").getValue().toString()));
+                else notifyFew();
+
             }
             if (MessagesActivity.isActive) {
                 MessagesActivity.usersAdapter.syncContacts();
@@ -164,6 +153,44 @@ public class MyService extends Service implements ChildEventListener{
             m = m.substring(36);
         }
         return m;
+    }
+
+    public void notifyOne(String sender, String m){
+        Notification.Builder n = new Notification.Builder(getApplicationContext())
+                .setContentTitle(sender + " sent a message")
+                .setContentText(m)
+                .setSmallIcon(R.drawable.contact)
+                .setAutoCancel(true)
+                .setTicker("hiiiiii")
+                .setPriority(Notification.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_SOUND);
+        TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
+        Intent i = new Intent(getApplicationContext(), FindPeopleActivity.class);
+        i.putExtra("fromNoti", true);
+        i.putExtra("usernameFrom", sender);
+        t.addParentStack(FindPeopleActivity.class);
+        t.addNextIntent(i);
+        PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        n.setContentIntent(pendingIntent);
+        nm.notify(0, n.build());
+    }
+
+    public void notifyFew(){
+        Notification.Builder n = new Notification.Builder(getApplicationContext())
+                .setContentTitle("You have " + numOfNoti + " new messages")
+                .setSmallIcon(R.drawable.contact)
+                .setAutoCancel(true)
+                .setTicker("hiiiiii")
+                .setPriority(Notification.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_SOUND);
+        TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
+        Intent i = new Intent(getApplicationContext(), FindPeopleActivity.class);
+        i.putExtra("fromNotiFew", true);
+        t.addParentStack(FindPeopleActivity.class);
+        t.addNextIntent(i);
+        PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        n.setContentIntent(pendingIntent);
+        nm.notify(0, n.build());
     }
 
     @Override
