@@ -1,11 +1,16 @@
 package com.example.or.anonymeet.FireBaseChat;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -128,15 +133,48 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         TextView name;
         int position;
 
-        public MyViewHolder(View v, UsersAdapter adapter){
+        public MyViewHolder(View v, final UsersAdapter adapter){
             super(v);
             image = (ImageView) v.findViewById(R.id.contactImage);
             name = (TextView) v.findViewById(R.id.contactName);
+            v.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if(event.getAction() == MotionEvent.ACTION_DOWN){
+                        v.setBackgroundColor(context.getResources().getColor(R.color.colorChangeContact));
+                    }
+                    if(event.getAction() == MotionEvent.ACTION_UP){
+                        v.setBackgroundColor(Color.WHITE);
+                    }
+
+                    return false;
+                }
+            });
             v.setOnClickListener(this);
             v.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    UsersAdapter.this.adapter.delete(getPosition());
+                    v.setBackgroundColor(Color.WHITE);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("Delete Contact");
+                    builder.setMessage("Are you sure you want to delete your contact? You will lose your chat history too.");
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            UsersAdapter.this.adapter.delete(getPosition());
+                        }
+                    });
+
+                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+                    Dialog dialog = builder.create();
+                    dialog.show();
+
+
                     return false;
                 }
             });

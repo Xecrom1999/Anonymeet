@@ -45,8 +45,7 @@ public class MessagesActivity extends AppCompatActivity implements MyListener{
 
     static boolean isActive;
     SharedPreferences preferences;
-    android.support.v4.app.FragmentTransaction transaction;
-    android.support.v4.app.Fragment f;
+
 
 
     @Override
