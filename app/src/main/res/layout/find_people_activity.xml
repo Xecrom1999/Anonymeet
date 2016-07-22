@@ -12,15 +12,26 @@
         android:id="@+id/toolBar2"
         />
 
+    <Switch
+        android:layout_margin="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:text="Visible to others    "
+        android:id="@+id/visible_switch"
+        android:layout_gravity="right"
+        android:textStyle="bold"
+        android:textOn="On"
+        android:textOff="Off"/>
+
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:layout_margin="15dp"
+        android:layout_height="350dp"
+        android:layout_margin="5dp"
         android:id="@+id/peopleList"/>
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="350dp"
         android:layout_margin="15dp"
         android:text=""
         android:textColor="@android:color/secondary_text_light"

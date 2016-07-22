@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -24,12 +23,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
@@ -56,7 +55,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class FindPeopleActivity extends AppCompatActivity implements  ValueEventListener, ListListener {
+public class FindPeopleActivity extends AppCompatActivity implements  ValueEventListener, ListListener, CompoundButton.OnCheckedChangeListener {
 
     private static Firebase onlineUsers;
     private static Firebase users;
@@ -70,10 +69,9 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     static TextView noUsers_text;
     static final String noUsers_message = "No online users near by.";
     static final String locationDisabled_message = "Touch to enable location services.";
+    Switch visible_switch;
 
     String nickname;
-    private GoogleApiClient mGoogleApiClient;
-    private Activity activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -92,13 +90,15 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         }
 
         checkForPermission();
-        //checkForPermission2();
 
         noUsers_text = (TextView) findViewById(R.id.noUsers_text);
 
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Find People");
+
+        visible_switch = (Switch) findViewById(R.id.visible_switch);
+        visible_switch.setOnCheckedChangeListener(this);
 
         lm = (LocationManager) getSystemService(LOCATION_SERVICE);
 
@@ -108,7 +108,6 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         initializeList();
 
         startServices();
-
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -117,17 +116,6 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
             int hasPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
             if (hasPermission != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-                return;
-            }
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.M)
-    private void checkForPermission2() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.READ_PHONE_STATE);
-            if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
                 return;
             }
         }
@@ -142,13 +130,13 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     }
 
     private void startServices() {
-        // if(!MyService.isActive) {
+
         notiIntent = new Intent(this, MyService.class);
         startService(notiIntent);
-        // }
         onlineUsers.addValueEventListener(this);
 
-        startLocationService();
+        visible_switch.setChecked(getSharedPreferences("data", MODE_PRIVATE).getBoolean("visible", true));
+        if (visible_switch.isChecked()) startLocationService();
     }
 
     private void startLocationService() {
@@ -307,6 +295,8 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         super.onStop();
         isRunning = false;
         LocationListenerService.buildNotification();
+
+        getSharedPreferences("data", MODE_PRIVATE).edit().putBoolean("visible", visible_switch.isChecked()).commit();
     }
 
     public static boolean isRunning() {
@@ -315,7 +305,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
     public void enableLocationServices(View view) {
 
-        if (Build.VERSION.SDK_INT >= 22) locationChecker(LocationListenerService.getApi(), this);
+        if (Build.VERSION.SDK_INT >= 22 && !LocationListenerService.providerEnabled) locationChecker(LocationListenerService.getApi(), this);
 
         else if (!LocationListenerService.providerEnabled) {
             final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -346,8 +336,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     }
 
     public void locationChecker(GoogleApiClient mGoogleApiClient, final Activity activity) {
-        this.mGoogleApiClient = mGoogleApiClient;
-        this.activity = activity;
+
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(30 * 1000);
@@ -379,5 +368,14 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
                                  }
 
         );
+    }
+
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (isChecked) startService(locIntent);
+        else {
+            stopService(locIntent);
+            noUsers_text.setText("");
+        }
+
     }
 }

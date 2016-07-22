@@ -243,7 +243,6 @@ public class LocationListenerService extends Service implements GoogleApiClient.
 
             case GpsStatus.GPS_EVENT_STOPPED:
                 providerEnabled = false;
-                hideMe();
                 if (FindPeopleActivity.isRunning())
                     FindPeopleActivity.showMessage();
                 else {
