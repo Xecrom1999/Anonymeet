@@ -3,6 +3,7 @@ package com.example.or.anonymeet.FireBaseChat;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -48,13 +49,14 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
     View v;
     MyListener mItemClickListener;
     Context context;
+    SharedPreferences preferences;
     UsersAdapter adapter = this;
 
     public UsersAdapter(Context con, MessagesDB d, MyListener myListener){
 
         this.mItemClickListener = myListener;
-
         context = con;
+        preferences = context.getSharedPreferences("data", context.MODE_PRIVATE);
         inflater = LayoutInflater.from(context);
         myDB = d;
         db = myDB.getWritableDatabase();
@@ -98,9 +100,16 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         final Contact c = contacts.get(position);
         holder.image.setImageResource(c.photo);
-        holder.name .setText(c.name);
+        holder.name.setText(c.name);
         holder.position = position;
-
+        preferences = context.getSharedPreferences("data", context.MODE_PRIVATE);
+        int num = preferences.getInt("user " + c.name, 0);
+        if(num > 0){
+            holder.alert.setText(""+num);
+            holder.alert.setVisibility(View.VISIBLE);
+        } else{
+            holder.alert.setVisibility(View.INVISIBLE);
+        }
 
 
     }
@@ -110,9 +119,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         return this.contacts.size();
     }
 
-    public void SetOnItemClickListener(final MyListener mItemClickListener) {
-        this.mItemClickListener = mItemClickListener;
-    }
+
 
     public void delete(int position) {
 
@@ -132,11 +139,13 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         ImageView image;
         TextView name;
         int position;
+        TextView alert;
 
         public MyViewHolder(View v, final UsersAdapter adapter){
             super(v);
             image = (ImageView) v.findViewById(R.id.contactImage);
             name = (TextView) v.findViewById(R.id.contactName);
+            alert = (TextView)v.findViewById(R.id.alert);
             v.setOnClickListener(this);
             v.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override

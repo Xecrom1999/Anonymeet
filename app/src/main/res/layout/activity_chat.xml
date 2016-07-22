@@ -26,7 +26,18 @@
         android:layout_height="40dp"
         android:scaleType="fitXY"
         android:id="@+id/read"
-        android:src="@drawable/unread"
+        android:src="@drawable/not_arrived"
+        android:layout_above="@+id/send"
+        android:visibility="invisible"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="fitXY"
+        android:id="@+id/arrived"
+        android:src="@drawable/not_arrived"
         android:layout_above="@+id/send"
         android:visibility="invisible"
         android:layout_alignParentRight="true"

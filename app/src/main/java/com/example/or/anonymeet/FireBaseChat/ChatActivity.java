@@ -29,6 +29,7 @@ public class ChatActivity extends AppCompatActivity {
     SQLiteDatabase db;
     MessagesDB myDB;
     ImageView isRead;
+    ImageView arrived;
     SharedPreferences preferences;
     SharedPreferences.Editor se;
     String lastMessage;
@@ -86,12 +87,15 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView.setAdapter(recyclerAdapter);
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();
+        se.putInt("user " + userWith, 0).commit();
         lastMessage = preferences.getString("lastMessage", "");
         myNickname = preferences.getString("nickname", "");
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
         SendMessage = (EditText)findViewById(R.id.sendMessage);
         recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.messages.size() - 1);
         isRead = (ImageView)findViewById(R.id.read);
+        arrived = (ImageView)findViewById(R.id.arrived);
+
         recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
@@ -120,8 +124,14 @@ public class ChatActivity extends AppCompatActivity {
         myFirebaseRef.child(userWith).child(myNickname).child("arrived").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.getValue()!=null && dataSnapshot.getValue().toString().equals("true")) isRead.setVisibility(View.VISIBLE);
-                else isRead.setVisibility(View.INVISIBLE);
+                if(dataSnapshot.getValue()!=null && dataSnapshot.getValue().toString().equals("true")){
+                    arrived.setVisibility(View.INVISIBLE);
+                    isRead.setVisibility(View.VISIBLE);
+                }
+                else{
+                    isRead.setVisibility(View.INVISIBLE);
+                    arrived.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override

@@ -21,10 +21,21 @@
         android:gravity="center"
         />
 
-
-
-
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:width="36dp"
+        android:height="36dp"
+        android:textSize="15sp"
+        android:textColor="#009900"
+        android:gravity="center"
+        android:visibility="invisible"
+        android:backgroundTint="@android:color/holo_blue_bright"
+        android:id="@+id/alert"
+        android:background="@drawable/alert"
+        android:layout_below="@+id/contactName"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 
 </RelativeLayout>

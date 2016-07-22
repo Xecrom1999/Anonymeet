@@ -18,6 +18,8 @@ public class MessagesActivity extends AppCompatActivity implements MyListener{
     static UsersAdapter usersAdapter;
     SQLiteDatabase db;
     Context context;
+    static boolean isActive;
+    SharedPreferences preferences;
 
 
     @Override
@@ -43,10 +45,12 @@ public class MessagesActivity extends AppCompatActivity implements MyListener{
         super.onStart();
     }
 
-    static boolean isActive;
-    SharedPreferences preferences;
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        usersAdapter.syncContacts();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
