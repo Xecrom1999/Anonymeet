@@ -61,6 +61,12 @@ public class LocationListenerService extends Service implements GoogleApiClient.
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        providerEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        Log.d("TAG", "ariel onStartCommand");
+
         visible = true;
 
         ctx = this;
@@ -74,8 +80,6 @@ public class LocationListenerService extends Service implements GoogleApiClient.
         buildGoogleApiClient();
 
         mGoogleApiClient.connect();
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         setupGPS();
 
@@ -118,6 +122,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+        if (mGoogleApiClient.isConnected())
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
     }
@@ -206,7 +211,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
 
     @Override
     public void onDestroy() {
-        Log.d("TAG", "onDestroy");
+        Log.d("TAG", "ariel onDestroy");
         visible = false;
         LocationListenerService.cancelNotification();
         stopLocationUpdates();
@@ -227,16 +232,14 @@ public class LocationListenerService extends Service implements GoogleApiClient.
             case GpsStatus.GPS_EVENT_STARTED:
                 providerEnabled = true;
                 mGoogleApiClient.connect();
-                if (FindPeopleActivity.isRunning())
+                if (FindPeopleActivity.isRunning()) {
                     FindPeopleActivity.hideMessage();
-
+                }
                 break;
 
             case GpsStatus.GPS_EVENT_STOPPED:
                 providerEnabled = false;
                 hideMe();
-                if (nickname != null)
-                    hideMe();
                 if (FindPeopleActivity.isRunning())
                     FindPeopleActivity.showMessage();
                 else {

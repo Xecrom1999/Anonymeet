@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -16,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -68,16 +70,15 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
         nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
-        if(getIntent().getBooleanExtra("fromNoti", false)){
+        if (getIntent().getBooleanExtra("fromNoti", false)) {
             Intent i = new Intent(this, MessagesActivity.class);
             i.putExtra("fromNoti", true);
             i.putExtra("usernameTo", getIntent().getStringExtra("usernameFrom"));
             startActivity(i);
         }
 
-
         checkForPermission();
-        checkForPermission2();
+        //checkForPermission2();
 
         noUsers_text = (TextView) findViewById(R.id.noUsers_text);
 
@@ -93,9 +94,6 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         initializeList();
 
         startServices();
-
-        hideMessage();
-
 
     }
 
@@ -130,10 +128,10 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     }
 
     private void startServices() {
-       // if(!MyService.isActive) {
-            notiIntent = new Intent(this, MyService.class);
-            startService(notiIntent);
-       // }
+        // if(!MyService.isActive) {
+        notiIntent = new Intent(this, MyService.class);
+        startService(notiIntent);
+        // }
         onlineUsers.addValueEventListener(this);
 
         startLocationService();
@@ -192,6 +190,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
                 mutableData.setValue(null);
                 return Transaction.success(mutableData);
             }
+
             public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
             }
         });
@@ -252,19 +251,20 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
     private boolean checkInternetConnection() {
         //TODO: show text when there's no connection to the Internet;
-        ConnectivityManager conMgr = (ConnectivityManager) getSystemService (Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if (conMgr.getActiveNetworkInfo() != null && conMgr.getActiveNetworkInfo().isAvailable() && conMgr.getActiveNetworkInfo().isConnected())
             return true;
 
         return false;
-        }
+    }
 
     public static void showMessage() {
 
         peopleList.setVisibility(View.GONE);
         noUsers_text.setVisibility(View.VISIBLE);
-        if (!LocationListenerService.providerEnabled) noUsers_text.setText(locationDisabled_message);
+        if (!LocationListenerService.providerEnabled)
+            noUsers_text.setText(locationDisabled_message);
         else noUsers_text.setText(noUsers_message);
     }
 
@@ -282,10 +282,11 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         isRunning = true;
         try {
             LocationListenerService.cancelNotification();
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
         }
+        hideMessage();
+        if (!LocationListenerService.providerEnabled) showMessage();
     }
-
 
     @Override
     protected void onStop() {
@@ -300,8 +301,28 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
     public void enableLocationServices(View view) {
         if (!LocationListenerService.providerEnabled) {
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(intent);
+            final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivityForResult(intent, 0);
+
+            LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+            GpsStatus.Listener listener = new GpsStatus.Listener() {
+                @Override
+                public void onGpsStatusChanged(int event) {
+                    if (event == GpsStatus.GPS_EVENT_STARTED) finishActivity(0);
+                }
+            };
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            
+          manager.addGpsStatusListener(new GpsStatus.Listener() {
+              @Override
+              public void onGpsStatusChanged(int event) {
+              }
+          });
+            manager.removeGpsStatusListener(listener);
         }
     }
 }

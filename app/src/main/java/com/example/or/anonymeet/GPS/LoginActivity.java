@@ -1,7 +1,9 @@
 package com.example.or.anonymeet.GPS;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -89,7 +91,7 @@ public class LoginActivity extends AppCompatActivity implements CompoundButton.O
 
                     else if (exists) nicknameInput.setError("Nickname already exists.");
 
-                    else if (password.length() < 5) passwordInput.setError("Please enter a password.");
+                    else if (password.isEmpty()) passwordInput.setError("Please enter a password.");
 
                     else if (password.length() < 5) passwordInput.setError("Password too short.");
 
