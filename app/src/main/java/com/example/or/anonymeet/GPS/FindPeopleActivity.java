@@ -2,11 +2,13 @@ package com.example.or.anonymeet.GPS;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.GpsStatus;
@@ -40,6 +42,16 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.MutableData;
 import com.firebase.client.Transaction;
 import com.firebase.client.ValueEventListener;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,6 +72,8 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     static final String locationDisabled_message = "Touch to enable location services.";
 
     String nickname;
+    private GoogleApiClient mGoogleApiClient;
+    private Activity activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -300,9 +314,13 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     }
 
     public void enableLocationServices(View view) {
-        if (!LocationListenerService.providerEnabled) {
+
+        locationChecker(LocationListenerService.getApi(), this);
+
+       /* if (!LocationListenerService.providerEnabled) {
             final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivityForResult(intent, 0);
+
 
             LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -324,6 +342,42 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
               }
           });
             manager.removeGpsStatusListener(listener);
-        }
+        }*/
+    }
+
+    public void locationChecker(GoogleApiClient mGoogleApiClient, final Activity activity) {
+        this.mGoogleApiClient = mGoogleApiClient;
+        this.activity = activity;
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(30 * 1000);
+        locationRequest.setFastestInterval(5 * 1000);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true);
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+                                     @Override
+                                     public void onResult(LocationSettingsResult result) {
+                                         final Status status = result.getStatus();
+                                         final LocationSettingsStates state = result.getLocationSettingsStates();
+                                         switch (status.getStatusCode()) {
+                                             case LocationSettingsStatusCodes.SUCCESS:
+                                                 break;
+                                             case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                                 try {
+                                                     status.startResolutionForResult(
+                                                             activity, 1000);
+                                                 } catch (IntentSender.SendIntentException e) {
+                                                 }
+                                                 break;
+                                             case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                                 break;
+                                         }
+                                     }
+                                 }
+
+        );
     }
 }

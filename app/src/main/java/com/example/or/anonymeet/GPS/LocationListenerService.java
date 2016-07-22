@@ -38,7 +38,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
     public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 3000;
 
-    private GoogleApiClient mGoogleApiClient;
+    private static GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     public static Location mCurrentLocation;
 
@@ -56,6 +56,10 @@ public class LocationListenerService extends Service implements GoogleApiClient.
     boolean visible;
 
     public LocationListenerService() {
+    }
+
+    public static GoogleApiClient getApi() {
+        return mGoogleApiClient;
     }
 
     @Override
