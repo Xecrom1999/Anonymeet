@@ -99,7 +99,7 @@ public class MyService extends Service implements ChildEventListener{
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
         //finding out if read or message was changed
-        if ((!dataSnapshot.child("message").getValue().equals(null))&&(!dataSnapshot.child("message").getValue().toString().equals(preferences.getString("check", "")))) {
+        if ((dataSnapshot.child("message").exists())&&(!dataSnapshot.child("message").getValue().toString().equals(preferences.getString("check", "")))) {
             Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
             myFirebaseChat.child(preferences.getString("username", "")).child(dataSnapshot.getKey().toString()).child("arrived").setValue("true");
             message = cleanCode(dataSnapshot.child("message").getValue().toString());
