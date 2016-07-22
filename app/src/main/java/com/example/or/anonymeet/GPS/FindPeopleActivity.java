@@ -69,7 +69,8 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     static TextView noUsers_text;
     static final String noUsers_message = "No online users near by.";
     static final String locationDisabled_message = "Touch to enable location services.";
-    Switch visible_switch;
+    static final String switchOff_message = "You're invisible to others";
+    static Switch visible_switch;
 
     String nickname;
 
@@ -269,7 +270,8 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
         peopleList.setVisibility(View.GONE);
         noUsers_text.setVisibility(View.VISIBLE);
-        if (!LocationListenerService.providerEnabled)
+        if (!visible_switch.isChecked()) noUsers_text.setText(switchOff_message);
+        else if (!LocationListenerService.providerEnabled)
             noUsers_text.setText(locationDisabled_message);
         else noUsers_text.setText(noUsers_message);
     }
@@ -309,7 +311,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
     public void enableLocationServices(View view) {
 
-        if (Build.VERSION.SDK_INT >= 22 && !LocationListenerService.providerEnabled) locationChecker(LocationListenerService.getApi(), this);
+        if (Build.VERSION.SDK_INT >= 22) locationChecker(LocationListenerService.getApi(), this);
 
         else if (!LocationListenerService.providerEnabled) {
             final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -375,11 +377,13 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     }
 
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (isChecked) startService(locIntent);
+        if (isChecked) {
+            startService(locIntent);
+        }
         else {
             stopService(locIntent);
-            noUsers_text.setText("");
         }
-
+        noUsers_text.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        showMessage();
     }
 }

@@ -164,6 +164,10 @@ public class LocationListenerService extends Service implements GoogleApiClient.
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public static void buildNotification() {
+
+        Intent intent = new Intent(ctx, StatusReceiver.class);
+        PendingIntent pendingIntent2 = PendingIntent.getBroadcast(ctx, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
             Notification.Builder n;
             n = new Notification.Builder(ctx)
                     .setContentTitle("Anonymeet")
@@ -172,7 +176,8 @@ public class LocationListenerService extends Service implements GoogleApiClient.
                     .setShowWhen(false)
                     .setVibrate(new long[]{Long.valueOf(0)})
                     .setSound(null)
-                    .setOngoing(true);
+                    .setOngoing(true)
+                    .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Go invisible", pendingIntent2);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
                 n.setColor(Color.parseColor("#ff5722"));
 
@@ -181,7 +186,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
             t.addNextIntent(i);
             PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
             n.setContentIntent(pendingIntent);
-            //notificationManager.notify(0, n.build());
+            notificationManager.notify(0, n.build());
     }
 
     protected void onHandleIntent(Intent intent) {
