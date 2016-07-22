@@ -137,24 +137,10 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
             super(v);
             image = (ImageView) v.findViewById(R.id.contactImage);
             name = (TextView) v.findViewById(R.id.contactName);
-            v.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if(event.getAction() == MotionEvent.ACTION_DOWN){
-                        v.setBackgroundColor(context.getResources().getColor(R.color.colorChangeContact));
-                    }
-                    if(event.getAction() == MotionEvent.ACTION_UP){
-                        v.setBackgroundColor(Color.WHITE);
-                    }
-
-                    return false;
-                }
-            });
             v.setOnClickListener(this);
             v.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    v.setBackgroundColor(Color.WHITE);
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setTitle("Delete Contact");
                     builder.setMessage("Are you sure you want to delete your contact? You will lose your chat history too.");
