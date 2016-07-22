@@ -80,7 +80,6 @@ public class ChatActivity extends AppCompatActivity {
         Firebase.setAndroidContext(this);
         context = this;
         userWith = getIntent().getStringExtra("usernameTo");
-
         myDB = new MessagesDB(this);
         db = myDB.getWritableDatabase();
         recyclerView = (RecyclerView)findViewById(R.id.chatList);

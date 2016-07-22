@@ -33,6 +33,7 @@ public class MyService extends Service implements ChildEventListener{
     SharedPreferences preferences;
     SharedPreferences.Editor se;
     String gender;
+    String message;
     public static boolean isActive;
 
     public MyService() {
@@ -99,8 +100,8 @@ public class MyService extends Service implements ChildEventListener{
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-        String message;
-        //TODO: find out if read or message was changed
+
+        //finding out if read or message was changed
         if ((dataSnapshot.child("message").getValue()!=null)&&(!dataSnapshot.child("message").getValue().toString().equals(preferences.getString("check", "")))) {
             Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
             if (dataSnapshot.child("message").getValue().toString().length() > 36 && dataSnapshot.child("message").getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
@@ -112,9 +113,9 @@ public class MyService extends Service implements ChildEventListener{
                 myFirebaseUsers.child(dataSnapshot.getKey().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        gender = dataSnapshot.getValue().toString();
-                        Log.i("cccccc", gender);
-
+                        gender = dataSnapshot.child("gender").getValue().toString();
+                        myDB.insertUser(dataSnapshot.getKey().toString(), gender);
+                        myDB.insertMessage(dataSnapshot.getKey().toString(), message, false);
                     }
 
                     @Override
@@ -123,9 +124,11 @@ public class MyService extends Service implements ChildEventListener{
                     }
                 });
 
-                myDB.insertUser(dataSnapshot.getKey().toString(), "female");
+
+            }else{
+                myDB.insertMessage(dataSnapshot.getKey().toString(), message, false);
             }
-            myDB.insertMessage(dataSnapshot.getKey().toString(), message, false);
+
 
 
 
