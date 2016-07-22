@@ -56,7 +56,8 @@
         <receiver
             android:name=".GPS.StatusReceiver"
             android:enabled="true"
-            android:exported="true"></receiver>
+            android:exported="true" />
+
     </application>
 
 </manifest>
