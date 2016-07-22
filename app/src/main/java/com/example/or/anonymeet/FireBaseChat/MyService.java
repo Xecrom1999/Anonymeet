@@ -123,9 +123,6 @@ public class MyService extends Service implements ChildEventListener{
                 myDB.insertMessage(dataSnapshot.getKey().toString(), message, false);
             }
 
-
-
-
             if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {
                 ChatActivity.recyclerAdapter.syncMessages();
                 ChatActivity.scrollDown();

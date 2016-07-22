@@ -52,6 +52,7 @@ public class MessagesActivity extends AppCompatActivity implements MyListener{
         usersAdapter.syncContacts();
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
