@@ -94,6 +94,12 @@ public class ChatActivity extends AppCompatActivity {
         SendMessage = (EditText)findViewById(R.id.sendMessage);
         recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.messages.size() - 1);
         isRead = (ImageView)findViewById(R.id.read);
+        recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                scrollDown();
+            }
+        });
         myFirebaseRef.child(myNickname).child(userWith).child("read").setValue("true");
         myFirebaseRef.child(userWith).child(myNickname).child("read").addValueEventListener(new ValueEventListener() {
             @Override
