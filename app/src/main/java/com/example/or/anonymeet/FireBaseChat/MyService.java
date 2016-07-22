@@ -98,19 +98,15 @@ public class MyService extends Service implements ChildEventListener{
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-        Log.i("hiiiiiiiiii", "child changed");
         //finding out if read or message was changed
-        Log.i("hiiiiiiiiii", "first argument: "+(!dataSnapshot.child("message").getValue().toString().equals(null)));
-        Log.i("hiiiiiiiiii", "second argument: "+(!dataSnapshot.child("message").getValue().toString().equals(preferences.getString("check", ""))));
-        Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
         if ((!dataSnapshot.child("message").getValue().equals(null))&&(!dataSnapshot.child("message").getValue().toString().equals(preferences.getString("check", "")))) {
             Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
+            myFirebaseChat.child(preferences.getString("username", "")).child(dataSnapshot.getKey().toString()).child("arrived").setValue("true");
             message = cleanCode(dataSnapshot.child("message").getValue().toString());
             if(!myDB.userExists(dataSnapshot.getKey().toString())){
                 myFirebaseUsers.child(dataSnapshot.getKey().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        myFirebaseChat.child()
                         gender = dataSnapshot.child("gender").getValue().toString();
                         myDB.insertUser(dataSnapshot.getKey().toString(), gender);
                         myDB.insertMessage(dataSnapshot.getKey().toString(), message, false);

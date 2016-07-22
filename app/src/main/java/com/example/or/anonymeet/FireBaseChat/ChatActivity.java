@@ -61,9 +61,7 @@ public class ChatActivity extends AppCompatActivity {
     public static boolean isActive(){
         return active;
     }
-    public static String userWith(){
-        return userWith;
-    }
+
 
     @Override
     protected void onStop() {
@@ -119,7 +117,18 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
+        myFirebaseRef.child(userWith).child(myNickname).child("arrived").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue()!=null && dataSnapshot.getValue().toString().equals("true")) isRead.setVisibility(View.VISIBLE);
+                else isRead.setVisibility(View.INVISIBLE);
+            }
 
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
 
 
 
@@ -145,6 +154,7 @@ public class ChatActivity extends AppCompatActivity {
             imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
             scrollDown();
             myFirebaseRef.child(userWith).child(myNickname).child("read").setValue("false");
+            myFirebaseRef.child(userWith).child(myNickname).child("arrived").setValue("false");
 
         }
 
