@@ -92,9 +92,7 @@ public class MyService extends Service implements ChildEventListener{
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-        if(dataSnapshot.child("message").getValue()!=null) {
-            se.putString("check", dataSnapshot.child("message").getValue().toString()).commit();
-        }
+
     }
 
     @Override
@@ -102,13 +100,12 @@ public class MyService extends Service implements ChildEventListener{
 
         Log.i("hiiiiiiiiii", "child changed");
         //finding out if read or message was changed
-        if ((!dataSnapshot.child("message").getValue().toString().equals(null))&&(!dataSnapshot.child("message").getValue().toString().equals(preferences.getString("check", "")))) {
+        Log.i("hiiiiiiiiii", "first argument: "+(!dataSnapshot.child("message").getValue().toString().equals(null)));
+        Log.i("hiiiiiiiiii", "second argument: "+(!dataSnapshot.child("message").getValue().toString().equals(preferences.getString("check", ""))));
+        Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
+        if ((!dataSnapshot.child("message").getValue().equals(null))&&(!dataSnapshot.child("message").getValue().toString().equals(preferences.getString("check", "")))) {
             Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
-            if (dataSnapshot.child("message").getValue().toString().length() > 36 && dataSnapshot.child("message").getValue().toString().substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
-                message = dataSnapshot.child("message").getValue().toString().substring(36);
-            } else {
-                message = dataSnapshot.child("message").getValue().toString();
-            }
+            message = cleanCode(dataSnapshot.child("message").getValue().toString());
             if(!myDB.userExists(dataSnapshot.getKey().toString())){
                 myFirebaseUsers.child(dataSnapshot.getKey().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -139,7 +136,7 @@ public class MyService extends Service implements ChildEventListener{
 
                 Notification.Builder n = new Notification.Builder(getApplicationContext())
                         .setContentTitle(dataSnapshot.getKey().toString() + "sent a message")
-                        .setContentText(dataSnapshot.child("message").getValue().toString())
+                        .setContentText(cleanCode(dataSnapshot.child("message").getValue().toString()))
                         .setSmallIcon(R.drawable.contact)
                         .setAutoCancel(true)
                         .setTicker("hiiiiii")
@@ -161,6 +158,13 @@ public class MyService extends Service implements ChildEventListener{
             }
         }
         se.putString("check", dataSnapshot.child("message").getValue().toString()).commit();
+    }
+
+    public String cleanCode(String m) {
+        if (m.length() > 36 && m.substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
+            m = m.substring(36);
+        }
+        return m;
     }
 
     @Override
