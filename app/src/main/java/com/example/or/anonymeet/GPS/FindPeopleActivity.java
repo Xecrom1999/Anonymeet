@@ -32,6 +32,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
+import com.example.or.anonymeet.FireBaseChat.HelperDB;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
 import com.example.or.anonymeet.FireBaseChat.MessagesDB;
 import com.example.or.anonymeet.FireBaseChat.MyService;
@@ -66,6 +67,7 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
     static PeopleListAdapter adapter;
     Intent locIntent;
     Intent notiIntent;
+    HelperDB db;
     static boolean isRunning;
     static TextView message_text;
     static final String noUsers_message = "No online users near by.";
@@ -81,7 +83,7 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
         setContentView(R.layout.find_people_activity);
 
         locIntent = new Intent(getApplicationContext(), LocationListenerService.class);
-
+        db = new HelperDB(this);
         nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
         if (getIntent().getBooleanExtra("fromNoti", false)) {
@@ -189,8 +191,7 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
     private void onLogout() {
         stopService(notiIntent);
         stopService(locIntent);
-        MessagesDB myDB = new MessagesDB(this);
-        myDB.deleteAll();
+        db.deleteAll();
 
         onlineUsers.child(nickname).runTransaction(new Transaction.Handler() {
             public Transaction.Result doTransaction(MutableData mutableData) {
@@ -251,15 +252,13 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
         });
     }
 
-    public void onCancelled(FirebaseError firebaseError) {
-    }
 
     public void startChat(String userName, String gender) {
         MessagesDB myDB = new MessagesDB(this);
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("usernameTo", userName);
-        intent.putExtra("userWasExisted", myDB.userExists(userName));
-        myDB.insertUser(userName, gender);
+        intent.putExtra("userWasExisted", db.userExists(userName));
+        db.insertUser(userName, gender);
         startActivity(intent);
     }
 
