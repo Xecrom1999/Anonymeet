@@ -19,9 +19,7 @@
         android:text="Visible to others    "
         android:id="@+id/visible_switch"
         android:layout_gravity="right"
-        android:textStyle="bold"
-        android:textOn="On"
-        android:textOff="Off"/>
+        android:textStyle="bold" />
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"

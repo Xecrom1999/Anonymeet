@@ -159,6 +159,8 @@ public class LocationListenerService extends Service implements GoogleApiClient.
             onlineUsers.child(nickname).child("latitude").setValue(latitude);
             onlineUsers.child(nickname).child("longitude").setValue(longitude);
             onlineUsers.child(nickname).child("gender").setValue(gender);
+
+            FindPeopleActivity.updateList();
         }
     }
 
@@ -215,7 +217,12 @@ public class LocationListenerService extends Service implements GoogleApiClient.
     }
 
     public static void cancelNotification() {
-        notificationManager.cancel(0);
+       try {
+           notificationManager.cancel(0);
+       }
+       catch (NullPointerException e){
+
+       }
     }
 
     @Override
@@ -242,14 +249,14 @@ public class LocationListenerService extends Service implements GoogleApiClient.
                 providerEnabled = true;
                 mGoogleApiClient.connect();
                 if (FindPeopleActivity.isRunning()) {
-                    FindPeopleActivity.hideMessage();
+                    FindPeopleActivity.updateMessage();
                 }
                 break;
 
             case GpsStatus.GPS_EVENT_STOPPED:
                 providerEnabled = false;
                 if (FindPeopleActivity.isRunning())
-                    FindPeopleActivity.showMessage();
+                    FindPeopleActivity.updateMessage();
                 else {
                     stopSelf();
                 }
