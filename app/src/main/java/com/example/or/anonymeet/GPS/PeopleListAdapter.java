@@ -95,7 +95,6 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         }
 
         public void onClick(View v) {
-            Log.d("TAG", "pressed1");
             listener.startChat(usernameTo, gender);
         }
     }

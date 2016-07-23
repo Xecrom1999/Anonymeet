@@ -30,6 +30,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.HelperDB;
@@ -253,12 +254,12 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
 
 
     public void startChat(String userName, String gender) {
-        Log.d("TAG", "pressed2");
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("usernameTo", userName);
         intent.putExtra("userWasExisted", db.userExists(userName));
         db.insertUser(userName, gender, 0);
         startActivity(intent);
+        Toast.makeText(getApplicationContext(), "אללה וואכבר!", Toast.LENGTH_SHORT).show();
     }
 
     private boolean checkInternetConnection() {
