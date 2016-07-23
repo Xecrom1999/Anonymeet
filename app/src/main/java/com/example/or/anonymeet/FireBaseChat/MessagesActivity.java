@@ -68,7 +68,7 @@ public class MessagesActivity extends AppCompatActivity implements MyListener{
         recyclerView = (RecyclerView)findViewById(R.id.recycle);
         MessagesDB myDB = new MessagesDB(this);
         db = myDB.getWritableDatabase();
-        usersAdapter = new UsersAdapter(this, myDB, this);
+        usersAdapter = new UsersAdapter(this, this);
         recyclerView.setAdapter(usersAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }

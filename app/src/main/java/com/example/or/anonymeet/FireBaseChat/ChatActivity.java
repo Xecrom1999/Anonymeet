@@ -26,8 +26,7 @@ public class ChatActivity extends AppCompatActivity {
     static String userWith;
     static String myNickname;
     EditText SendMessage;
-    SQLiteDatabase db;
-    MessagesDB myDB;
+    HelperDB db;
     ImageView isRead;
     ImageView arrived;
     SharedPreferences preferences;
@@ -77,16 +76,16 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         Firebase.setAndroidContext(this);
+        db = new HelperDB(this);
         context = this;
         userWith = getIntent().getStringExtra("usernameTo");
-        myDB = new MessagesDB(this);
-        db = myDB.getWritableDatabase();
         recyclerView = (RecyclerView)findViewById(R.id.chatList);
-        recyclerAdapter = new ChatAdapter(this, myDB, userWith);
+        recyclerAdapter = new ChatAdapter(this, userWith);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(recyclerAdapter);
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();
+        MyService.numOfNoti = MyService.numOfNoti - preferences.getInt("user " + userWith, 0);
         se.putInt("user " + userWith, 0).commit();
         lastMessage = preferences.getString("lastMessage", "");
         myNickname = preferences.getString("nickname", "");
@@ -151,7 +150,7 @@ public class ChatActivity extends AppCompatActivity {
         if(!SendMessage.getText().toString().equals("")) {
             String message;
             lastMessage = preferences.getString("lastMessage", "");
-            myDB.insertMessage(userWith, SendMessage.getText().toString(), true);
+            db.insertMessage(userWith, SendMessage.getText().toString(), true);
             recyclerAdapter.syncMessages();
             if (SendMessage.getText().toString().equals(lastMessage)) {
                 message = "cbd9b0a2-d183-45ee-9582-27df3020ff65" + SendMessage.getText().toString();

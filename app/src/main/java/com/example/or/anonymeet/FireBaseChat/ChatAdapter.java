@@ -37,20 +37,18 @@ public class ChatAdapter extends RecyclerView.Adapter<MessageViewHolder> {
     View getV;
     LayoutInflater inflater;
     Context context;
-    MessagesDB myDB;
-    SQLiteDatabase db;
     String user;
+    HelperDB db;
     ArrayList<MyMessage> messages;
     final int TypeIsMine = 0;
     final int TypeNotMine = 1;
 
-    public ChatAdapter(Context con, MessagesDB d, String u){
+    public ChatAdapter(Context con, String u){
         context = con;
         user = u ;
         inflater = LayoutInflater.from(context);
-        myDB = d;
-        db = myDB.getWritableDatabase();
-        messages = myDB.getMessagesOfUser(user);
+        db = new HelperDB(context);
+        messages = db.getMessagesOfUser(user);
     }
 
     @Override
@@ -81,7 +79,7 @@ public class ChatAdapter extends RecyclerView.Adapter<MessageViewHolder> {
     }
 
     public void syncMessages(){
-        messages = myDB.getMessagesOfUser(user);
+        messages = db.getMessagesOfUser(user);
         notifyItemInserted(getItemCount()-1);
         }
 

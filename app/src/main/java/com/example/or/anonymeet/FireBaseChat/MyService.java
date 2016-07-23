@@ -25,8 +25,7 @@ import com.firebase.client.ValueEventListener;
 public class MyService extends Service implements ChildEventListener{
 
 
-    MessagesDB myDB;
-    SQLiteDatabase db;
+    HelperDB db;
     Firebase myFirebaseChat;
     Firebase myFirebaseUsers;
     NotificationManager nm;
@@ -34,7 +33,7 @@ public class MyService extends Service implements ChildEventListener{
     SharedPreferences.Editor se;
     String gender;
     String message;
-    int numOfNoti = 0;
+    static int numOfNoti = 0;
     public static boolean isActive;
 
     public MyService() {
@@ -46,8 +45,7 @@ public class MyService extends Service implements ChildEventListener{
         super.onCreate();
         Log.i("hiiiiiiiiiiii", "onCreate");
         isActive = true;
-        myDB = new MessagesDB(this);
-        db = myDB.getWritableDatabase();
+        db = new HelperDB(getApplicationContext());
         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
         String myNickname = preferences.getString("nickname", "");
@@ -103,13 +101,13 @@ public class MyService extends Service implements ChildEventListener{
             Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
             myFirebaseChat.child(preferences.getString("username", "")).child(dataSnapshot.getKey().toString()).child("arrived").setValue("true");
             message = cleanCode(dataSnapshot.child("message").getValue().toString());
-            if(!myDB.userExists(dataSnapshot.getKey().toString())){
+            if(!db.userExists(dataSnapshot.getKey().toString())){
                 myFirebaseUsers.child(dataSnapshot.getKey().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         gender = dataSnapshot.child("gender").getValue().toString();
-                        myDB.insertUser(dataSnapshot.getKey().toString(), gender);
-                        myDB.insertMessage(dataSnapshot.getKey().toString(), message, false);
+                        db.insertUser(dataSnapshot.getKey().toString(), gender);
+                        db.insertMessage(dataSnapshot.getKey().toString(), message, false);
                     }
 
                     @Override
@@ -120,7 +118,7 @@ public class MyService extends Service implements ChildEventListener{
 
 
             }else{
-                myDB.insertMessage(dataSnapshot.getKey().toString(), message, false);
+                db.insertMessage(dataSnapshot.getKey().toString(), message, false);
             }
 
             if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {

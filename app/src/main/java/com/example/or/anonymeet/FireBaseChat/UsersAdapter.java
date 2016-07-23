@@ -44,41 +44,26 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
 
     ArrayList<Contact> contacts;
     LayoutInflater inflater;
-    MessagesDB myDB;
-    SQLiteDatabase db;
+    HelperDB db;
     View v;
     MyListener mItemClickListener;
     Context context;
     SharedPreferences preferences;
     UsersAdapter adapter = this;
 
-    public UsersAdapter(Context con, MessagesDB d, MyListener myListener){
+    public UsersAdapter(Context con, MyListener myListener){
 
         this.mItemClickListener = myListener;
         context = con;
         preferences = context.getSharedPreferences("data", context.MODE_PRIVATE);
         inflater = LayoutInflater.from(context);
-        myDB = d;
-        db = myDB.getWritableDatabase();
+        db = new HelperDB(context);
         syncContacts();
 
     }
 
     public void syncContacts(){
-        contacts = new ArrayList<Contact>();
-        String[] columns = {myDB.USER, myDB.Gender};
-        Cursor cursor = db.query(myDB.TABLE_NAME_CONV, columns, null, null, null, null, null);
-        Contact contact;
-        String user;
-        String gender;
-        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
-
-            user = cursor.getString(cursor.getColumnIndex(myDB.USER));
-            gender = cursor.getString(cursor.getColumnIndex(myDB.Gender));
-            Log.i("cccccccccccccc", gender);
-            contact = new Contact(user, gender);
-            contacts.add(contact);
-        }
+        contacts = db.getContacts();
         notifyDataSetChanged();
 
     }
@@ -89,7 +74,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         v = inflater.inflate(R.layout.item_recycle_view, parent, false);
 
 
-        MyViewHolder viewHolder = new MyViewHolder(v, this);
+        MyViewHolder viewHolder = new MyViewHolder(v);
         return viewHolder;
     }
 
@@ -124,8 +109,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
     public void delete(int position) {
 
         String contactName = contacts.get(position).name;
-        db.delete(myDB.TABLE_NAME_CONV, myDB.USER + "='" + contactName + "'", null);
-        db.execSQL("DROP TABLE IF EXISTS " + '"' + contactName + '"');
+        db.deleteUser(contactName);
         contacts.remove(position);
         if (contacts.size() == 1) {
             notifyDataSetChanged();
@@ -141,7 +125,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         int position;
         TextView alert;
 
-        public MyViewHolder(View v, final UsersAdapter adapter){
+        public MyViewHolder(View v){
             super(v);
             image = (ImageView) v.findViewById(R.id.contactImage);
             name = (TextView) v.findViewById(R.id.contactName);
