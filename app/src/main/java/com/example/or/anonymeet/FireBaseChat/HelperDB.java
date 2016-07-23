@@ -21,12 +21,12 @@ public class HelperDB {
         db = d.getWritableDatabase();
     }
 
-    public void insertUser(String user, String gender){
+    public void insertUser(String user, String gender, int noti){
         boolean f = userExists(user);
         if(!f) {
             ContentValues values = new ContentValues();
             values.put(d.USER, user);
-            Log.i("ddddd", gender);
+            values.put(d.NOTI, noti);
             values.put(d.Gender, gender);
             db.insert(d.TABLE_NAME_CONV, null, values);
         }

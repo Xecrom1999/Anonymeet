@@ -257,7 +257,7 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("usernameTo", userName);
         intent.putExtra("userWasExisted", db.userExists(userName));
-        db.insertUser(userName, gender);
+        db.insertUser(userName, gender, 0);
         startActivity(intent);
     }
 
