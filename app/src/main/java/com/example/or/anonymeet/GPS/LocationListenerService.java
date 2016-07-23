@@ -191,9 +191,6 @@ public class LocationListenerService extends Service implements GoogleApiClient.
             notificationManager.notify(0, n.build());
     }
 
-    protected void onHandleIntent(Intent intent) {
-    }
-
     @Override
     public void onConnectionSuspended(int cause) {
         mGoogleApiClient.connect();

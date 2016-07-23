@@ -1,6 +1,7 @@
 package com.example.or.anonymeet.GPS;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +33,6 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         this.userNames = (ArrayList<String>) names;
         this.distances = (ArrayList<Integer>) distances;
         this.genders = (ArrayList<String>) genders;
-        notifyDataSetChanged();
         if (FindPeopleActivity.isRunning())
             if (userNames.size() == 0) {
                 hasUsers = false;
@@ -42,6 +42,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
                 hasUsers = true;
                 FindPeopleActivity.updateMessage();
             }
+        notifyDataSetChanged();
     }
 
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -94,6 +95,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         }
 
         public void onClick(View v) {
+            Log.d("TAG", "pressed1");
             listener.startChat(usernameTo, gender);
         }
     }

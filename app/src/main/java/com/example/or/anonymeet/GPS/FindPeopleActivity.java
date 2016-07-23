@@ -253,7 +253,7 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
 
 
     public void startChat(String userName, String gender) {
-        MessagesDB myDB = new MessagesDB(this);
+        Log.d("TAG", "pressed2");
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("usernameTo", userName);
         intent.putExtra("userWasExisted", db.userExists(userName));
