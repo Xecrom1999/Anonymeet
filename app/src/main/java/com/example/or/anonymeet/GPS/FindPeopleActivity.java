@@ -31,11 +31,9 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.or.anonymeet.FireBaseChat.ChatActivity;
 import com.example.or.anonymeet.FireBaseChat.HelperDB;
 import com.example.or.anonymeet.FireBaseChat.MessagesActivity;
-import com.example.or.anonymeet.FireBaseChat.MessagesDB;
 import com.example.or.anonymeet.FireBaseChat.MyService;
 import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
@@ -219,6 +217,8 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.hasChildren()) return;
+
+
                 Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
 
                 Collection<String> namesList = new ArrayList();
@@ -285,7 +285,6 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
         else if (!hasUsers) setMessage(noUsers_message);
 
         else {
-            updateList();
             setMessage("Loading...");
             peopleList.setVisibility(View.VISIBLE);
             message_text.setVisibility(View.GONE);
@@ -304,8 +303,8 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
             LocationListenerService.cancelNotification();
         } catch (NullPointerException e) {
         }
-        updateMessage();
         visible_switch.setChecked(getSharedPreferences("data", MODE_PRIVATE).getBoolean("visible", false));
+        updateMessage();
     }
 
     @Override
@@ -324,14 +323,14 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
 
     public void enableLocationServices(View view) {
 
-        if (!message_text.getText().toString().equals(locationDisabled_message)) return;
+        if (LocationListenerService.providerEnabled) return;
+
 
         if (Build.VERSION.SDK_INT >= 22) locationChecker(LocationListenerService.getApi(), this);
 
         else if (!LocationListenerService.providerEnabled) {
             final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivityForResult(intent, 0);
-
 
             LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -393,12 +392,11 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked) {
             startService(locIntent);
-            setMessage("Loading...");
         }
         else {
             stopService(locIntent);
-            updateMessage();
         }
+        updateMessage();
     }
 
     public static void clearAdapter() {

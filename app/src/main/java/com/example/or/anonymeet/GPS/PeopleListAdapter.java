@@ -36,12 +36,11 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         if (FindPeopleActivity.isRunning())
             if (userNames.size() == 0) {
                 hasUsers = false;
-                FindPeopleActivity.updateMessage();
             }
             else {
                 hasUsers = true;
-                FindPeopleActivity.updateMessage();
             }
+        FindPeopleActivity.updateMessage();
         notifyDataSetChanged();
     }
 
