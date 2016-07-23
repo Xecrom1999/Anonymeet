@@ -141,7 +141,6 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
 
         notiIntent = new Intent(this, MyService.class);
         startService(notiIntent);
-        //onlineUsers.addValueEventListener(this);
 
         if (visible_switch.isChecked()) startLocationService();
     }
@@ -387,18 +386,18 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
                                          }
                                      }
                                  }
-
         );
     }
 
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked) {
             startService(locIntent);
+            setMessage("Loading...");
         }
         else {
             stopService(locIntent);
+            updateMessage();
         }
-        updateMessage();
     }
 
     public static void clearAdapter() {
