@@ -23,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,24 +56,24 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class FindPeopleActivity extends AppCompatActivity implements  ValueEventListener, ListListener, CompoundButton.OnCheckedChangeListener {
+public class FindPeopleActivity extends AppCompatActivity implements ListListener, CompoundButton.OnCheckedChangeListener {
 
     private static Firebase onlineUsers;
     private static Firebase users;
     private Toolbar toolbar;
     LocationManager lm;
     static RecyclerView peopleList;
-    PeopleListAdapter adapter;
+    static PeopleListAdapter adapter;
     Intent locIntent;
     Intent notiIntent;
     static boolean isRunning;
-    static TextView noUsers_text;
+    static TextView message_text;
     static final String noUsers_message = "No online users near by.";
     static final String locationDisabled_message = "Touch to enable location services.";
     static final String switchOff_message = "You're invisible to others";
     static Switch visible_switch;
 
-    String nickname;
+    static String nickname;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -96,7 +97,7 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
         checkForPermission();
 
-        noUsers_text = (TextView) findViewById(R.id.noUsers_text);
+        message_text = (TextView) findViewById(R.id.noUsers_text);
 
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
         setSupportActionBar(toolbar);
@@ -138,9 +139,8 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
 
         notiIntent = new Intent(this, MyService.class);
         startService(notiIntent);
-        onlineUsers.addValueEventListener(this);
+        //onlineUsers.addValueEventListener(this);
 
-        visible_switch.setChecked(getSharedPreferences("data", MODE_PRIVATE).getBoolean("visible", true));
         if (visible_switch.isChecked()) startLocationService();
     }
 
@@ -213,36 +213,42 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         startActivity(new Intent(this, MessagesActivity.class));
     }
 
-    public void onDataChange(DataSnapshot dataSnapshot) {
+    public static void updateList() {
+        onlineUsers.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.hasChildren()) return;
+                Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
 
-        Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
+                Collection<String> namesList = new ArrayList();
+                Collection<Integer> distancesList = new ArrayList();
+                Collection<String> gendersList = new ArrayList();
 
-        if (iter != null) {
-            Collection<String> namesList = new ArrayList();
-            Collection<Integer> distancesList = new ArrayList();
-            Collection<String> gendersList = new ArrayList();
+                for (DataSnapshot item : iter) {
 
-            for (DataSnapshot item : iter) {
+                    if (!nickname.equals(item.getKey().toString()) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude") && item.hasChild("gender")) {
+                        namesList.add(item.getKey().toString());
 
-                String nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
+                        double latitude = Double.parseDouble(item.child("latitude").getValue().toString());
+                        double longitude = Double.parseDouble(item.child("longitude").getValue().toString());
+                        Location targetLocation = new Location("");
+                        targetLocation.setLatitude(latitude);
+                        targetLocation.setLongitude(longitude);
 
-                if (!nickname.equals(item.getKey().toString()) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude") && item.hasChild("gender")) {
-                    namesList.add(item.getKey().toString());
+                        float distance = targetLocation.distanceTo(LocationListenerService.getLocation());
+                        distancesList.add((int) distance);
 
-                    double latitude = Double.parseDouble(item.child("latitude").getValue().toString());
-                    double longitude = Double.parseDouble(item.child("longitude").getValue().toString());
-                    Location targetLocation = new Location("");
-                    targetLocation.setLatitude(latitude);
-                    targetLocation.setLongitude(longitude);
-
-                    float distance = targetLocation.distanceTo(LocationListenerService.getLocation());
-                    distancesList.add((int) distance);
-
-                    gendersList.add(item.child("gender").getValue().toString());
+                        gendersList.add(item.child("gender").getValue().toString());
+                    }
                 }
+                adapter.update(namesList, distancesList, gendersList);
             }
-            adapter.update(namesList, distancesList, gendersList);
-        }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     public void onCancelled(FirebaseError firebaseError) {
@@ -267,22 +273,28 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         return false;
     }
 
-    public static void showMessage() {
+    public static void updateMessage() {
+        boolean visible = visible_switch.isChecked();
+        boolean providerEnabled = LocationListenerService.providerEnabled;
+        boolean hasUsers = PeopleListAdapter.hasUsers;
 
         peopleList.setVisibility(View.GONE);
-        noUsers_text.setVisibility(View.VISIBLE);
-        if (!visible_switch.isChecked()) noUsers_text.setText(switchOff_message);
-        else if (!LocationListenerService.providerEnabled)
-            noUsers_text.setText(locationDisabled_message);
-        else noUsers_text.setText(noUsers_message);
+        message_text.setVisibility(View.VISIBLE);
+
+        if (!visible) setMessage(switchOff_message);
+        else if (!providerEnabled) setMessage(locationDisabled_message);
+        else if (!hasUsers) setMessage(noUsers_message);
+
+        else {
+            updateList();
+            setMessage("Loading...");
+            peopleList.setVisibility(View.VISIBLE);
+            message_text.setVisibility(View.GONE);
+        }
     }
 
-    public static void hideMessage() {
-        if (LocationListenerService.providerEnabled && !PeopleListAdapter.noUsers) {
-            peopleList.setVisibility(View.VISIBLE);
-            noUsers_text.setVisibility(View.GONE);
-            noUsers_text.setText("");
-        }
+    public static void setMessage(String message) {
+        message_text.setText(message);
     }
 
     @Override
@@ -293,14 +305,15 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
             LocationListenerService.cancelNotification();
         } catch (NullPointerException e) {
         }
-        hideMessage();
-        if (!LocationListenerService.providerEnabled) showMessage();
+        updateMessage();
+        visible_switch.setChecked(getSharedPreferences("data", MODE_PRIVATE).getBoolean("visible", false));
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         isRunning = false;
+        if (visible_switch.isChecked() && LocationListenerService.providerEnabled)
         LocationListenerService.buildNotification();
 
         getSharedPreferences("data", MODE_PRIVATE).edit().putBoolean("visible", visible_switch.isChecked()).commit();
@@ -311,6 +324,8 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
     }
 
     public void enableLocationServices(View view) {
+
+        if (!message_text.getText().toString().equals(locationDisabled_message)) return;
 
         if (Build.VERSION.SDK_INT >= 22) locationChecker(LocationListenerService.getApi(), this);
 
@@ -384,7 +399,10 @@ public class FindPeopleActivity extends AppCompatActivity implements  ValueEvent
         else {
             stopService(locIntent);
         }
-        noUsers_text.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-        showMessage();
+        updateMessage();
+    }
+
+    public static void clearAdapter() {
+        adapter.clearAll();
     }
 }

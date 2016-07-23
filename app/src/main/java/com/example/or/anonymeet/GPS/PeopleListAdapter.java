@@ -18,13 +18,14 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
     ArrayList<Integer> distances;
     ArrayList<String> genders;
     ListListener listener;
-    public static boolean noUsers;
+    public static boolean hasUsers;
 
     public PeopleListAdapter(ListListener listener) {
         userNames = new ArrayList<>();
         distances = new ArrayList<>();
+        genders = new ArrayList<>();
         this.listener = listener;
-        noUsers = true;
+        hasUsers = false;
     }
 
     public void update(Collection<String> names, Collection<Integer> distances, Collection<String> genders) {
@@ -34,12 +35,12 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         notifyDataSetChanged();
         if (FindPeopleActivity.isRunning())
             if (userNames.size() == 0) {
-                noUsers = true;
-                FindPeopleActivity.showMessage();
+                hasUsers = false;
+                FindPeopleActivity.updateMessage();
             }
             else {
-                noUsers = false;
-                FindPeopleActivity.hideMessage();
+                hasUsers = true;
+                FindPeopleActivity.updateMessage();
             }
     }
 
@@ -65,6 +66,14 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
 
     public int getItemCount() {
         return userNames.size();
+    }
+
+    public void clearAll() {
+        userNames = new ArrayList<>();
+        distances = new ArrayList<>();
+        genders = new ArrayList<>();
+        hasUsers = false;
+        update(userNames, distances, genders);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

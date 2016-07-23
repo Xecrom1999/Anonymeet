@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 
 public class StatusReceiver extends BroadcastReceiver {
     public StatusReceiver() {
@@ -13,5 +14,7 @@ public class StatusReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Intent intent1 = new Intent(context, LocationListenerService.class);
         context.stopService(intent1);
+
+        context.getSharedPreferences("data", Context.MODE_PRIVATE).edit().putBoolean("visible", false).commit();
     }
 }
