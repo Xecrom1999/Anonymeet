@@ -23,6 +23,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
     public PeopleListAdapter(ListListener listener) {
         userNames = new ArrayList<>();
         distances = new ArrayList<>();
+        genders = new ArrayList<>();
         this.listener = listener;
         hasUsers = false;
     }
@@ -65,6 +66,14 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
 
     public int getItemCount() {
         return userNames.size();
+    }
+
+    public void clearAll() {
+        userNames = new ArrayList<>();
+        distances = new ArrayList<>();
+        genders = new ArrayList<>();
+        hasUsers = false;
+        update(userNames, distances, genders);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

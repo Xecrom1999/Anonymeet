@@ -160,7 +160,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
             onlineUsers.child(nickname).child("longitude").setValue(longitude);
             onlineUsers.child(nickname).child("gender").setValue(gender);
 
-            FindPeopleActivity.updateList();
+            if (FindPeopleActivity.isRunning()) FindPeopleActivity.updateList();
         }
     }
 
@@ -233,6 +233,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
         hideMe();
+        FindPeopleActivity.clearAdapter();
         super.onDestroy();
     }
 
@@ -257,9 +258,8 @@ public class LocationListenerService extends Service implements GoogleApiClient.
                 providerEnabled = false;
                 if (FindPeopleActivity.isRunning())
                     FindPeopleActivity.updateMessage();
-                else {
+
                     stopSelf();
-                }
                 break;
         }
     }

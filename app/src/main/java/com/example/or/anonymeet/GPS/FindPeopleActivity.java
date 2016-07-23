@@ -401,4 +401,8 @@ public class FindPeopleActivity extends AppCompatActivity implements ListListene
         }
         updateMessage();
     }
+
+    public static void clearAdapter() {
+        adapter.clearAll();
+    }
 }
