@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.or.anonymeet.R;
 import com.firebase.client.DataSnapshot;
@@ -146,29 +147,45 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-    public void onClick(View view){
-        if(!SendMessage.getText().toString().equals("")) {
-            String message;
-            lastMessage = preferences.getString("lastMessage", "");
-            db.insertMessage(userWith, SendMessage.getText().toString(), true);
-            recyclerAdapter.syncMessages();
-            if (SendMessage.getText().toString().equals(lastMessage)) {
-                message = "cbd9b0a2-d183-45ee-9582-27df3020ff65" + SendMessage.getText().toString();
+    public void onClick(final View view){
+        myFirebaseRef.child(userWith).child(myNickname).child("arrived").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue().toString().equals("true")){
+                    if(!SendMessage.getText().toString().equals("")) {
+                        String message;
+                        lastMessage = preferences.getString("lastMessage", "");
+                        db.insertMessage(userWith, SendMessage.getText().toString(), true);
+                        recyclerAdapter.syncMessages();
+                        if (SendMessage.getText().toString().equals(lastMessage)) {
+                            message = "cbd9b0a2-d183-45ee-9582-27df3020ff65" + SendMessage.getText().toString();
 
-            } else {
-                message = SendMessage.getText().toString();
+                        } else {
+                            message = SendMessage.getText().toString();
+
+                        }
+                        myFirebaseRef.child(userWith).child(myNickname).child("message").setValue(message);
+                        se.putString("lastMessage", message).commit();
+                        SendMessage.setText("");
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+                        scrollDown();
+                        myFirebaseRef.child(userWith).child(myNickname).child("read").setValue("false");
+                        myFirebaseRef.child(userWith).child(myNickname).child("arrived").setValue("false");
+
+                    }
+
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "You need to wait until the user will be online in order to send another message", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
 
             }
-            myFirebaseRef.child(userWith).child(myNickname).child("message").setValue(message);
-            se.putString("lastMessage", message).commit();
-            SendMessage.setText("");
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
-            scrollDown();
-            myFirebaseRef.child(userWith).child(myNickname).child("read").setValue("false");
-            myFirebaseRef.child(userWith).child(myNickname).child("arrived").setValue("false");
-
-        }
+        });
 
     }
 
