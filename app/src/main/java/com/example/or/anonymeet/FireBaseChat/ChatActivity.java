@@ -151,7 +151,7 @@ public class ChatActivity extends AppCompatActivity {
         myFirebaseRef.child(userWith).child(myNickname).child("arrived").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.getValue().toString().equals("true")){
+                if(!dataSnapshot.exists() || dataSnapshot.getValue().toString().equals("true")){
                     if(!SendMessage.getText().toString().equals("")) {
                         String message;
                         lastMessage = preferences.getString("lastMessage", "");

@@ -2,6 +2,7 @@ package com.example.or.anonymeet.FireBaseChat;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -15,10 +16,14 @@ public class HelperDB {
 
     MessagesDB d;
     SQLiteDatabase db;
+    SharedPreferences preferences;
+    SharedPreferences.Editor se;
 
     public HelperDB(Context c){
         d = new MessagesDB(c);
         db = d.getWritableDatabase();
+        preferences = c.getSharedPreferences("data", c.MODE_PRIVATE);
+        se = preferences.edit();
     }
 
     public void insertUser(String user, String gender, int noti){
@@ -59,6 +64,44 @@ public class HelperDB {
         }
         catch (Exception e){
         }
+    }
+
+
+    public void insertNoti(String user){
+        se.putInt("user " + user, 1 + preferences.getInt("user " + user, 0)).commit();
+        int num = preferences.getInt("user " + user, 0);
+        String query="UPDATE " + d.TABLE_NAME_CONV + " SET " + d.NOTI + "=" + num + " WHERE " + d.USER + "='" + user + "'";
+        db.execSQL(query);
+
+    }
+
+    public void deleteNotis(String user){
+        se.putInt("user " + user, 0).commit();
+        int num = 0;
+        String query="UPDATE " + d.TABLE_NAME_CONV + " SET " + d.NOTI + "=" + num + " WHERE " + d.USER + "='" + user + "'";
+        db.execSQL(query);
+    }
+
+    public int getSumOfNotis(){
+        String[] columns = {d.NOTI};
+        Cursor cursor = db.query('"'+d.TABLE_NAME_CONV+'"', columns, null, null, null, null, null);
+        int num = 0;
+        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
+            Log.i("hiiiiiiiiiiii", "num: " + cursor.getInt(cursor.getColumnIndex(d.NOTI)));
+            num += cursor.getInt(cursor.getColumnIndex(d.NOTI));
+        }
+
+        return  num;
+    }
+
+    public int getContactNumOfNotis(String user){
+        String[] columns = {d.USER, d.NOTI};
+        Cursor cursor = db.query('"'+d.TABLE_NAME_CONV+'"', columns, null, null, null, null, null);
+        int num=0;
+        for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
+            if(user.equals(cursor.getString(cursor.getColumnIndex(d.USER)))) num = cursor.getInt(cursor.getColumnIndex(d.NOTI));
+        }
+        return  num;
     }
 
     public ArrayList<MyMessage> getMessagesOfUser(String user){

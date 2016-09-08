@@ -48,14 +48,12 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
     View v;
     MyListener mItemClickListener;
     Context context;
-    SharedPreferences preferences;
     UsersAdapter adapter = this;
 
     public UsersAdapter(Context con, MyListener myListener){
 
         this.mItemClickListener = myListener;
         context = con;
-        preferences = context.getSharedPreferences("data", context.MODE_PRIVATE);
         inflater = LayoutInflater.from(context);
         db = new HelperDB(context);
         syncContacts();
@@ -87,8 +85,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         holder.image.setImageResource(c.photo);
         holder.name.setText(c.name);
         holder.position = position;
-        preferences = context.getSharedPreferences("data", context.MODE_PRIVATE);
-        int num = preferences.getInt("user " + c.name, 0);
+        int num = db.getContactNumOfNotis(c.name);
         if(num > 0){
             holder.alert.setText(""+num);
             holder.alert.setVisibility(View.VISIBLE);
