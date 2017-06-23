@@ -84,12 +84,12 @@ public class MyService extends Service implements ChildEventListener {
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-        final String userWith = dataSnapshot.getKey().toString();
-        Log.d("hiiiiiiiiii", "child added");
 
-        if (!db.userExists(userWith))
+        final String userWith = dataSnapshot.getKey().toString();
+
+        if (!db.userExists(userWith)&& dataSnapshot.child("message").getValue() != null ){
             myFirebaseChat.child(userWith).child("arrived").setValue("true");
-            message = dataSnapshot.child("message").getValue().toString();{
+            message = dataSnapshot.child("message").getValue().toString();
             myFirebaseUsers.child(userWith).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
