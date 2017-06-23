@@ -100,6 +100,7 @@ public class ChatActivity extends AppCompatActivity {
                 scrollDown();
             }
         });
+
         myFirebaseRef.child(myNickname).child(userWith).child("read").setValue("true");
 
         myFirebaseRef.child(userWith).child(myNickname).child("read").addValueEventListener(new ValueEventListener() {

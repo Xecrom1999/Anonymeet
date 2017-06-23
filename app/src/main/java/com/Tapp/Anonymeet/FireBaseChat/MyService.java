@@ -53,7 +53,7 @@ public class MyService extends Service implements ChildEventListener {
         myFirebaseChat.addChildEventListener(this);
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();
-        se.putString("check", "").commit();
+
 
     }
 
@@ -84,39 +84,47 @@ public class MyService extends Service implements ChildEventListener {
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+        final String userWith = dataSnapshot.getKey().toString();
+        Log.d("hiiiiiiiiii", "child added");
 
+        if (!db.userExists(userWith))
+            myFirebaseChat.child(userWith).child("arrived").setValue("true");
+            message = dataSnapshot.child("message").getValue().toString();{
+            myFirebaseUsers.child(userWith).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    gender = dataSnapshot.child("gender").getValue().toString();
+                    db.insertUser(dataSnapshot.getKey().toString(), gender, 0);
+                    db.insertMessage(dataSnapshot.getKey().toString(), message, false);
+                    se.putString(userWith + "LastMessage", message);
+                    se.commit();
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+
+                }
+            });
+
+        }
     }
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-        //finding out if read or message was changed
-        //Log.i("hiiiiiiiiii", db.getUserLastMessage(dataSnapshot.getKey().toString()) + " = " + dataSnapshot.child("message").getValue().toString());
-        //if (!(db.getUserLastMessage(dataSnapshot.getKey().toString()).equals(dataSnapshot.child("message").getValue().toString()))) {
-            //if ((!dataSnapshot.child("read").exists()) || (dataSnapshot.child("read").getValue().toString().equals(preferences.getString("checkRead", "")))) {
-            //if ((!dataSnapshot.child("arrived").exists()) || (dataSnapshot.child("arrived").getValue().toString().equals(preferences.getString("checkArrived", "")))){
+        final String userWith = dataSnapshot.getKey().toString();
+        //checking if it was really the message child which was changed
+        Log.i("hiiiiiiiiii", preferences.getString(userWith + "LastMessage", "") + " = " + dataSnapshot.child("message").getValue().toString());
+        if (!(preferences.getString(userWith + "LastMessage", "").equals(dataSnapshot.child("message").getValue().toString()))) {
+
             Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
-            myFirebaseChat.child(dataSnapshot.getKey().toString()).child("arrived").setValue("true");
+            myFirebaseChat.child(userWith).child("arrived").setValue("true");
             message = dataSnapshot.child("message").getValue().toString();
-            if (!db.userExists(dataSnapshot.getKey().toString())) {
-                myFirebaseUsers.child(dataSnapshot.getKey().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        gender = dataSnapshot.child("gender").getValue().toString();
-                        db.insertUser(dataSnapshot.getKey().toString(), gender, 0);
-                        db.insertMessage(dataSnapshot.getKey().toString(), message, false);
-                    }
 
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-
-                    }
-                });
-
-
-            } else {
                 db.insertMessage(dataSnapshot.getKey().toString(), message, false);
-            }
+                se.putString(userWith + "LastMessage", message);
+                se.commit();
+
 
             if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {
                 ChatActivity.recyclerAdapter.syncMessages();
@@ -133,7 +141,7 @@ public class MyService extends Service implements ChildEventListener {
                 MessagesActivity.usersAdapter.syncContacts();
 
             }
-        //}
+        }
 
 
 

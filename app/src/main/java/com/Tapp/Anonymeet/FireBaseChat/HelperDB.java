@@ -41,20 +41,29 @@ public class HelperDB {
                 d.IS_MINE + " char(1));");
     }
 
+
     public String getUserLastMessage(String user){
         String lastMessage = "";
         String[] columns = {d.MESSAGE,d.IS_MINE};
+
+
         Cursor cursor = db.query('"'+user+'"', columns, null, null, null, null, null);
-        cursor.moveToFirst();
-        boolean f = false;
-        while(!f && cursor.isAfterLast()){
-            String s1 = cursor.getString(cursor.getColumnIndex(d.IS_MINE));
-            if(s1.equals("f")){
-                lastMessage = cursor.getString(cursor.getColumnIndex(d.MESSAGE));
-                f = true;
+
+        cursor.moveToLast();
+            boolean f = false;
+
+
+            while(!f && cursor.moveToPrevious()){
+                String s1 = cursor.getString(cursor.getColumnIndex(d.IS_MINE));
+
+                if(s1.equals("f")){
+                    lastMessage = cursor.getString(cursor.getColumnIndex(d.MESSAGE));
+                    f = true;
+                }
+
             }
-            cursor.moveToNext();
-        }
+
+
         return lastMessage;
     }
 
@@ -127,7 +136,7 @@ public class HelperDB {
         ArrayList<MyMessage> list = new ArrayList<>();
         boolean f;
         String m;
-        Log.d("hiiiiiiiiiiiiiiii", "cursor lenght: " + cursor.getCount());
+
         String i;
         for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
             m = cursor.getString(cursor.getColumnIndex(d.MESSAGE));
