@@ -91,8 +91,8 @@ public class MyService extends Service implements ChildEventListener {
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
         //finding out if read or message was changed
-        Log.i("hiiiiiiiiii", db.getUserLastMessage(dataSnapshot.getKey().toString()) + " = " + dataSnapshot.child("message").getValue().toString());
-        if (!(db.getUserLastMessage(dataSnapshot.getKey().toString()).equals(dataSnapshot.child("message").getValue().toString()))) {
+        //Log.i("hiiiiiiiiii", db.getUserLastMessage(dataSnapshot.getKey().toString()) + " = " + dataSnapshot.child("message").getValue().toString());
+        //if (!(db.getUserLastMessage(dataSnapshot.getKey().toString()).equals(dataSnapshot.child("message").getValue().toString()))) {
             //if ((!dataSnapshot.child("read").exists()) || (dataSnapshot.child("read").getValue().toString().equals(preferences.getString("checkRead", "")))) {
             //if ((!dataSnapshot.child("arrived").exists()) || (dataSnapshot.child("arrived").getValue().toString().equals(preferences.getString("checkArrived", "")))){
             Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
@@ -133,7 +133,7 @@ public class MyService extends Service implements ChildEventListener {
                 MessagesActivity.usersAdapter.syncContacts();
 
             }
-        }
+        //}
 
 
 

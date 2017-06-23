@@ -101,17 +101,18 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
         myFirebaseRef.child(myNickname).child(userWith).child("read").setValue("true");
+
         myFirebaseRef.child(userWith).child(myNickname).child("read").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                if(dataSnapshot.getValue()!=null){
+                if(dataSnapshot.exists()){
                     if(dataSnapshot.getValue().toString().equals("true")){
                         isRead.setImageResource(R.drawable.read);
                     }
-                    else isRead.setImageResource(R.drawable.unread);
-
                 }
+                else isRead.setImageResource(R.drawable.unread);
+
             }
 
             @Override
@@ -125,7 +126,7 @@ public class ChatActivity extends AppCompatActivity {
                 if(!dataSnapshot.exists() || !getIntent().getBooleanExtra("userWasExisted", true)){
                     arrived.setVisibility(View.INVISIBLE);
                     isRead.setVisibility(View.INVISIBLE);
-                } else if(dataSnapshot.exists() && dataSnapshot.getValue().toString().equals("true")){
+                } else if(dataSnapshot.exists()){
                     arrived.setVisibility(View.INVISIBLE);
                     isRead.setVisibility(View.VISIBLE);
                 }
@@ -151,6 +152,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(!dataSnapshot.exists() || dataSnapshot.getValue().equals("true")){
+
                     if(!SendMessage.getText().toString().equals("")) {
                         String message;
                         lastMessage = preferences.getString("lastMessage", "");
@@ -169,8 +171,9 @@ public class ChatActivity extends AppCompatActivity {
                         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
                         scrollDown();
-                        myFirebaseRef.child(userWith).child(myNickname).child("read").setValue("false");
-                        myFirebaseRef.child(userWith).child(myNickname).child("arrived").setValue("false");
+
+                        myFirebaseRef.child(userWith).child(myNickname).child("read").removeValue();
+                        myFirebaseRef.child(userWith).child(myNickname).child("arrived").removeValue();
 
                     }
                     else{
