@@ -85,33 +85,21 @@ public class MyService extends Service implements ChildEventListener {
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
+        Log.d("hiiiiii", "onChildAdded");
         final String userWith = dataSnapshot.getKey().toString();
 
         if (!db.userExists(userWith)&& dataSnapshot.child("message").getValue() != null ){
             myFirebaseChat.child(userWith).child("arrived").setValue("true");
             message = dataSnapshot.child("message").getValue().toString();
-            myFirebaseUsers.child(userWith).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    gender = dataSnapshot.child("gender").getValue().toString();
-                    db.insertUser(dataSnapshot.getKey().toString(), gender, 0);
-                    db.insertMessage(dataSnapshot.getKey().toString(), message, false);
-                    se.putString(userWith + "LastMessage", message);
-                    se.commit();
-                }
-
-                @Override
-                public void onCancelled(FirebaseError firebaseError) {
-
-                }
-            });
 
         }
+
     }
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
+        Log.d("hiiiiii", "onChildChanged");
         final String userWith = dataSnapshot.getKey().toString();
         //checking if it was really the message child which was changed
         Log.i("hiiiiiiiiii", preferences.getString(userWith + "LastMessage", "") + " = " + dataSnapshot.child("message").getValue().toString());
@@ -121,9 +109,31 @@ public class MyService extends Service implements ChildEventListener {
             myFirebaseChat.child(userWith).child("arrived").setValue("true");
             message = dataSnapshot.child("message").getValue().toString();
 
+            if (!db.userExists(userWith)){
+                myFirebaseChat.child(userWith).child("arrived").setValue("true");
+                message = dataSnapshot.child("message").getValue().toString();
+                myFirebaseUsers.child(userWith).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        gender = dataSnapshot.child("gender").getValue().toString();
+                        db.insertUser(dataSnapshot.getKey().toString(), gender, 0);
+                        db.insertMessage(dataSnapshot.getKey().toString(), message, false);
+                        se.putString(userWith + "LastMessage", message);
+                        se.commit();
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+
+            }
+            else {
                 db.insertMessage(dataSnapshot.getKey().toString(), message, false);
                 se.putString(userWith + "LastMessage", message);
                 se.commit();
+            }
 
 
             if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {
