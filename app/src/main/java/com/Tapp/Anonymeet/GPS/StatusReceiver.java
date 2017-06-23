@@ -1,10 +1,8 @@
-package com.example.or.anonymeet.GPS;
+package com.Tapp.Anonymeet.GPS;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 
 public class StatusReceiver extends BroadcastReceiver {
     public StatusReceiver() {

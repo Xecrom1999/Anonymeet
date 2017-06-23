@@ -1,20 +1,18 @@
-package com.example.or.anonymeet.FireBaseChat;
+package com.Tapp.Anonymeet.FireBaseChat;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.or.anonymeet.R;
+import com.Tapp.Anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -148,10 +146,11 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     public void onClick(final View view){
+
         myFirebaseRef.child(userWith).child(myNickname).child("arrived").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.exists() || dataSnapshot.getValue().toString().equals("true")){
+                if(!dataSnapshot.exists() || dataSnapshot.getValue().equals("true")){
                     if(!SendMessage.getText().toString().equals("")) {
                         String message;
                         lastMessage = preferences.getString("lastMessage", "");
@@ -174,10 +173,10 @@ public class ChatActivity extends AppCompatActivity {
                         myFirebaseRef.child(userWith).child(myNickname).child("arrived").setValue("false");
 
                     }
+                    else{
+                        Toast.makeText(getApplicationContext(), "You need to wait until the user gets the message in order to send another one", Toast.LENGTH_LONG).show();
+                    }
 
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), "You need to wait until the user will be online in order to send another message", Toast.LENGTH_LONG).show();
                 }
             }
 

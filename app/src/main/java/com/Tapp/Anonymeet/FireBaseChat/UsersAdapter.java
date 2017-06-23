@@ -1,23 +1,18 @@
-package com.example.or.anonymeet.FireBaseChat;
+package com.Tapp.Anonymeet.FireBaseChat;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.or.anonymeet.R;
+import com.Tapp.Anonymeet.R;
 
 import java.util.ArrayList;
 
@@ -85,6 +80,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         holder.image.setImageResource(c.photo);
         holder.name.setText(c.name);
         holder.position = position;
+        Log.i("hiiiiiii", "this " + db.getContactNumOfNotis(c.name));
         int num = db.getContactNumOfNotis(c.name);
         if(num > 0){
             holder.alert.setText(""+num);

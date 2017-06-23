@@ -1,4 +1,4 @@
-package com.example.or.anonymeet.FireBaseChat;
+package com.Tapp.Anonymeet.FireBaseChat;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -39,6 +39,23 @@ public class HelperDB {
                 d.UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 d.MESSAGE + " varchar(225), " +
                 d.IS_MINE + " char(1));");
+    }
+
+    public String getUserLastMessage(String user){
+        String lastMessage = "";
+        String[] columns = {d.MESSAGE,d.IS_MINE};
+        Cursor cursor = db.query('"'+user+'"', columns, null, null, null, null, null);
+        cursor.moveToFirst();
+        boolean f = false;
+        while(!f && cursor.isAfterLast()){
+            String s1 = cursor.getString(cursor.getColumnIndex(d.IS_MINE));
+            if(s1.equals("f")){
+                lastMessage = cursor.getString(cursor.getColumnIndex(d.MESSAGE));
+                f = true;
+            }
+            cursor.moveToNext();
+        }
+        return lastMessage;
     }
 
     public boolean userExists(String user){

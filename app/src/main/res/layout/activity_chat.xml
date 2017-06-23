@@ -9,7 +9,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:background="#f2f2f2"
     android:layoutDirection="ltr"
-    tools:context="com.example.or.anonymeet.FireBaseChat.ChatActivity">
+    tools:context="com.Tapp.Anonymeet.FireBaseChat.ChatActivity">
     <ImageButton
         android:src="@android:drawable/ic_menu_send"
         android:onClick="onClick"
@@ -52,12 +52,13 @@
 
 
     <EditText
-        android:layout_toLeftOf="@id/send"
-        android:layout_alignParentLeft="true"
-        android:layout_alignBottom="@id/send"
         android:id="@+id/sendMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/send"
+ />
 
 
 

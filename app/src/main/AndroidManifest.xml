@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.or.anonymeet" >
+    package="com.Tapp.Anonymeet" >
 
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="17" />
+
+    <permission android:name="com.Tapp.Anonymeet.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="com.Tapp.Anonymeet.permission.C2D_MESSAGE" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -14,23 +18,51 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <receiver android:name=".StatusReceiver" />
 
     <application
-        android:name=".GPS.FireBaseHelper"
+        android:name="com.Tapp.Anonymeet.GPS.FireBaseHelper"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
+
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="com.example.gcm" />
+            </intent-filter>
+        </receiver>
+        <service
+            android:name="com.Tapp.Anonymeet.MyGcmListenerService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.Tapp.Anonymeet.MyInstanceIDListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
+            </intent-filter>
+        </service>
+
+
+
+
         <activity
-            android:name=".FireBaseChat.ChatActivity"
+            android:name="com.Tapp.Anonymeet.FireBaseChat.ChatActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".GPS.LoginActivity"
+            android:name="com.Tapp.Anonymeet.GPS.LoginActivity"
             android:label="Anonymeet" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,22 +71,22 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".FireBaseChat.MessagesActivity"
+            android:name="com.Tapp.Anonymeet.FireBaseChat.MessagesActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".GPS.FindPeopleActivity"
+            android:name="com.Tapp.Anonymeet.GPS.FindPeopleActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
 
         <service
-            android:name=".FireBaseChat.MyService"
+            android:name="com.Tapp.Anonymeet.FireBaseChat.MyService"
             android:exported="false" />
         <service
-            android:name=".GPS.LocationListenerService"
+            android:name="com.Tapp.Anonymeet.GPS.LocationListenerService"
             android:exported="false" />
 
         <receiver
-            android:name=".GPS.StatusReceiver"
+            android:name="com.Tapp.Anonymeet.GPS.StatusReceiver"
             android:enabled="true"
             android:exported="true" />
     </application>

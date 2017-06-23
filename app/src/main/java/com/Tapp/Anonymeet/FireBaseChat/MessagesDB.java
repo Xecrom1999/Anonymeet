@@ -1,15 +1,9 @@
-package com.example.or.anonymeet.FireBaseChat;
+package com.Tapp.Anonymeet.FireBaseChat;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-import android.widget.ArrayAdapter;
-
-import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Created by Or on 02/04/2016.

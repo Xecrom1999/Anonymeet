@@ -1,4 +1,4 @@
-package com.example.or.anonymeet.FireBaseChat;
+package com.Tapp.Anonymeet.FireBaseChat;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.example.or.anonymeet.R;
+import com.Tapp.Anonymeet.R;
 
 public class MessagesActivity extends AppCompatActivity implements MyListener{
 

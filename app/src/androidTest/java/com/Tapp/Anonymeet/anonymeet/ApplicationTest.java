@@ -1,4 +1,4 @@
-package com.example.or.anonymeet;
+package com.Tapp.Anonymeet.anonymeet;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

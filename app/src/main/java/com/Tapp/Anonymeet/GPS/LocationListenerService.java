@@ -1,8 +1,7 @@
-package com.example.or.anonymeet.GPS;
+package com.Tapp.Anonymeet.GPS;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;

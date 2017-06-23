@@ -1,4 +1,4 @@
-package com.example.or.anonymeet.GPS;
+package com.Tapp.Anonymeet.GPS;
 
 import com.firebase.client.Firebase;
 

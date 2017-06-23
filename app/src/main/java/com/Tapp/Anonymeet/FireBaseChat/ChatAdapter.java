@@ -1,15 +1,13 @@
-package com.example.or.anonymeet.FireBaseChat;
+package com.Tapp.Anonymeet.FireBaseChat;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.or.anonymeet.R;
+import com.Tapp.Anonymeet.R;
 
 import java.util.ArrayList;
 
@@ -49,6 +47,9 @@ public class ChatAdapter extends RecyclerView.Adapter<MessageViewHolder> {
         inflater = LayoutInflater.from(context);
         db = new HelperDB(context);
         messages = db.getMessagesOfUser(user);
+        for (MyMessage m : messages) {
+            m.message = cleanCode(m.message);
+        }
     }
 
     @Override
@@ -76,6 +77,13 @@ public class ChatAdapter extends RecyclerView.Adapter<MessageViewHolder> {
     public void onBindViewHolder(MessageViewHolder holder, int position) {
         holder.message = new MyMessage(messages.get(position).message, messages.get(position).isMine);
         holder.text.setText(holder.message.message);
+    }
+
+    public String cleanCode(String m) {
+        if (m.length() > 36 && m.substring(0, 36).equals("cbd9b0a2-d183-45ee-9582-27df3020ff65")) {
+            m = m.substring(36);
+        }
+        return m;
     }
 
     public void syncMessages(){
