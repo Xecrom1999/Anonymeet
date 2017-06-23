@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.Tapp.Anonymeet" >
+    package="com.Tapp.Anonymeet">
 
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="17" />
 
-    <permission android:name="com.Tapp.Anonymeet.permission.C2D_MESSAGE"
+    <permission
+        android:name="com.Tapp.Anonymeet.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
-    <uses-permission android:name="com.Tapp.Anonymeet.permission.C2D_MESSAGE" />
 
+    <uses-permission android:name="com.Tapp.Anonymeet.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -22,48 +23,46 @@
     <receiver android:name=".StatusReceiver" />
 
     <application
-        android:name="com.Tapp.Anonymeet.GPS.FireBaseHelper"
+        android:name=".GPS.FireBaseHelper"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
-
+        android:theme="@style/AppTheme">
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
                 <category android:name="com.example.gcm" />
             </intent-filter>
         </receiver>
+
         <service
-            android:name="com.Tapp.Anonymeet.MyGcmListenerService"
-            android:exported="false" >
+            android:name=".MyGcmListenerService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
         <service
-            android:name="com.Tapp.Anonymeet.MyInstanceIDListenerService"
+            android:name=".MyInstanceIDListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
 
-
-
-
         <activity
-            android:name="com.Tapp.Anonymeet.FireBaseChat.ChatActivity"
+            android:name=".FireBaseChat.ChatActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name="com.Tapp.Anonymeet.GPS.LoginActivity"
-            android:label="Anonymeet" >
+            android:name=".GPS.LoginActivity"
+            android:label="Anonymeet">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -71,24 +70,26 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.Tapp.Anonymeet.FireBaseChat.MessagesActivity"
+            android:name=".FireBaseChat.MessagesActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="com.Tapp.Anonymeet.GPS.FindPeopleActivity"
+            android:name=".GPS.FindPeopleActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
 
         <service
-            android:name="com.Tapp.Anonymeet.FireBaseChat.MyService"
+            android:name=".FireBaseChat.MyService"
             android:exported="false" />
         <service
-            android:name="com.Tapp.Anonymeet.GPS.LocationListenerService"
+            android:name=".GPS.LocationListenerService"
             android:exported="false" />
 
         <receiver
-            android:name="com.Tapp.Anonymeet.GPS.StatusReceiver"
+            android:name=".GPS.StatusReceiver"
             android:enabled="true"
             android:exported="true" />
+
+        <activity android:name=".GPS.RegisterActivity"></activity>
     </application>
 
 </manifest>
