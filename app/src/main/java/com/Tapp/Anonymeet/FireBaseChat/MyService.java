@@ -11,7 +11,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
+import java.util.*;
 import com.Tapp.Anonymeet.GPS.FindPeopleActivity;
 import com.Tapp.Anonymeet.R;
 import com.firebase.client.ChildEventListener;
@@ -82,13 +82,15 @@ public class MyService extends Service implements ChildEventListener {
     }
 
 
+
+
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
         Log.d("hiiiiii", "onChildAdded");
         final String userWith = dataSnapshot.getKey().toString();
 
-        if (!db.userExists(userWith)&& dataSnapshot.child("message").getValue() != null ){
+        if (dataSnapshot.child("message").exists()){
             myFirebaseChat.child(userWith).child("arrived").setValue("true");
             message = dataSnapshot.child("message").getValue().toString();
 
@@ -106,11 +108,11 @@ public class MyService extends Service implements ChildEventListener {
         if (!(preferences.getString(userWith + "LastMessage", "").equals(dataSnapshot.child("message").getValue().toString()))) {
 
             Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
-            myFirebaseChat.child(userWith).child("arrived").setValue("true");
+
+
             message = dataSnapshot.child("message").getValue().toString();
 
             if (!db.userExists(userWith)){
-                myFirebaseChat.child(userWith).child("arrived").setValue("true");
                 message = dataSnapshot.child("message").getValue().toString();
                 myFirebaseUsers.child(userWith).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -152,6 +154,11 @@ public class MyService extends Service implements ChildEventListener {
                 MessagesActivity.usersAdapter.syncContacts();
 
             }
+
+            Random rnd = new Random();
+
+            myFirebaseChat.child(userWith).child("arrived").setValue("true" + rnd.nextInt(1000000));
+
         }
 
 
@@ -208,7 +215,7 @@ public class MyService extends Service implements ChildEventListener {
 
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) {
-
+        Log.d("hiiiiiiiii", "OnChildRemoved");
     }
 
     @Override

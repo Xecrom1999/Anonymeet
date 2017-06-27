@@ -92,8 +92,6 @@ public class ChatActivity extends AppCompatActivity {
         SendMessage = (EditText)findViewById(R.id.sendMessage);
         recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.messages.size() - 1);
         isRead = (ImageView)findViewById(R.id.read);
-        arrived = (ImageView)findViewById(R.id.arrived);
-
         recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
@@ -103,38 +101,29 @@ public class ChatActivity extends AppCompatActivity {
 
         myFirebaseRef.child(myNickname).child(userWith).child("read").setValue("true");
 
-        myFirebaseRef.child(userWith).child(myNickname).child("read").addValueEventListener(new ValueEventListener() {
+
+        myFirebaseRef.child(userWith).child(myNickname).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                if(dataSnapshot.exists()){
-                    if(dataSnapshot.getValue().toString().equals("true")){
-                        isRead.setImageResource(R.drawable.read);
-                    }
-                }
-                else isRead.setImageResource(R.drawable.unread);
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-        myFirebaseRef.child(userWith).child(myNickname).child("arrived").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.exists() || !getIntent().getBooleanExtra("userWasExisted", true)){
-                    arrived.setVisibility(View.INVISIBLE);
-                    isRead.setVisibility(View.INVISIBLE);
-                } else if(dataSnapshot.exists()){
-                    arrived.setVisibility(View.INVISIBLE);
+                if(getIntent().getBooleanExtra("userWasExisted", true) && !dataSnapshot.child("arrived").exists()) {
+                    isRead.setImageResource(R.drawable.not_arrived);
                     isRead.setVisibility(View.VISIBLE);
                 }
-                else{
+                else if(!dataSnapshot.child("arrived").exists() || !getIntent().getBooleanExtra("userWasExisted", true)){
                     isRead.setVisibility(View.INVISIBLE);
-                    arrived.setVisibility(View.VISIBLE);
                 }
+                else if(dataSnapshot.child("arrived").exists()){
+                    if (dataSnapshot.child("read").exists()) isRead.setImageResource(R.drawable.read);
+
+                    else isRead.setImageResource(R.drawable.unread);
+
+                    isRead.setVisibility(View.VISIBLE);
+
+
+
+                }
+
             }
 
             @Override
@@ -149,12 +138,16 @@ public class ChatActivity extends AppCompatActivity {
 
     public void onClick(final View view){
 
-        myFirebaseRef.child(userWith).child(myNickname).child("arrived").addListenerForSingleValueEvent(new ValueEventListener() {
+        myFirebaseRef.child(userWith).child(myNickname).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.exists() || dataSnapshot.getValue().equals("true")){
+                if(!dataSnapshot.child("message").exists() || dataSnapshot.child("arrived").exists()){
 
                     if(!SendMessage.getText().toString().equals("")) {
+
+                        myFirebaseRef.child(userWith).child(myNickname).child("read").removeValue();
+                        myFirebaseRef.child(userWith).child(myNickname).child("arrived").removeValue();
+
                         String message;
                         lastMessage = preferences.getString("lastMessage", "");
                         db.insertMessage(userWith, SendMessage.getText().toString(), true);
@@ -173,8 +166,7 @@ public class ChatActivity extends AppCompatActivity {
                         imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
                         scrollDown();
 
-                        myFirebaseRef.child(userWith).child(myNickname).child("read").removeValue();
-                        myFirebaseRef.child(userWith).child(myNickname).child("arrived").removeValue();
+
 
                     }
                     else{
