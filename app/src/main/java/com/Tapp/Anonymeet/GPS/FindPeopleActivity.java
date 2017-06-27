@@ -100,7 +100,8 @@ public class FindPeopleActivity extends AppCompatActivity {
     }
 
     public static void clearAdapter() {
-        f1.clearAdapter();
+        if (isRunning)
+            f1.clearAdapter();
     }
 
     public void enableLocationServices(View view) {

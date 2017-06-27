@@ -59,6 +59,7 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
     static Context ctx;
     static String nickname;
     View view;
+    static String username;
 
     public FindPeopleFragment() {
     }
@@ -112,6 +113,8 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
 
         visible_switch.setChecked(ctx.getSharedPreferences("data", MODE_PRIVATE).getBoolean("visible", true));
 
+        username = ctx.getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
+
         return view;
     }
 
@@ -158,7 +161,9 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
         onlineUsers.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+
                 if (!dataSnapshot.hasChildren()) return;
+                if (!dataSnapshot.hasChild(username)) clearAdapter();
 
                 Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
 

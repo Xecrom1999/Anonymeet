@@ -229,7 +229,8 @@ public class LocationListenerService extends Service implements GoogleApiClient.
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
         hideMe();
-        FindPeopleActivity.clearAdapter();
+        if (FindPeopleActivity.isRunning())
+            FindPeopleActivity.clearAdapter();
         super.onDestroy();
     }
 
@@ -245,6 +246,12 @@ public class LocationListenerService extends Service implements GoogleApiClient.
             case GpsStatus.GPS_EVENT_STARTED:
                 providerEnabled = true;
                 mGoogleApiClient.connect();
+                if (FindPeopleActivity.isRunning()) {
+                    FindPeopleActivity.updateMessage();
+                }
+                break;
+
+            case GpsStatus.GPS_EVENT_FIRST_FIX:
                 if (FindPeopleActivity.isRunning()) {
                     FindPeopleActivity.updateMessage();
                 }
