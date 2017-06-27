@@ -150,9 +150,8 @@ public class MyService extends Service implements ChildEventListener {
                 else notifyFew();
 
             }
-            if (MessagesActivity.isActive) {
-                MessagesActivity.usersAdapter.syncContacts();
-
+            if (FindPeopleActivity.isRunning()) {
+                FindPeopleActivity.syncContacts();
             }
 
             myFirebaseChat.child(userWith).addChildEventListener(new ChildEventListener() {

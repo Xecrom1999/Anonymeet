@@ -12,14 +12,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.Tapp.Anonymeet.GPS.FindPeopleActivity;
 import com.Tapp.Anonymeet.R;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 import java.util.ArrayList;
 
 /**
  * Created by Or on 18/01/2016.
  */
-class Contact{
+class Contact {
     int photo;
     String name;
     String gender;
@@ -39,33 +41,31 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
 
     ArrayList<Contact> contacts;
     LayoutInflater inflater;
-    HelperDB db;
     View v;
     MyListener mItemClickListener;
     Context context;
     UsersAdapter adapter = this;
+    HelperDB db;
 
     public UsersAdapter(Context con, MyListener myListener){
 
         this.mItemClickListener = myListener;
         context = con;
         inflater = LayoutInflater.from(context);
-        db = new HelperDB(context);
+        this.db = FindPeopleActivity.getData();
         syncContacts();
-
     }
 
     public void syncContacts(){
-        contacts = db.getContacts();
+        contacts = FindPeopleActivity.getData().getContacts();
+        Log.d("MYLOG", "contacts: " + contacts.size());
         notifyDataSetChanged();
-
     }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         v = inflater.inflate(R.layout.item_recycle_view, parent, false);
-
 
         MyViewHolder viewHolder = new MyViewHolder(v);
         return viewHolder;

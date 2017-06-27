@@ -39,7 +39,7 @@ dependencies {
     compile 'com.android.support:support-v4:23.1.0'
     compile 'com.firebase:firebase-client-android:2.3.1'
     compile 'com.google.android.gms:play-services-gcm:9.0.0'
-    compile 'com.android.support.constraint:constraint-layout:+'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     androidTestCompile 'junit:junit:4.12'
 }
 

@@ -50,7 +50,7 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
     Intent locIntent;
     Intent notiIntent;
     HelperDB db;
-    static boolean isRunning;
+
     static TextView message_text;
     static final String noUsers_message = "No online users near by.";
     static final String locationDisabled_message = "Touch to enable location services.";
@@ -255,7 +255,7 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
     }
 
     public static void exit() {
-        isRunning = false;
+
         if (visible_switch.isChecked() && LocationListenerService.providerEnabled)
             LocationListenerService.buildNotification();
 

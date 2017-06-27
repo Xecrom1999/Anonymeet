@@ -25,7 +25,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.Tapp.Anonymeet.FireBaseChat.MessagesActivity;
+import com.Tapp.Anonymeet.FireBaseChat.HelperDB;
+import com.Tapp.Anonymeet.FireBaseChat.MessagesFragment;
 import com.Tapp.Anonymeet.R;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -44,24 +45,31 @@ public class FindPeopleActivity extends AppCompatActivity {
     static boolean isRunning;
     ViewPager pager;
     static FindPeopleFragment f1;
+    static MessagesFragment f2;
+    static HelperDB db;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.find_people_activity);
 
+        db = new HelperDB(this);
+
         FragmentManager manager = getSupportFragmentManager();
         f1 =  new FindPeopleFragment();
+        f2 = new MessagesFragment();
         pager = (ViewPager) findViewById(R.id.viewPager);
         pager.setAdapter(new FragmentPagerAdapter(manager) {
             @Override
             public Fragment getItem(int position) {
-                return f1;
+                if (position == 0)
+                    return f1;
+                return f2;
             }
 
             @Override
             public int getCount() {
-                return 1;
+                return 2;
             }
         });
 
@@ -71,14 +79,24 @@ public class FindPeopleActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
 
         isRunning = true;
         try {
             LocationListenerService.cancelNotification();
         } catch (NullPointerException e) {
         }
+
+        if (f2 != null)
+            f2.syncContacts();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        isRunning = false;
     }
 
     public void onStop() {
@@ -170,10 +188,6 @@ public class FindPeopleActivity extends AppCompatActivity {
         );
     }
 
-    public void goToMessagesActivity(View view) {
-        startActivity(new Intent(this, MessagesActivity.class));
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.gps_menu, menu);
@@ -202,5 +216,14 @@ public class FindPeopleActivity extends AppCompatActivity {
 
         Dialog dialog = builder.create();
         dialog.show();
+    }
+
+    public static void syncContacts() {
+        f2.syncContacts();
+    }
+
+    public static HelperDB getData() {
+
+        return db;
     }
 }

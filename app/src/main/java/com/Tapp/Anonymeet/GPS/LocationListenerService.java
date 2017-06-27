@@ -223,7 +223,6 @@ public class LocationListenerService extends Service implements GoogleApiClient.
 
     @Override
     public void onDestroy() {
-        Log.d("TAG", "ariel onDestroy");
         visible = false;
         LocationListenerService.cancelNotification();
         stopLocationUpdates();
