@@ -148,6 +148,8 @@ public class ChatActivity extends AppCompatActivity {
                         myFirebaseRef.child(userWith).child(myNickname).child("read").removeValue();
                         myFirebaseRef.child(userWith).child(myNickname).child("arrived").removeValue();
 
+
+
                         String message;
                         lastMessage = preferences.getString("lastMessage", "");
                         db.insertMessage(userWith, SendMessage.getText().toString(), true);

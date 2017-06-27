@@ -155,9 +155,38 @@ public class MyService extends Service implements ChildEventListener {
 
             }
 
-            Random rnd = new Random();
+            myFirebaseChat.child(userWith).addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-            myFirebaseChat.child(userWith).child("arrived").setValue("true" + rnd.nextInt(1000000));
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.getKey().toString().equals("arrived")) {
+                        Random rnd = new Random();
+
+                        myFirebaseChat.child(userWith).child("arrived").setValue("true" + rnd.nextInt(1000000));
+                        myFirebaseChat.child(userWith).removeEventListener(this);
+                    }
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+
+                }
+            });
+
 
         }
 
