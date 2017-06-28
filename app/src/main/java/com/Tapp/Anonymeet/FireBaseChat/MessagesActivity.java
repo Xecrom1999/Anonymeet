@@ -28,6 +28,7 @@ public class MessagesActivity extends AppCompatActivity implements MyListener{
         super.onPostResume();
     }
 
+
     @Override
     protected void onStop() {
         isActive = false;

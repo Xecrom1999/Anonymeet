@@ -110,6 +110,7 @@ public class MyService extends Service implements ChildEventListener {
             Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
 
 
+
             message = dataSnapshot.child("message").getValue().toString();
 
             if (!db.userExists(userWith)){
@@ -151,7 +152,8 @@ public class MyService extends Service implements ChildEventListener {
 
             }
             if (FindPeopleActivity.isRunning()) {
-                FindPeopleActivity.syncContacts();
+                MessagesActivity.usersAdapter.syncContacts();
+
             }
 
             myFirebaseChat.child(userWith).addChildEventListener(new ChildEventListener() {

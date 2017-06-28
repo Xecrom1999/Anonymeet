@@ -93,6 +93,7 @@ public class HelperDB {
     }
 
 
+
     public void insertNoti(String user){
         se.putInt("user " + user, 1 + preferences.getInt("user " + user, 0)).commit();
         int num = preferences.getInt("user " + user, 0);

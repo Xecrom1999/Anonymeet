@@ -47,6 +47,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
     UsersAdapter adapter = this;
     HelperDB db;
 
+
     public UsersAdapter(Context con, MyListener myListener){
 
         this.mItemClickListener = myListener;

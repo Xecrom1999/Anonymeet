@@ -134,6 +134,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
+
     }
 
     public void onClick(final View view){

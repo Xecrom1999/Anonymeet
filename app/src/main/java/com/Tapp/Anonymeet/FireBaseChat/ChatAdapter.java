@@ -50,6 +50,7 @@ public class ChatAdapter extends RecyclerView.Adapter<MessageViewHolder> {
         for (MyMessage m : messages) {
             m.message = cleanCode(m.message);
         }
+
     }
 
     @Override
