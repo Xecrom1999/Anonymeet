@@ -52,12 +52,12 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         this.mItemClickListener = myListener;
         context = con;
         inflater = LayoutInflater.from(context);
-        this.db = FindPeopleActivity.getData();
+        this.db = new HelperDB(con);
         syncContacts();
     }
 
     public void syncContacts(){
-        contacts = FindPeopleActivity.getData().getContacts();
+        contacts = db.getContacts();
         Log.d("MYLOG", "contacts: " + contacts.size());
         notifyDataSetChanged();
     }
@@ -70,9 +70,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         MyViewHolder viewHolder = new MyViewHolder(v);
         return viewHolder;
     }
-
-
-
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
@@ -88,8 +85,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         } else{
             holder.alert.setVisibility(View.INVISIBLE);
         }
-
-
     }
 
     @Override

@@ -185,14 +185,7 @@ public class MyService extends Service implements ChildEventListener {
 
                 }
             });
-
-
         }
-
-
-
-
-
     }
 
     public String cleanCode(String m) {
@@ -201,8 +194,6 @@ public class MyService extends Service implements ChildEventListener {
         }
         return m;
     }
-
-
 
     public void notifyOne(String sender, String m){
         Notification.Builder n = new Notification.Builder(getApplicationContext())

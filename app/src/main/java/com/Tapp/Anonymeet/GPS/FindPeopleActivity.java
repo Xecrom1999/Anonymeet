@@ -221,9 +221,4 @@ public class FindPeopleActivity extends AppCompatActivity {
     public static void syncContacts() {
         f2.syncContacts();
     }
-
-    public static HelperDB getData() {
-
-        return db;
-    }
 }

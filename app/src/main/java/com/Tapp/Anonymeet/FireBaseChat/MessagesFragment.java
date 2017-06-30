@@ -64,7 +64,6 @@ public class MessagesFragment extends Fragment implements MyListener {
             Log.d("MYLOG", "fragment1");
 
             usersAdapter.syncContacts();
-
         }
     }
 }
