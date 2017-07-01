@@ -92,6 +92,8 @@ public class LocationListenerService extends Service implements GoogleApiClient.
         if (FindPeopleActivity.isRunning())
             cancelNotification();
 
+        refresh();
+
         return super.onStartCommand(intent, flags, startId);
     }
 
