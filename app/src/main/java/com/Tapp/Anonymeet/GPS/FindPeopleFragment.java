@@ -14,6 +14,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +41,7 @@ import java.util.Collection;
 import static android.content.Context.LOCATION_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 
-public class FindPeopleFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, ListListener {
+public class FindPeopleFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, ListListener, ValueEventListener {
 
     private static Firebase onlineUsers;
     private static Firebase users;
@@ -57,13 +58,11 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
     static final String switchOff_message = "You're invisible to others";
     static Switch visible_switch;
     static Context ctx;
-    static String nickname;
     View view;
     static String username;
 
     public FindPeopleFragment() {
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -73,14 +72,17 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
 
         this.ctx = getContext();
 
-        message_text = (TextView) view.findViewById(R.id.noUsers_text);
+        username = ctx.getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
-        visible_switch = (Switch) view.findViewById(R.id.visible_switch);
-        visible_switch.setOnCheckedChangeListener(this);
+        initializeList();
+
+        onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
+        users = new Firebase("https://anonymeetapp.firebaseio.com/Users");
+
+        message_text = (TextView) view.findViewById(R.id.noUsers_text);
 
         locIntent = new Intent(getContext(), LocationListenerService.class);
         db = new HelperDB(ctx);
-        nickname = ctx.getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
         if (getActivity().getIntent().getBooleanExtra("fromNoti", false)) {
             Intent i = new Intent(ctx, MessagesActivity.class);
@@ -98,22 +100,15 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
         message_text = (TextView) view.findViewById(R.id.noUsers_text);
 
         visible_switch = (Switch) view.findViewById(R.id.visible_switch);
+        visible_switch.setChecked(ctx.getSharedPreferences("data", MODE_PRIVATE).getBoolean("visible", true));
         visible_switch.setOnCheckedChangeListener(this);
 
         lm = (LocationManager) ctx.getSystemService(LOCATION_SERVICE);
-
-        onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
-        users = new Firebase("https://anonymeetapp.firebaseio.com/Users");
-
-        initializeList();
 
         startServices();
 
         updateMessage();
 
-        visible_switch.setChecked(ctx.getSharedPreferences("data", MODE_PRIVATE).getBoolean("visible", true));
-
-        username = ctx.getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
         return view;
     }
@@ -132,6 +127,7 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 0)
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (visible_switch.isChecked()) startLocationService();
             } else {
                 Snackbar.make(peopleList, "Location Permission Denied", Snackbar.LENGTH_SHORT).show();
             }
@@ -163,17 +159,14 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 if (!dataSnapshot.hasChildren()) return;
-                if (!dataSnapshot.hasChild(username)) clearAdapter();
-
-                Iterable<DataSnapshot> iter = dataSnapshot.getChildren();
 
                 Collection<String> namesList = new ArrayList();
                 Collection<Integer> distancesList = new ArrayList();
                 Collection<String> gendersList = new ArrayList();
 
-                for (DataSnapshot item : iter) {
+                for (DataSnapshot item : dataSnapshot.getChildren()) {
 
-                    if (!nickname.equals(item.getKey().toString()) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude") && item.hasChild("gender")) {
+                    if (!username.equals(item.getKey().toString()) && LocationListenerService.getLocation() != null && item.hasChild("latitude") && item.hasChild("longitude") && item.hasChild("gender")) {
                         namesList.add(item.getKey().toString());
 
                         double latitude = Double.parseDouble(item.child("latitude").getValue().toString());
@@ -204,7 +197,6 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
         intent.putExtra("userWasExisted", db.userExists(userName));
         db.insertUser(userName, gender, 0);
         startActivity(intent);
-        Toast.makeText(ctx, "אללה וואכבר!", Toast.LENGTH_SHORT).show();
     }
 
     private boolean checkInternetConnection() {
@@ -217,23 +209,8 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
         return false;
     }
 
-    public static void updateMessage() {
-        boolean visible = visible_switch.isChecked();
-        boolean providerEnabled = LocationListenerService.providerEnabled;
-        boolean hasUsers = PeopleListAdapter.hasUsers;
-
-        peopleList.setVisibility(View.GONE);
-        message_text.setVisibility(View.VISIBLE);
-
-        if (!visible) setMessage(switchOff_message);
-        else if (!providerEnabled) setMessage(locationDisabled_message);
-        else if (!hasUsers) setMessage(noUsers_message);
-
-        else {
-            setMessage("Loading...");
-            peopleList.setVisibility(View.VISIBLE);
-            message_text.setVisibility(View.GONE);
-        }
+    public void updateMessage() {
+        onlineUsers.addListenerForSingleValueEvent(this);
     }
 
     public static void setMessage(String message) {
@@ -267,7 +244,7 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
         ctx.stopService(locIntent);
         db.deleteAll();
 
-        onlineUsers.child(nickname).runTransaction(new Transaction.Handler() {
+        onlineUsers.child(username).runTransaction(new Transaction.Handler() {
             public Transaction.Result doTransaction(MutableData mutableData) {
                 mutableData.setValue(null);
                 return Transaction.success(mutableData);
@@ -282,5 +259,34 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
         startActivity(new Intent(ctx, LoginActivity.class));
 
         getActivity().finish();
+    }
+
+    @Override
+    public void onDataChange(DataSnapshot dataSnapshot) {
+
+        peopleList.setVisibility(View.GONE);
+        message_text.setVisibility(View.VISIBLE);
+
+        boolean visible = visible_switch.isChecked();
+        boolean providerEnabled = LocationListenerService.providerEnabled;
+        boolean hasChild = dataSnapshot.hasChild(username);
+        boolean hasUsers = dataSnapshot.getChildrenCount() > 1;
+
+        if (!visible) setMessage(switchOff_message);
+        else if (!providerEnabled) setMessage(locationDisabled_message);
+        else if (!hasChild) setMessage("Loading...");
+        else if (!hasUsers) setMessage(noUsers_message);
+        else setMessage("Loading...");
+
+    }
+
+    public static void hideMessage() {
+        peopleList.setVisibility(View.VISIBLE);
+        message_text.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onCancelled(FirebaseError firebaseError) {
+
     }
 }

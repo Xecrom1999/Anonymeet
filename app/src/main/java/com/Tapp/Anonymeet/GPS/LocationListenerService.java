@@ -34,12 +34,13 @@ import com.google.android.gms.location.LocationServices;
 
 public class LocationListenerService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, GpsStatus.Listener {
 
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 3000;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 2000;
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
 
     private static GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     public static Location mCurrentLocation;
+    String gender;
 
     private String nickname;
     private static Firebase onlineUsers;
@@ -53,6 +54,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
     public static Context ctx;
 
     boolean visible;
+    static boolean isActive;
 
     public LocationListenerService() {
     }
@@ -63,6 +65,10 @@ public class LocationListenerService extends Service implements GoogleApiClient.
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        isActive = true;
+
+        gender = getSharedPreferences("data", MODE_PRIVATE).getString("gender", "");
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -87,7 +93,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
         setupGPS();
 
         if (FindPeopleActivity.isRunning())
-        cancelNotification();
+            cancelNotification();
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -153,13 +159,13 @@ public class LocationListenerService extends Service implements GoogleApiClient.
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
 
-            String gender = getSharedPreferences("data", MODE_PRIVATE).getString("gender", "");
-
             onlineUsers.child(nickname).child("latitude").setValue(latitude);
             onlineUsers.child(nickname).child("longitude").setValue(longitude);
             onlineUsers.child(nickname).child("gender").setValue(gender);
 
-            if (FindPeopleActivity.isRunning()) FindPeopleActivity.updateList();
+            if (FindPeopleActivity.isRunning())
+                FindPeopleActivity.updateList();
+
         }
     }
 
@@ -178,7 +184,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
                     .setVibrate(new long[]{Long.valueOf(0)})
                     .setSound(null)
                     .setOngoing(true)
-                    .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Go invisible", pendingIntent2);
+                    .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Hide me", pendingIntent2);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
                 n.setColor(Color.parseColor("#ff5722"));
 
@@ -217,12 +223,12 @@ public class LocationListenerService extends Service implements GoogleApiClient.
            notificationManager.cancel(0);
        }
        catch (NullPointerException e){
-
        }
     }
 
     @Override
     public void onDestroy() {
+        isActive = false;
         visible = false;
         LocationListenerService.cancelNotification();
         stopLocationUpdates();
@@ -230,6 +236,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
         hideMe();
         if (FindPeopleActivity.isRunning())
             FindPeopleActivity.clearAdapter();
+
         super.onDestroy();
     }
 
@@ -245,12 +252,6 @@ public class LocationListenerService extends Service implements GoogleApiClient.
             case GpsStatus.GPS_EVENT_STARTED:
                 providerEnabled = true;
                 mGoogleApiClient.connect();
-                if (FindPeopleActivity.isRunning()) {
-                    FindPeopleActivity.updateMessage();
-                }
-                break;
-
-            case GpsStatus.GPS_EVENT_FIRST_FIX:
                 if (FindPeopleActivity.isRunning()) {
                     FindPeopleActivity.updateMessage();
                 }

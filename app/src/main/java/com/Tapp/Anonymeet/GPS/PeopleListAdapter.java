@@ -1,6 +1,7 @@
 package com.Tapp.Anonymeet.GPS;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,28 +19,22 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
     ArrayList<Integer> distances;
     ArrayList<String> genders;
     ListListener listener;
-    public static boolean hasUsers;
 
     public PeopleListAdapter(ListListener listener) {
         userNames = new ArrayList<>();
         distances = new ArrayList<>();
         genders = new ArrayList<>();
         this.listener = listener;
-        hasUsers = false;
     }
 
     public void update(Collection<String> names, Collection<Integer> distances, Collection<String> genders) {
         this.userNames = (ArrayList<String>) names;
         this.distances = (ArrayList<Integer>) distances;
         this.genders = (ArrayList<String>) genders;
-        if (FindPeopleActivity.isRunning())
-            if (userNames.size() == 0) {
-                hasUsers = false;
-            }
-            else {
-                hasUsers = true;
-            }
-        FindPeopleActivity.updateMessage();
+
+        if (names.size() > 1)
+            FindPeopleActivity.hideMessage();
+
         notifyDataSetChanged();
     }
 
@@ -71,7 +66,6 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         userNames = new ArrayList<>();
         distances = new ArrayList<>();
         genders = new ArrayList<>();
-        hasUsers = false;
         update(userNames, distances, genders);
     }
 

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import com.Tapp.Anonymeet.FireBaseChat.MyService;
 import com.Tapp.Anonymeet.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -41,6 +43,7 @@ public class LoginActivity extends AppCompatActivity implements CompoundButton.O
             startActivity(new Intent(getApplicationContext(), FindPeopleActivity.class));
             finish();
         }
+        else stopService(new Intent(this, MyService.class));
 
         initializeViews();
 
@@ -107,7 +110,7 @@ public class LoginActivity extends AppCompatActivity implements CompoundButton.O
                         passwordInput.setError("Password incorrect");
 
                     else {
-                        gender = dataSnapshot.child(nickname).getValue().toString();
+                        gender = dataSnapshot.child(nickname).child("gender").getValue().toString();
                         login(nickname, gender);
                     }
                 }

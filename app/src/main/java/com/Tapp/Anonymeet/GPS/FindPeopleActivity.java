@@ -32,6 +32,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -39,7 +40,7 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
-public class FindPeopleActivity extends AppCompatActivity {
+public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.Listener {
 
     private Toolbar toolbar;
     static boolean isRunning;
@@ -47,6 +48,9 @@ public class FindPeopleActivity extends AppCompatActivity {
     static FindPeopleFragment f1;
     static MessagesFragment f2;
     static HelperDB db;
+    public static boolean providerEnabled;
+    static LocationManager locationManager;
+
 
     public static FindPeopleFragment getF1() {
         return f1;
@@ -63,8 +67,11 @@ public class FindPeopleActivity extends AppCompatActivity {
 
         db = new HelperDB(this);
 
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        providerEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
         FragmentManager manager = getSupportFragmentManager();
-        f1 =  new FindPeopleFragment();
+        f1 = new FindPeopleFragment();
         f2 = new MessagesFragment();
         pager = (ViewPager) findViewById(R.id.viewPager);
         pager.setAdapter(new FragmentPagerAdapter(manager) {
@@ -84,8 +91,17 @@ public class FindPeopleActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
         toolbar.setTitle("Find People");
         setSupportActionBar(toolbar);
+
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+            setupGPS();
     }
 
+    private void setupGPS() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locationManager.addGpsStatusListener(this);
+    }
 
     @Override
     protected void onResume() {
@@ -132,7 +148,7 @@ public class FindPeopleActivity extends AppCompatActivity {
     }
 
     public void enableLocationServices(View view) {
-        if (LocationListenerService.providerEnabled || LocationListenerService.getApi() == null) return;
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || LocationListenerService.getApi() == null) return;
 
         if (Build.VERSION.SDK_INT >= 22) locationChecker(LocationListenerService.getApi(), this);
 
@@ -229,5 +245,19 @@ public class FindPeopleActivity extends AppCompatActivity {
 
     public static void syncContacts() {
         f2.syncContacts();
+    }
+
+    @Override
+    public void onGpsStatusChanged(int event) {
+        switch (event) {
+            case GpsStatus.GPS_EVENT_STARTED:
+                providerEnabled = true;
+                startService(new Intent(this, LocationListenerService.class));
+                break;
+        }
+    }
+
+    public static void hideMessage() {
+        f1.hideMessage();
     }
 }
