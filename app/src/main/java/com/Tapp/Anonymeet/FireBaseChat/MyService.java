@@ -75,7 +75,7 @@ public class MyService extends Service implements ChildEventListener {
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
-        Log.i("hiiiiiiiiiiii", "onStartCommand");
+
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();
         return super.onStartCommand(intent, flags, startId);
@@ -87,7 +87,7 @@ public class MyService extends Service implements ChildEventListener {
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-        Log.d("hiiiiii", "onChildAdded");
+
         final String userWith = dataSnapshot.getKey().toString();
 
         if (dataSnapshot.child("message").exists()){
@@ -101,10 +101,10 @@ public class MyService extends Service implements ChildEventListener {
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-        Log.d("hiiiiii", "onChildChanged");
+
         final String userWith = dataSnapshot.getKey().toString();
+
         //checking if it was really the message child which was changed
-        Log.i("hiiiiiiiiii", preferences.getString(userWith + "LastMessage", "") + " = " + dataSnapshot.child("message").getValue().toString());
         if (!(preferences.getString(userWith + "LastMessage", "").equals(dataSnapshot.child("message").getValue().toString()))) {
 
             Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
@@ -152,23 +152,25 @@ public class MyService extends Service implements ChildEventListener {
 
             }
             if (FindPeopleActivity.isRunning()) {
-                MessagesActivity.usersAdapter.syncContacts();
+                FindPeopleActivity.getF2().syncContacts();
 
             }
 
             myFirebaseChat.child(userWith).addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Log.i("hiiiiiiiiiiii", "onChildAdded: " + dataSnapshot.getKey().toString());
 
                 }
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
+                    Log.i("hiiiiiiiiiiii", "onChildChanged");
                 }
 
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    Log.i("hiiiiiiiiiiii", "onChildRemoved");
                     if(dataSnapshot.getKey().toString().equals("arrived")) {
                         Random rnd = new Random();
 
@@ -237,7 +239,7 @@ public class MyService extends Service implements ChildEventListener {
 
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) {
-        Log.d("hiiiiiiiii", "OnChildRemoved");
+
     }
 
     @Override

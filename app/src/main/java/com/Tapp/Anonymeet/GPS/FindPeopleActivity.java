@@ -48,6 +48,14 @@ public class FindPeopleActivity extends AppCompatActivity {
     static MessagesFragment f2;
     static HelperDB db;
 
+    public static FindPeopleFragment getF1() {
+        return f1;
+    }
+
+    public static MessagesFragment getF2() {
+        return f2;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +85,7 @@ public class FindPeopleActivity extends AppCompatActivity {
         toolbar.setTitle("Find People");
         setSupportActionBar(toolbar);
     }
+
 
     @Override
     protected void onResume() {

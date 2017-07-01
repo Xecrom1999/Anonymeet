@@ -37,16 +37,18 @@ public class MessagesFragment extends Fragment implements MyListener {
 
         isActive = true;
         ctx = getActivity();
-        if(getActivity().getIntent().getBooleanExtra("fromNoti", false)){
-            Intent i = new Intent(ctx, ChatActivity.class);
-            i.putExtra("usernameTo", getActivity().getIntent().getStringExtra("usernameTo"));
-            startActivity(i);
-        }
+
         preferences = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycle);
         usersAdapter = new UsersAdapter(getActivity(), this);
         recyclerView.setAdapter(usersAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
+
+        if(getActivity().getIntent().getBooleanExtra("fromNoti", false)){
+            Intent i = new Intent(ctx, ChatActivity.class);
+            i.putExtra("usernameTo", getActivity().getIntent().getStringExtra("usernameTo"));
+            startActivity(i);
+        }
 
         return view;
     }
