@@ -77,7 +77,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
 
         ctx = this;
 
-        username = getSharedPreferences("data", MODE_PRIVATE).getString("username", "");
+        username = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
