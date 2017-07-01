@@ -85,7 +85,8 @@ public class ChatActivity extends AppCompatActivity {
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();
         MyService.numOfNoti = MyService.numOfNoti - preferences.getInt("user " + userWith, 0);
-        se.putInt("user " + userWith, 0).commit();
+        se.putInt("user " + userWith, 0);
+        se.commit();
         lastMessage = preferences.getString("lastMessage", "");
         myNickname = preferences.getString("nickname", "");
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");

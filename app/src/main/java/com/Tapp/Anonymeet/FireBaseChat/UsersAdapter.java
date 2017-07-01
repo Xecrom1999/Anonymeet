@@ -3,6 +3,7 @@ package com.Tapp.Anonymeet.FireBaseChat;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -46,9 +47,11 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
     Context context;
     UsersAdapter adapter = this;
     HelperDB db;
+    SharedPreferences preferences;
 
 
     public UsersAdapter(Context con, MyListener myListener){
+        preferences = con.getSharedPreferences("data", Context.MODE_PRIVATE);
 
         this.mItemClickListener = myListener;
         context = con;
@@ -78,8 +81,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         holder.image.setImageResource(c.photo);
         holder.name.setText(c.name);
         holder.position = position;
-        Log.i("hiiiiiii", "this " + db.getContactNumOfNotis(c.name));
-        int num = db.getContactNumOfNotis(c.name);
+        int num = preferences.getInt("user " + c.name, 0);
         if(num > 0){
             holder.alert.setText(""+num);
             holder.alert.setVisibility(View.VISIBLE);
