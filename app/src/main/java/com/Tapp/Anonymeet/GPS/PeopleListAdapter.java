@@ -32,7 +32,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         this.distances = (ArrayList<Integer>) distances;
         this.genders = (ArrayList<String>) genders;
 
-        if (names.size() > 1)
+        if (names.size() > 0)
             FindPeopleActivity.hideMessage();
 
         notifyDataSetChanged();

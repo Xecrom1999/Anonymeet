@@ -150,8 +150,18 @@ public class LocationListenerService extends Service implements GoogleApiClient.
 
     @Override
     public void onLocationChanged(Location location) {
+        if (visible) {
+            mCurrentLocation = location;
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
 
-        refresh(location);
+            onlineUsers.child(username).child("latitude").setValue(latitude);
+            onlineUsers.child(username).child("longitude").setValue(longitude);
+            onlineUsers.child(username).child("gender").setValue(gender);
+
+            if (FindPeopleActivity.isRunning())
+                FindPeopleActivity.updateList();
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -267,10 +277,9 @@ public class LocationListenerService extends Service implements GoogleApiClient.
         if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-        if (visible) {
+        if (visible && mCurrentLocation != null) {
 
             double latitude = mCurrentLocation.getLatitude();
             double longitude = mCurrentLocation.getLongitude();
@@ -283,21 +292,4 @@ public class LocationListenerService extends Service implements GoogleApiClient.
                 FindPeopleActivity.updateList();
         }
     }
-
-    private void refresh(Location location) {
-        if (visible) {
-            mCurrentLocation = location;
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-
-            onlineUsers.child(username).child("latitude").setValue(latitude);
-            onlineUsers.child(username).child("longitude").setValue(longitude);
-            onlineUsers.child(username).child("gender").setValue(gender);
-
-            if (FindPeopleActivity.isRunning())
-                FindPeopleActivity.updateList();
-
-        }
-    }
-
 }

@@ -71,13 +71,13 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
         View view = inflater.inflate(R.layout.find_people_fragment, container, false);
         this.view = view;
 
+        onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
+
         this.ctx = getContext();
 
         username = ctx.getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
 
         initializeList();
-
-        onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
 
         message_text = (TextView) view.findViewById(R.id.noUsers_text);
         refresh_button = (Button) view.findViewById(R.id.refresh_button);
