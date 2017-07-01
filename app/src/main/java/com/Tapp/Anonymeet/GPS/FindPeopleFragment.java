@@ -201,6 +201,7 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
 
     private boolean checkInternetConnection() {
         //TODO: show text when there's no connection to the Internet;
+
         ConnectivityManager conMgr = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if (conMgr.getActiveNetworkInfo() != null && conMgr.getActiveNetworkInfo().isAvailable() && conMgr.getActiveNetworkInfo().isConnected())

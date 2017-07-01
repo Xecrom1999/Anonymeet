@@ -51,7 +51,6 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
     public static boolean providerEnabled;
     static LocationManager locationManager;
 
-
     public static FindPeopleFragment getF1() {
         return f1;
     }

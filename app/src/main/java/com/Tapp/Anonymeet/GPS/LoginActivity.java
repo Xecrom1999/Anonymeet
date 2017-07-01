@@ -46,7 +46,6 @@ public class LoginActivity extends AppCompatActivity implements CompoundButton.O
         else stopService(new Intent(this, MyService.class));
 
         initializeViews();
-
         setSupportActionBar(toolbar);
 
         toolbar.setTitle("Getting Started");

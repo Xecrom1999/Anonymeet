@@ -46,11 +46,8 @@ public class LocationListenerService extends Service implements GoogleApiClient.
     private static Firebase onlineUsers;
 
     public static boolean providerEnabled;
-
     LocationManager locationManager;
-
     static NotificationManager notificationManager;
-
     public static Context ctx;
 
     boolean visible;
