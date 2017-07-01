@@ -28,7 +28,6 @@ public class ChatActivity extends AppCompatActivity {
     EditText SendMessage;
     HelperDB db;
     ImageView isRead;
-    ImageView arrived;
     SharedPreferences preferences;
     SharedPreferences.Editor se;
     String lastMessage;

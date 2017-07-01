@@ -105,6 +105,7 @@ public class MyService extends Service implements ChildEventListener {
         final String userWith = dataSnapshot.getKey().toString();
 
         //checking if it was really the message child which was changed
+        Log.i("hiiiiiiiiiiiiiiiiii", preferences.getString(userWith + "LastMessage", "") + " = " + dataSnapshot.child("message").getValue().toString());
         if (!(preferences.getString(userWith + "LastMessage", "").equals(dataSnapshot.child("message").getValue().toString()))) {
 
             Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
@@ -112,6 +113,8 @@ public class MyService extends Service implements ChildEventListener {
 
 
             message = dataSnapshot.child("message").getValue().toString();
+            se.putString(userWith + "LastMessage", message);
+            se.commit();
 
             if (!db.userExists(userWith)){
                 message = dataSnapshot.child("message").getValue().toString();
@@ -120,8 +123,6 @@ public class MyService extends Service implements ChildEventListener {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         gender = dataSnapshot.child("gender").getValue().toString();
                         db.insertUser(dataSnapshot.getKey().toString(), gender, 0);
-                        se.putString(userWith + "LastMessage", message);
-                        se.commit();
                         db.insertMessage(dataSnapshot.getKey().toString(), cleanCode(message), false);
 
                     }
@@ -135,9 +136,9 @@ public class MyService extends Service implements ChildEventListener {
             }
             else {
                 db.insertMessage(dataSnapshot.getKey().toString(), cleanCode(message), false);
-                se.putString(userWith + "LastMessage", message);
-                se.commit();
+
             }
+
 
 
             if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {
