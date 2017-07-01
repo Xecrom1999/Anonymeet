@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -85,8 +86,10 @@ public class ChatActivity extends AppCompatActivity {
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();
         MyService.numOfNoti = MyService.numOfNoti - preferences.getInt("user " + userWith, 0);
+
         se.putInt("user " + userWith, 0);
         se.commit();
+
         lastMessage = preferences.getString("lastMessage", "");
         myNickname = preferences.getString("nickname", "");
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");

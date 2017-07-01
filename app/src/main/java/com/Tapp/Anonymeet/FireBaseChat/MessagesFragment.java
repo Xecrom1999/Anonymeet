@@ -30,6 +30,12 @@ public class MessagesFragment extends Fragment implements MyListener {
     SharedPreferences preferences;
 
     @Override
+    public void onResume() {
+        super.onResume();
+        syncContacts();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -40,7 +46,7 @@ public class MessagesFragment extends Fragment implements MyListener {
 
         preferences = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycle);
-        usersAdapter = new UsersAdapter(getActivity(), this);
+        usersAdapter = new UsersAdapter(getContext(), this);
         recyclerView.setAdapter(usersAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
 

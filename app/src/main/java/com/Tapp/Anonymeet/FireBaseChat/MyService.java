@@ -144,7 +144,11 @@ public class MyService extends Service implements ChildEventListener {
                 ChatActivity.recyclerAdapter.syncMessages();
                 ChatActivity.scrollDown();
             } else {
-                se.putInt("user " + dataSnapshot.getKey().toString(), 1 + preferences.getInt("user " + dataSnapshot.getKey().toString(), 0));
+                preferences = getSharedPreferences("data", MODE_PRIVATE);
+                se = preferences.edit();
+                int num = preferences.getInt("user " + userWith, 0);
+                se.putInt("user " + userWith, 1 + num);
+                se.commit();
                 numOfNoti += 1;
 
                 if (numOfNoti == 1) notifyOne(dataSnapshot.getKey().toString(), cleanCode(dataSnapshot.child("message").getValue().toString()));

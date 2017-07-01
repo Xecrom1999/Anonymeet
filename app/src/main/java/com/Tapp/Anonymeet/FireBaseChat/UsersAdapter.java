@@ -81,6 +81,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         holder.image.setImageResource(c.photo);
         holder.name.setText(c.name);
         holder.position = position;
+        preferences = context.getSharedPreferences("data", Context.MODE_PRIVATE);
         int num = preferences.getInt("user " + c.name, 0);
         if(num > 0){
             holder.alert.setText(""+num);
