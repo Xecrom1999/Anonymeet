@@ -90,6 +90,7 @@ public class ChatActivity extends AppCompatActivity {
         se.putInt("user " + userWith, 0);
         se.commit();
 
+
         lastMessage = preferences.getString("lastMessage", "");
         myNickname = preferences.getString("nickname", "");
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
@@ -176,11 +177,12 @@ public class ChatActivity extends AppCompatActivity {
 
 
                     }
-                    else{
-                        Toast.makeText(getApplicationContext(), "You need to wait until the user gets the message in order to send another one", Toast.LENGTH_LONG).show();
-                    }
 
                 }
+                else{
+                    Toast.makeText(getApplicationContext(), "You need to wait until the user gets the message in order to send another one", Toast.LENGTH_LONG).show();
+                }
+
             }
 
             @Override
