@@ -44,7 +44,7 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
 
     private Toolbar toolbar;
     static boolean isRunning;
-    ViewPager pager;
+    static ViewPager pager;
     static FindPeopleFragment f1;
     static MessagesFragment f2;
     static HelperDB db;
@@ -100,6 +100,10 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
             return;
         }
         locationManager.addGpsStatusListener(this);
+    }
+
+    public static boolean isOnMessagesFragment() {
+        return (pager.getCurrentItem() == 1);
     }
 
     @Override

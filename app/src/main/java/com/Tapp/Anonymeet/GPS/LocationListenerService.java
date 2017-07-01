@@ -40,9 +40,9 @@ public class LocationListenerService extends Service implements GoogleApiClient.
     private static GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     public static Location mCurrentLocation;
-    String gender;
+    static String gender;
 
-    private String nickname;
+    private static String username;
     private static Firebase onlineUsers;
 
     public static boolean providerEnabled;
@@ -50,7 +50,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
     static NotificationManager notificationManager;
     public static Context ctx;
 
-    boolean visible;
+    static boolean visible;
     static boolean isActive;
 
     public LocationListenerService() {
@@ -77,12 +77,12 @@ public class LocationListenerService extends Service implements GoogleApiClient.
 
         ctx = this;
 
-        nickname = getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
+        username = getSharedPreferences("data", MODE_PRIVATE).getString("username", "");
 
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
-        
+
         buildGoogleApiClient();
 
         mGoogleApiClient.connect();
@@ -129,13 +129,13 @@ public class LocationListenerService extends Service implements GoogleApiClient.
             return;
         }
         if (mGoogleApiClient.isConnected())
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, this);
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, this);
     }
 
     protected void stopLocationUpdates() {
-        if (nickname != null)
-            onlineUsers.child(nickname).runTransaction(new Transaction.Handler() {
+        if (username != null)
+            onlineUsers.child(username).runTransaction(new Transaction.Handler() {
                 public Transaction.Result doTransaction(MutableData mutableData) {
                     mutableData.setValue(null);
                     return Transaction.success(mutableData);
@@ -151,19 +151,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
     @Override
     public void onLocationChanged(Location location) {
 
-        if (visible) {
-            mCurrentLocation = location;
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-
-            onlineUsers.child(nickname).child("latitude").setValue(latitude);
-            onlineUsers.child(nickname).child("longitude").setValue(longitude);
-            onlineUsers.child(nickname).child("gender").setValue(gender);
-
-            if (FindPeopleActivity.isRunning())
-                FindPeopleActivity.updateList();
-
-        }
+        refresh(location);
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -172,25 +160,25 @@ public class LocationListenerService extends Service implements GoogleApiClient.
         Intent intent = new Intent(ctx, StatusReceiver.class);
         PendingIntent pendingIntent2 = PendingIntent.getBroadcast(ctx, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Notification.Builder n;
-            n = new Notification.Builder(ctx)
-                    .setContentTitle("Anonymeet")
-                    .setContentText("Status: online")
-                    .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-                    .setShowWhen(false)
-                    .setVibrate(new long[]{Long.valueOf(0)})
-                    .setSound(null)
-                    .setOngoing(true)
-                    .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Hide me", pendingIntent2);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
-                n.setColor(Color.parseColor("#ff5722"));
+        Notification.Builder n;
+        n = new Notification.Builder(ctx)
+                .setContentTitle("Anonymeet")
+                .setContentText("Status: online")
+                .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+                .setShowWhen(false)
+                .setVibrate(new long[]{Long.valueOf(0)})
+                .setSound(null)
+                .setOngoing(true)
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Hide me", pendingIntent2);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP)
+            n.setColor(Color.parseColor("#ff5722"));
 
-            TaskStackBuilder t = TaskStackBuilder.create(ctx);
-            Intent i = new Intent(ctx, FindPeopleActivity.class);
-            t.addNextIntent(i);
-            PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-            n.setContentIntent(pendingIntent);
-            notificationManager.notify(0, n.build());
+        TaskStackBuilder t = TaskStackBuilder.create(ctx);
+        Intent i = new Intent(ctx, FindPeopleActivity.class);
+        t.addNextIntent(i);
+        PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        n.setContentIntent(pendingIntent);
+        notificationManager.notify(0, n.build());
     }
 
     @Override
@@ -216,11 +204,10 @@ public class LocationListenerService extends Service implements GoogleApiClient.
     }
 
     public static void cancelNotification() {
-       try {
-           notificationManager.cancel(0);
-       }
-       catch (NullPointerException e){
-       }
+        try {
+            notificationManager.cancel(0);
+        } catch (NullPointerException e) {
+        }
     }
 
     @Override
@@ -259,13 +246,13 @@ public class LocationListenerService extends Service implements GoogleApiClient.
                 if (FindPeopleActivity.isRunning())
                     FindPeopleActivity.updateMessage();
 
-                    stopSelf();
+                stopSelf();
                 break;
         }
     }
 
     private void hideMe() {
-        onlineUsers.child(nickname).runTransaction(new Transaction.Handler() {
+        onlineUsers.child(username).runTransaction(new Transaction.Handler() {
             public Transaction.Result doTransaction(MutableData mutableData) {
                 mutableData.setValue(null);
                 return Transaction.success(mutableData);
@@ -275,4 +262,42 @@ public class LocationListenerService extends Service implements GoogleApiClient.
             }
         });
     }
+
+    public static void refresh() {
+        if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+
+        if (visible) {
+
+            double latitude = mCurrentLocation.getLatitude();
+            double longitude = mCurrentLocation.getLongitude();
+
+            onlineUsers.child(username).child("latitude").setValue(latitude);
+            onlineUsers.child(username).child("longitude").setValue(longitude);
+            onlineUsers.child(username).child("gender").setValue(gender);
+
+            if (FindPeopleActivity.isRunning())
+                FindPeopleActivity.updateList();
+        }
+    }
+
+    private void refresh(Location location) {
+        if (visible) {
+            mCurrentLocation = location;
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
+
+            onlineUsers.child(username).child("latitude").setValue(latitude);
+            onlineUsers.child(username).child("longitude").setValue(longitude);
+            onlineUsers.child(username).child("gender").setValue(gender);
+
+            if (FindPeopleActivity.isRunning())
+                FindPeopleActivity.updateList();
+
+        }
+    }
+
 }

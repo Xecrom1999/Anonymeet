@@ -7,13 +7,27 @@
     android:orientation="vertical"
     android:layoutDirection="ltr">
 
-    <Switch
-        android:layout_margin="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:text="Visible to others    "
-        android:id="@+id/visible_switch"
-        android:textStyle="bold" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Switch
+            android:layout_margin="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Visible to others    "
+            android:id="@+id/visible_switch"
+            android:textStyle="bold" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Refresh"
+            android:id="@+id/refresh_button"/>
+
+    </LinearLayout>
+
+
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"

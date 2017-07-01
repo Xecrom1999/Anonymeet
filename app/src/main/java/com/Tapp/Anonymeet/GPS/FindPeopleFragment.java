@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -44,7 +45,6 @@ import static android.content.Context.MODE_PRIVATE;
 public class FindPeopleFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, ListListener, ValueEventListener {
 
     private static Firebase onlineUsers;
-    private static Firebase users;
     LocationManager lm;
     static RecyclerView peopleList;
     static PeopleListAdapter adapter;
@@ -60,6 +60,7 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
     static Context ctx;
     View view;
     static String username;
+    Button refresh_button;
 
     public FindPeopleFragment() {
     }
@@ -77,9 +78,16 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
         initializeList();
 
         onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
-        users = new Firebase("https://anonymeetapp.firebaseio.com/Users");
 
         message_text = (TextView) view.findViewById(R.id.noUsers_text);
+        refresh_button = (Button) view.findViewById(R.id.refresh_button);
+        refresh_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (LocationListenerService.isActive)
+                    LocationListenerService.refresh();
+            }
+        });
 
         locIntent = new Intent(getContext(), LocationListenerService.class);
         db = new HelperDB(ctx);
