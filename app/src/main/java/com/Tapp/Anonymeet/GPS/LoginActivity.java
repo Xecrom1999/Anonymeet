@@ -24,7 +24,6 @@ public class LoginActivity extends AppCompatActivity {
     EditText nicknameInput;
     EditText passwordInput;
     Toolbar toolbar;
-    RadioButton female_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +50,11 @@ public class LoginActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolBar1);
         nicknameInput = (EditText) findViewById(R.id.nickname);
         passwordInput = (EditText) findViewById(R.id.password);
-        female_button = (RadioButton) findViewById(R.id.female_button);
     }
 
     public void attemptLogin(View view) {
+
+
 
         final String nickname = nicknameInput.getText().toString();
         final String password = passwordInput.getText().toString();
@@ -63,31 +63,32 @@ public class LoginActivity extends AppCompatActivity {
         else if (password.isEmpty()) passwordInput.setError("Password is empty");
 
         else users.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
 
-                boolean exists = dataSnapshot.hasChild(nickname);
+                    boolean exists = dataSnapshot.hasChild(nickname);
 
-                if (!exists)
-                    nicknameInput.setError("Nickname not exists.");
+                    if (!exists)
+                        nicknameInput.setError("Nickname not exists.");
 
-                else if (!dataSnapshot.child(nickname).child("password").getValue().toString().equals(password))
+                    else if (!dataSnapshot.child(nickname).child("password").getValue().toString().equals(password))
                         passwordInput.setError("Password is incorrect");
 
-                else {
-                    String gender = dataSnapshot.child(nickname).child("gender").getValue().toString();
-                    login(nickname, gender);
-                }
+                    else {
+                        String gender = dataSnapshot.child(nickname).child("gender").getValue().toString();
+                        login(nickname, gender);
+                    }
                 }
 
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {}
-        });
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {}
+            });
     }
 
     private void login(String nickname, String gender) {
 
         preferences.edit().putString("nickname", nickname).putString("gender", gender).commit();
+
         startActivity(new Intent(getApplicationContext(), FindPeopleActivity.class));
         finish();
     }

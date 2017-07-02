@@ -109,7 +109,6 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
 
         updateMessage();
 
-
         return view;
     }
 
@@ -186,7 +185,6 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-
             }
         });
     }
