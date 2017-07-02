@@ -207,17 +207,6 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
         startActivity(intent);
     }
 
-    private boolean checkInternetConnection() {
-        //TODO: show text when there's no connection to the Internet;
-
-        ConnectivityManager conMgr = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        if (conMgr.getActiveNetworkInfo() != null && conMgr.getActiveNetworkInfo().isAvailable() && conMgr.getActiveNetworkInfo().isConnected())
-            return true;
-
-        return false;
-    }
-
     public void updateMessage() {
         onlineUsers.addListenerForSingleValueEvent(this);
     }
