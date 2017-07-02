@@ -70,16 +70,6 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    public void onBackPressed() {
-        Intent returnIntent = new Intent();
-
-        returnIntent.putExtra("fromChat", true);
-        setResult(RESULT_OK, returnIntent);
-        finish();
-
-        super.onBackPressed();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,29 +80,26 @@ public class ChatActivity extends AppCompatActivity {
         context = this;
         userWith = getIntent().getStringExtra("usernameTo");
         recyclerView = (RecyclerView)findViewById(R.id.chatList);
-        recyclerAdapter = new ChatAdapter(this, userWith);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(recyclerAdapter);
+        SendMessage = (EditText)findViewById(R.id.sendMessage);
+        isRead = (ImageView)findViewById(R.id.read);
+
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();
-        MyService.numOfNoti = MyService.numOfNoti - preferences.getInt("user " + userWith, 0);
 
-        se.putInt("user " + userWith, 0);
-        se.commit();
+        if(db.userExists(userWith)) {
+            MyService.numOfNoti = MyService.numOfNoti - preferences.getInt("user " + userWith, 0);
+            se.putInt("user " + userWith, 0);
+            se.commit();
 
+            setUpChatMessages();
+        }
 
         lastMessage = preferences.getString("lastMessage", "");
         myNickname = preferences.getString("nickname", "");
         myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
-        SendMessage = (EditText)findViewById(R.id.sendMessage);
-        recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.messages.size() - 1);
-        isRead = (ImageView)findViewById(R.id.read);
-        recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                scrollDown();
-            }
-        });
+
+
+
 
         myFirebaseRef.child(myNickname).child(userWith).child("read").setValue("true");
 
@@ -121,14 +108,13 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                if(getIntent().getBooleanExtra("userWasExisted", true) && !dataSnapshot.child("arrived").exists()) {
+                if(!db.userExists(userWith) && db.getMyLastMessageWith(userWith).equals("")) {
+                    isRead.setVisibility(View.INVISIBLE);
+                }
+                else if(db.userExists(userWith) && !dataSnapshot.child("arrived").exists()) {
                     Log.i("hiiiiiiii", "happens1");
                     isRead.setImageResource(R.drawable.not_arrived);
                     isRead.setVisibility(View.VISIBLE);
-                }
-                else if(!dataSnapshot.child("arrived").exists() || getIntent().getBooleanExtra("userWasExisted", false)){
-                    Log.i("hiiiiiiii", "happens2");
-                    isRead.setVisibility(View.INVISIBLE);
                 }
                 else if(dataSnapshot.child("arrived").exists()){
                     Log.i("hiiiiiiii", "happens3");
@@ -155,8 +141,26 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
+    public void setUpChatMessages() {
+        recyclerAdapter = new ChatAdapter(this, userWith);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(recyclerAdapter);
+        recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.messages.size() - 1);
+        recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                scrollDown();
+            }
+        });
+    }
+
     public void onClick(final View view){
 
+        if(!db.userExists(userWith)) {
+            db.insertUser(userWith, getIntent().getStringExtra("gender"));
+            setUpChatMessages();
+
+        }
         myFirebaseRef.child(userWith).child(myNickname).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

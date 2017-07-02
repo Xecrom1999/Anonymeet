@@ -26,12 +26,11 @@ public class HelperDB {
         se = preferences.edit();
     }
 
-    public void insertUser(String user, String gender, int noti){
+    public void insertUser(String user, String gender){
         boolean f = userExists(user);
         if(!f) {
             ContentValues values = new ContentValues();
             values.put(d.USER, user);
-            values.put(d.NOTI, noti);
             values.put(d.Gender, gender);
             db.insert(d.TABLE_NAME_CONV, null, values);
         }
@@ -62,6 +61,31 @@ public class HelperDB {
                 }
 
             }
+
+
+        return lastMessage;
+    }
+
+    public String getMyLastMessageWith(String user){
+        String lastMessage = "";
+        String[] columns = {d.MESSAGE,d.IS_MINE};
+
+
+        Cursor cursor = db.query('"'+user+'"', columns, null, null, null, null, null);
+
+        cursor.moveToLast();
+        boolean f = false;
+
+
+        while(!f && cursor.moveToPrevious()){
+            String s1 = cursor.getString(cursor.getColumnIndex(d.IS_MINE));
+
+            if(s1.equals("t")){
+                lastMessage = cursor.getString(cursor.getColumnIndex(d.MESSAGE));
+                f = true;
+            }
+
+        }
 
 
         return lastMessage;

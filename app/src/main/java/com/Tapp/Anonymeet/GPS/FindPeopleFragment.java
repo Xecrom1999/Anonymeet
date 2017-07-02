@@ -194,8 +194,7 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
     public void startChat(String userName, String gender) {
         Intent intent = new Intent(ctx, ChatActivity.class);
         intent.putExtra("usernameTo", userName);
-        intent.putExtra("userWasExisted", db.userExists(userName));
-        db.insertUser(userName, gender, 0);
+        intent.putExtra("gender", gender);
         startActivity(intent);
     }
 

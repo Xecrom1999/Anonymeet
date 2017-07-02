@@ -122,7 +122,7 @@ public class MyService extends Service implements ChildEventListener {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         gender = dataSnapshot.child("gender").getValue().toString();
-                        db.insertUser(dataSnapshot.getKey().toString(), gender, 0);
+                        db.insertUser(dataSnapshot.getKey().toString(), gender);
                         db.insertMessage(dataSnapshot.getKey().toString(), cleanCode(message), false);
 
                     }
