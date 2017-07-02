@@ -60,7 +60,6 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
         return f2;
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

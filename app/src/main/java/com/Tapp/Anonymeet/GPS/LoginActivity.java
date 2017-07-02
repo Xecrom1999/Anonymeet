@@ -42,7 +42,6 @@ public class LoginActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         toolbar.setTitle("Login to Anonymeet");
-
         users = new Firebase("https://anonymeetapp.firebaseio.com/Users");
     }
 
