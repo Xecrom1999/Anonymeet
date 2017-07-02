@@ -117,7 +117,7 @@ public class MyService extends Service implements ChildEventListener {
             se.commit();
 
             if (!db.userExists(userWith)){
-                message = dataSnapshot.child("message").getValue().toString();
+
                 myFirebaseUsers.child(userWith).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -156,7 +156,7 @@ public class MyService extends Service implements ChildEventListener {
                 else notifyFew();
 
             }
-            if (FindPeopleActivity.isRunning()) {
+            if (FindPeopleActivity.isOnMessagesFragment()) {
                 FindPeopleActivity.getF2().syncContacts();
 
             }

@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.Tapp.Anonymeet.GPS.FindPeopleActivity;
 import com.Tapp.Anonymeet.R;
 
 
@@ -26,7 +27,6 @@ public class MessagesFragment extends Fragment implements MyListener {
     RecyclerView recyclerView;
     static UsersAdapter usersAdapter;
     static Context ctx;
-    static boolean isActive;
     SharedPreferences preferences;
 
     @Override
@@ -41,7 +41,7 @@ public class MessagesFragment extends Fragment implements MyListener {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.activity_messages, container, false);
 
-        isActive = true;
+
         ctx = getActivity();
 
         preferences = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
@@ -51,14 +51,13 @@ public class MessagesFragment extends Fragment implements MyListener {
         recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
 
         if(getActivity().getIntent().getBooleanExtra("fromNoti", false)) {
-            MyService.numOfNoti = 0;
+
             Intent i = new Intent(ctx, ChatActivity.class);
             i.putExtra("usernameTo", getActivity().getIntent().getStringExtra("usernameTo"));
             startActivity(i);
         }
-        else if(getActivity().getIntent().getBooleanExtra("fromNotiFew", false)) {
-            MyService.numOfNoti = 0;
-        }
+
+
 
         return view;
     }
@@ -72,10 +71,8 @@ public class MessagesFragment extends Fragment implements MyListener {
     public void syncContacts() {
         Log.d("MYLOG", "fragment");
 
-        if (ctx != null && recyclerView != null) {
-            Log.d("MYLOG", "fragment1");
+        if(FindPeopleActivity.isOnMessagesFragment()) usersAdapter.syncContacts();
 
-            usersAdapter.syncContacts();
-        }
+
     }
 }
