@@ -54,8 +54,6 @@ public class LoginActivity extends AppCompatActivity {
 
     public void attemptLogin(View view) {
 
-
-
         final String nickname = nicknameInput.getText().toString();
         final String password = passwordInput.getText().toString();
 
