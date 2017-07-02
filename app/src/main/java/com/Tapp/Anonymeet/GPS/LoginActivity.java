@@ -71,42 +71,36 @@ public class LoginActivity extends AppCompatActivity implements CompoundButton.O
         final String nickname = nicknameInput.getText().toString();
         final String password = passwordInput.getText().toString();
 
-        final boolean newUser = checkBox.isChecked();
+        if (nickname.isEmpty()) nicknameInput.setError("Nickname is empty");
+        else if (password.isEmpty()) passwordInput.setError("Password is empty");
 
-        users.addListenerForSingleValueEvent(new ValueEventListener() {
+        else users.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                boolean exists = dataSnapshot.hasChild(nickname);
+                String gender = female_button.isChecked() ? "female" : "male";
 
-                String gender = "male";
-                if (female_button.isChecked()) gender = "female";
+                boolean exists = dataSnapshot.hasChild(nickname);
+                boolean newUser = checkBox.isChecked();
 
                 if (newUser) {
 
-                    if (nickname.isEmpty()) nicknameInput.setError("Please enter a nickname.");
-
-                    if (nickname.length() < 3) nicknameInput.setError("Nickname too short.");
-
-                    else if (exists) nicknameInput.setError("Nickname already exists.");
-
-                    else if (password.isEmpty()) passwordInput.setError("Please enter a password.");
-
+                    if (exists) nicknameInput.setError("Nickname already exists.");
+                    else if (nickname.length() < 3) nicknameInput.setError("Nickname too short.");
                     else if (password.length() < 5) passwordInput.setError("Password too short.");
 
                     else {
-                        users.child(nickname).child("gender").setValue(gender);
-                        users.child(nickname).child("password").setValue(password);
-
-                        login(nickname, gender);
+                    users.child(nickname).child("gender").setValue(gender);
+                    users.child(nickname).child("password").setValue(password);
+                    login(nickname, gender);
                     }
                 }
-
                 else {
-                    if (!exists) nicknameInput.setError("Nickname not exists.");
+                    if (!exists)
+                        nicknameInput.setError("Nickname not exists.");
 
-                    else if (!dataSnapshot.child(nickname).child("password").getValue().toString().equals(password))
-                        passwordInput.setError("Password incorrect");
+                else if (!dataSnapshot.child(nickname).child("password").getValue().toString().equals(password))
+                        passwordInput.setError("Password is incorrect");
 
                     else {
                         gender = dataSnapshot.child(nickname).child("gender").getValue().toString();
@@ -114,7 +108,6 @@ public class LoginActivity extends AppCompatActivity implements CompoundButton.O
                     }
                 }
             }
-
             @Override
             public void onCancelled(FirebaseError firebaseError) {}
         });

@@ -261,6 +261,14 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (pager.getCurrentItem() == 1)
+            pager.setCurrentItem(0);
+        else
+            super.onBackPressed();
+    }
+
     public static void hideMessage() {
         f1.hideMessage();
     }
