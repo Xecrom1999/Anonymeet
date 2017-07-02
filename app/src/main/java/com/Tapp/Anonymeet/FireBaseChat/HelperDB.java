@@ -68,23 +68,26 @@ public class HelperDB {
 
     public String getMyLastMessageWith(String user){
         String lastMessage = "";
-        String[] columns = {d.MESSAGE,d.IS_MINE};
+
+        if(userExists(user)) {
+            String[] columns = {d.MESSAGE,d.IS_MINE};
 
 
-        Cursor cursor = db.query('"'+user+'"', columns, null, null, null, null, null);
+            Cursor cursor = db.query('"'+user+'"', columns, null, null, null, null, null);
 
-        cursor.moveToLast();
-        boolean f = false;
+            cursor.moveToLast();
+            boolean f = false;
 
 
-        while(!f && cursor.moveToPrevious()){
-            String s1 = cursor.getString(cursor.getColumnIndex(d.IS_MINE));
+            while(!f && cursor.moveToPrevious()){
+                String s1 = cursor.getString(cursor.getColumnIndex(d.IS_MINE));
 
-            if(s1.equals("t")){
-                lastMessage = cursor.getString(cursor.getColumnIndex(d.MESSAGE));
-                f = true;
+                if(s1.equals("t")){
+                    lastMessage = cursor.getString(cursor.getColumnIndex(d.MESSAGE));
+                    f = true;
+                }
+
             }
-
         }
 
 
