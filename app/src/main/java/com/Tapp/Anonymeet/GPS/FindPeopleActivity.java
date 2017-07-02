@@ -24,6 +24,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.Tapp.Anonymeet.FireBaseChat.HelperDB;
 import com.Tapp.Anonymeet.FireBaseChat.MessagesFragment;
@@ -156,7 +157,7 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
 
         if (Build.VERSION.SDK_INT >= 22) locationChecker(LocationListenerService.getApi(), this);
 
-        else if (!LocationListenerService.providerEnabled) {
+        else if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivityForResult(intent, 0);
 
@@ -165,21 +166,20 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
             GpsStatus.Listener listener = new GpsStatus.Listener() {
                 @Override
                 public void onGpsStatusChanged(int event) {
-                    if (event == GpsStatus.GPS_EVENT_STARTED) finishActivity(0);
+                    if (event == GpsStatus.GPS_EVENT_STARTED) {
+                        finishActivity(0);
+                        updateMessage();
+                    }
+
                 }
             };
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getApplicationContext(), "permission error", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            manager.addGpsStatusListener(new GpsStatus.Listener() {
-                @Override
-                public void onGpsStatusChanged(int event) {
-                    if (event == GpsStatus.GPS_EVENT_STARTED) finishActivity(0);
-                }
-            });
-            manager.removeGpsStatusListener(listener);
+            manager.addGpsStatusListener(listener);
         }
     }
 

@@ -85,6 +85,7 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
             gender_img = (ImageView) itemView.findViewById(R.id.gender_img);
             itemView.setOnClickListener(this);
         }
+
         public void onClick(View v) {
             listener.startChat(usernameTo, gender);
         }
