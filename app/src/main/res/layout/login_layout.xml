@@ -65,44 +65,21 @@
         android:elevation="50dp"
         />
 
-    <RadioGroup
+    <Button
+        android:id="@+id/new_user_button"
+        android:onClick="signUp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/login_button"
-        android:layout_marginLeft="10dp"
-        android:layout_alignBottom="@id/login_button"
-        android:checkedButton="@+id/male_button"
-        android:orientation="horizontal"
-        android:paddingBottom="15dp"
-        android:id="@+id/radioGroup">
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Male"
-            android:textSize="17sp"
-            android:id="@+id/male_button"
-            android:textStyle="bold"/>
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Female"
-            android:textSize="17sp"
-            android:id="@+id/female_button"
-            android:layout_marginLeft="10dp"
-            android:textStyle="bold" />
-
-    </RadioGroup>
-
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New user?"
-        android:id="@+id/checkBox"
-        android:layout_below="@+id/login_button"
-        android:layout_toRightOf="@+id/login_button"
-        android:layout_toEndOf="@+id/login_button"
-        android:checked="false" />
+        android:layout_below="@id/password"
+        android:layout_alignRight="@id/nickname"
+        android:background="@drawable/ripple_button"
+        android:text="New user? Sign up!"
+        android:textSize="12sp"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="10dp"
+        android:elevation="50dp"
+        android:alpha="0.6"
+        />
 
 </RelativeLayout>
