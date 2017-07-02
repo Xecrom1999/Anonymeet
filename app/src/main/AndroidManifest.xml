@@ -32,6 +32,7 @@
 
 
         <activity
+            android:parentActivityName=".GPS.FindPeopleActivity"
             android:name=".FireBaseChat.ChatActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />

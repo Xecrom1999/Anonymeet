@@ -92,16 +92,8 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
         locIntent = new Intent(getContext(), LocationListenerService.class);
         db = new HelperDB(ctx);
 
-        if (getActivity().getIntent().getBooleanExtra("fromNoti", false)) {
-            Intent i = new Intent(ctx, MessagesActivity.class);
-            i.putExtra("fromNoti", true);
-            i.putExtra("usernameTo", getActivity().getIntent().getStringExtra("usernameFrom"));
-            startActivity(i);
-        }
-        if(getActivity().getIntent().getBooleanExtra("fromNotiFew", false)){
-            Intent i = new Intent(ctx, MessagesActivity.class);
-            startActivity(i);
-        }
+
+
 
         checkForPermission();
 

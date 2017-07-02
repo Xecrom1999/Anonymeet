@@ -1,6 +1,7 @@
 package com.Tapp.Anonymeet.FireBaseChat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -69,6 +70,16 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onBackPressed() {
+        Intent returnIntent = new Intent();
+
+        returnIntent.putExtra("fromChat", true);
+        setResult(RESULT_OK, returnIntent);
+        finish();
+
+        super.onBackPressed();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,13 +122,16 @@ public class ChatActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 if(getIntent().getBooleanExtra("userWasExisted", true) && !dataSnapshot.child("arrived").exists()) {
+                    Log.i("hiiiiiiii", "happens1");
                     isRead.setImageResource(R.drawable.not_arrived);
                     isRead.setVisibility(View.VISIBLE);
                 }
-                else if(!dataSnapshot.child("arrived").exists() || !getIntent().getBooleanExtra("userWasExisted", true)){
+                else if(!dataSnapshot.child("arrived").exists() || getIntent().getBooleanExtra("userWasExisted", false)){
+                    Log.i("hiiiiiiii", "happens2");
                     isRead.setVisibility(View.INVISIBLE);
                 }
                 else if(dataSnapshot.child("arrived").exists()){
+                    Log.i("hiiiiiiii", "happens3");
                     if (dataSnapshot.child("read").exists()) isRead.setImageResource(R.drawable.read);
 
                     else isRead.setImageResource(R.drawable.unread);

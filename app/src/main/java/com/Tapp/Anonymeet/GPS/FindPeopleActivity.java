@@ -60,6 +60,7 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
         return f2;
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,6 +88,10 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
                 return 2;
             }
         });
+
+        if(getIntent().getBooleanExtra("fromNoti", false)) {
+            pager.setCurrentItem(1);
+        }
 
         toolbar = (Toolbar) findViewById(R.id.toolBar2);
         toolbar.setTitle("Find People");
@@ -119,6 +124,7 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
 
         if (f2 != null)
             f2.syncContacts();
+
 
     }
 

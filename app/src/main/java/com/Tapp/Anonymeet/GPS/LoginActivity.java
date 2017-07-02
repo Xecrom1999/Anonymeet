@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -34,6 +35,7 @@ public class LoginActivity extends AppCompatActivity implements CompoundButton.O
     RadioButton female_button;
     CheckBox checkBox;
     RadioGroup radioGroup;
+    Button loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,8 @@ public class LoginActivity extends AppCompatActivity implements CompoundButton.O
     }
 
     public void attemptLogin(View view) {
+
+
 
         final String nickname = nicknameInput.getText().toString();
         final String password = passwordInput.getText().toString();
@@ -119,6 +123,7 @@ public class LoginActivity extends AppCompatActivity implements CompoundButton.O
     private void login(String nickname, String gender) {
 
         preferences.edit().putString("nickname", nickname).putString("gender", gender).commit();
+
         startActivity(new Intent(getApplicationContext(), FindPeopleActivity.class));
         finish();
     }

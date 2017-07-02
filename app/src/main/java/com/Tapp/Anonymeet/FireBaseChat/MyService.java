@@ -219,11 +219,13 @@ public class MyService extends Service implements ChildEventListener {
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_SOUND);
         TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
-        Intent i = new Intent(getApplicationContext(), FindPeopleActivity.class);
-        i.putExtra("fromNoti", true);
-        i.putExtra("usernameFrom", sender);
-        t.addParentStack(FindPeopleActivity.class);
-        t.addNextIntent(i);
+
+        Intent i1 = new Intent(getApplicationContext(), ChatActivity.class);
+
+        i1.putExtra("usernameTo", sender);
+
+        t.addNextIntentWithParentStack(i1);
+
         PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         n.setContentIntent(pendingIntent);
         nm.notify(0, n.build());
@@ -239,7 +241,7 @@ public class MyService extends Service implements ChildEventListener {
                 .setDefaults(NotificationCompat.DEFAULT_SOUND);
         TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
         Intent i = new Intent(getApplicationContext(), FindPeopleActivity.class);
-        i.putExtra("fromNotiFew", true);
+        i.putExtra("fromNoti", true);
         t.addParentStack(FindPeopleActivity.class);
         t.addNextIntent(i);
         PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);

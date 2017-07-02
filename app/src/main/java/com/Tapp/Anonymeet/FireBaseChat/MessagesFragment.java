@@ -50,12 +50,14 @@ public class MessagesFragment extends Fragment implements MyListener {
         recyclerView.setAdapter(usersAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
 
+        /*
         if(getActivity().getIntent().getBooleanExtra("fromNoti", false)) {
 
             Intent i = new Intent(ctx, ChatActivity.class);
             i.putExtra("usernameTo", getActivity().getIntent().getStringExtra("usernameTo"));
             startActivity(i);
         }
+        */
 
 
 
