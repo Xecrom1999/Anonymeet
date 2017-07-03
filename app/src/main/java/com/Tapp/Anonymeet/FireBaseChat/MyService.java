@@ -118,12 +118,19 @@ public class MyService extends Service implements ChildEventListener {
 
             if (!db.userExists(userWith)){
 
+                Log.i("hiiiiiiiiiiiiiiiii", "hereeee");
+
                 myFirebaseUsers.child(userWith).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         gender = dataSnapshot.child("gender").getValue().toString();
-                        db.insertUser(dataSnapshot.getKey().toString(), gender);
+                        db.insertUser(dataSnapshot.getKey().toString(), gender, System.currentTimeMillis());
                         db.insertMessage(dataSnapshot.getKey().toString(), cleanCode(message), false);
+
+                        if (FindPeopleActivity.isRunning()) {
+                            FindPeopleActivity.getF2().itemInsertedIn(0);
+
+                        }
 
                     }
 
@@ -156,10 +163,9 @@ public class MyService extends Service implements ChildEventListener {
                 else notifyFew();
 
             }
-            if (FindPeopleActivity.isOnMessagesFragment()) {
-                FindPeopleActivity.getF2().syncContacts();
 
-            }
+
+
 
             myFirebaseChat.child(userWith).addChildEventListener(new ChildEventListener() {
                 @Override
@@ -215,7 +221,7 @@ public class MyService extends Service implements ChildEventListener {
                 .setContentText(m)
                 .setSmallIcon(R.drawable.contact)
                 .setAutoCancel(true)
-                .setTicker("hiiiiii")
+                .setTicker("New anonymous message")
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_SOUND);
         TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());
@@ -236,7 +242,7 @@ public class MyService extends Service implements ChildEventListener {
                 .setContentTitle("You have " + numOfNoti + " new messages")
                 .setSmallIcon(R.drawable.contact)
                 .setAutoCancel(true)
-                .setTicker("hiiiiii")
+                .setTicker("New anonymous message")
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_SOUND);
         TaskStackBuilder t = TaskStackBuilder.create(getApplicationContext());

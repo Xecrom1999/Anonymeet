@@ -26,18 +26,25 @@ public class HelperDB {
         se = preferences.edit();
     }
 
-    public void insertUser(String user, String gender){
+    public void insertUser(String user, String gender, long date){
         boolean f = userExists(user);
         if(!f) {
             ContentValues values = new ContentValues();
             values.put(d.USER, user);
             values.put(d.Gender, gender);
+            values.put(d.DATE, date);
             db.insert(d.TABLE_NAME_CONV, null, values);
         }
         db.execSQL("CREATE TABLE IF NOT EXISTS " + '"' + user + '"' + " (" +
                 d.UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 d.MESSAGE + " varchar(225), " +
                 d.IS_MINE + " char(1));");
+    }
+
+    public void updateDateOfUser(String user, long date) {
+        ContentValues values = new ContentValues();
+        values.put(d.DATE, date);
+        db.update(d.TABLE_NAME_CONV, values, d.USER + "='" + user + "'", null);
     }
 
 
@@ -148,19 +155,36 @@ public class HelperDB {
     }
 
     public ArrayList<Contact> getContacts(){
-        ArrayList<Contact> contacts = new ArrayList<Contact>();
-        String[] columns = {d.USER, d.Gender};
+        ArrayList<Contact> c = new ArrayList<Contact>();
+        String[] columns = {d.USER, d.Gender, d.DATE};
         Cursor cursor = db.query(d.TABLE_NAME_CONV, columns, null, null, null, null, null);
         Contact contact;
         String user;
         String gender;
+        long date;
         for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
 
             user = cursor.getString(cursor.getColumnIndex(d.USER));
             gender = cursor.getString(cursor.getColumnIndex(d.Gender));
-            contact = new Contact(user, gender);
-            contacts.add(contact);
+            date = Long.parseLong(cursor.getString(cursor.getColumnIndex(d.DATE)));
+            contact = new Contact(user, gender, date);
+            c.add(contact);
         }
+
+        ArrayList<Contact> contacts = new ArrayList<Contact>();
+        while(!c.isEmpty()) {
+            long max = c.get(0).date;
+            int pos = 0;
+            for(Contact con : c) {
+                if (con.date > max) {
+                    pos = c.indexOf(con);
+                    max = con.date;
+                }
+            }
+            contacts.add(c.get(pos));
+            c.remove(c.get(pos));
+        }
+
         return contacts;
     }
 

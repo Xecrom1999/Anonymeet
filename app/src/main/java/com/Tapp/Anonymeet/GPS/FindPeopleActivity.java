@@ -121,8 +121,7 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
         } catch (NullPointerException e) {
         }
 
-        if (f2 != null)
-            f2.syncContacts();
+
     }
 
     @Override

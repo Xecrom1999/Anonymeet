@@ -157,7 +157,7 @@ public class ChatActivity extends AppCompatActivity {
     public void onClick(final View view){
 
         if(!db.userExists(userWith)) {
-            db.insertUser(userWith, getIntent().getStringExtra("gender"));
+            db.insertUser(userWith, getIntent().getStringExtra("gender"), System.currentTimeMillis());
             setUpChatMessages();
 
         }

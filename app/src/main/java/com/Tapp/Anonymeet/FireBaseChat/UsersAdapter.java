@@ -13,9 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.Tapp.Anonymeet.GPS.FindPeopleActivity;
 import com.Tapp.Anonymeet.R;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 import java.util.ArrayList;
 
@@ -26,10 +24,12 @@ class Contact {
     int photo;
     String name;
     String gender;
+    long date;
 
-    public Contact(String name, String gender){
+    public Contact(String name, String gender, long date){
 
         this.gender = gender;
+        this.date = date;
         if(gender.equals("male"))this.photo = R.drawable.boy2;
         else this.photo= R.drawable.girl2;
         this.name=name;
@@ -57,13 +57,21 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         context = con;
         inflater = LayoutInflater.from(context);
         this.db = new HelperDB(con);
-        syncContacts();
+        contacts = db.getContacts();
+        Log.i("hiiiiiiiiiii", "contacts: " + contacts.size());
+
     }
 
     public void syncContacts(){
         contacts = db.getContacts();
-        Log.d("MYLOG", "contacts: " + contacts.size());
+        Log.i("hiiiiiiiiiiiiiiiii", "contacts: " + contacts.size());
         notifyDataSetChanged();
+
+    }
+
+    public void itemInsertedIn(int position) {
+        contacts = db.getContacts();
+        notifyItemInserted(position);
     }
 
     @Override
