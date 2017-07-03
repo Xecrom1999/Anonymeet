@@ -107,17 +107,16 @@ public class ChatActivity extends AppCompatActivity {
         myFirebaseRef.child(userWith).child(myNickname).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.i("hiiiiiiii", "last message with: " + db.getMyLastMessageWith(userWith));
 
-                if(!db.userExists(userWith) && db.getMyLastMessageWith(userWith).equals("")) {
+                if(db.getMyLastMessageWith(userWith).equals("")) {
                     isRead.setVisibility(View.INVISIBLE);
                 }
-                else if(db.userExists(userWith) && !dataSnapshot.child("arrived").exists()) {
-                    Log.i("hiiiiiiii", "happens1");
+                else if(!dataSnapshot.child("arrived").exists()) {
                     isRead.setImageResource(R.drawable.not_arrived);
                     isRead.setVisibility(View.VISIBLE);
                 }
                 else if(dataSnapshot.child("arrived").exists()){
-                    Log.i("hiiiiiiii", "happens3");
                     if (dataSnapshot.child("read").exists()) isRead.setImageResource(R.drawable.read);
 
                     else isRead.setImageResource(R.drawable.unread);
@@ -175,6 +174,7 @@ public class ChatActivity extends AppCompatActivity {
 
                         String message;
                         lastMessage = preferences.getString("lastMessage", "");
+                        db.updateDateOfUser(userWith, System.currentTimeMillis());
                         db.insertMessage(userWith, SendMessage.getText().toString(), true);
                         recyclerAdapter.syncMessages();
                         if (SendMessage.getText().toString().equals(lastMessage)) {

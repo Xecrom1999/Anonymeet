@@ -142,7 +142,11 @@ public class MyService extends Service implements ChildEventListener {
 
             }
             else {
+                db.updateDateOfUser(userWith, System.currentTimeMillis());
                 db.insertMessage(dataSnapshot.getKey().toString(), cleanCode(message), false);
+                if (FindPeopleActivity.isRunning()) {
+                    FindPeopleActivity.getF2().syncContacts();
+                }
 
             }
 

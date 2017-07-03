@@ -89,6 +89,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         holder.image.setImageResource(c.photo);
         holder.name.setText(c.name);
         holder.position = position;
+        holder.lastMessage.setText(db.getLastMessageWith(c.name));
         preferences = context.getSharedPreferences("data", Context.MODE_PRIVATE);
         int num = preferences.getInt("user " + c.name, 0);
         if(num > 0){
@@ -124,12 +125,14 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         TextView name;
         int position;
         TextView alert;
+        TextView lastMessage;
 
         public MyViewHolder(View v){
             super(v);
             image = (ImageView) v.findViewById(R.id.contactImage);
             name = (TextView) v.findViewById(R.id.contactName);
             alert = (TextView)v.findViewById(R.id.alert);
+            lastMessage = (TextView)v.findViewById(R.id.lastMessage);
             v.setOnClickListener(this);
             v.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
