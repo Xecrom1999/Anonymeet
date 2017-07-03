@@ -7,9 +7,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.Image;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,7 +63,7 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
     static Context ctx;
     View view;
     static String username;
-    Button refresh_button;
+    ImageButton refresh_button;
 
     public FindPeopleFragment() {
     }
@@ -80,7 +83,7 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
         initializeList();
 
         message_text = (TextView) view.findViewById(R.id.noUsers_text);
-        refresh_button = (Button) view.findViewById(R.id.refresh_button);
+        refresh_button = (ImageButton) view.findViewById(R.id.refresh_button);
         refresh_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,9 +94,6 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
 
         locIntent = new Intent(getContext(), LocationListenerService.class);
         db = new HelperDB(ctx);
-
-
-
 
         checkForPermission();
 

@@ -60,6 +60,16 @@ public class RegisterActivity extends AppCompatActivity implements CompoundButto
         radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        try {
+            LocationListenerService.cancelNotification();
+        } catch (NullPointerException e) {
+        }
+    }
+
     public void attemptLogin(View view) {
 
         final String nickname = nicknameInput.getText().toString();

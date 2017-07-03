@@ -13,6 +13,4 @@ public class FireBaseHelper extends android.app.Application {
         Firebase.setAndroidContext(this);
         LocationListenerService.cancelNotification();
     }
-
-
 }

@@ -42,9 +42,10 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@id/alert"
         android:layout_alignBottom="@id/alert"
-        android:layout_marginRight="20dp"
+        android:layout_marginRight="40dp"
         android:id="@+id/lastMessage"
         android:textSize="12sp"
+        android:gravity="center"
         />
 
 

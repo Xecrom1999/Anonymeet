@@ -1,6 +1,7 @@
 package com.Tapp.Anonymeet.GPS;
 
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,7 +53,8 @@ public class PeopleListAdapter extends RecyclerView.Adapter<PeopleListAdapter.Vi
         holder.usernameTo = name;
         holder.name_text.setText(name);
         holder.gender = genders.get(position);
-        if (distances != null && distances.size() > 0) holder.distance_text.setText(distances.get(position) + " meters from you");
+        if (distances != null && distances.size() > 0) holder.distance_text.setText(distances.get(position) + " meters");
+
 
         if (genders.get(position).equals("male")) holder.gender_img.setImageResource(R.mipmap.male);
         else holder.gender_img.setImageResource(R.mipmap.female);

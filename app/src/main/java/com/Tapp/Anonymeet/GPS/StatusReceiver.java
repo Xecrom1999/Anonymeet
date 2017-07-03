@@ -10,6 +10,7 @@ public class StatusReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
         Intent intent1 = new Intent(context, LocationListenerService.class);
         context.stopService(intent1);
 

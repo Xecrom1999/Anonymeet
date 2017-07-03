@@ -120,8 +120,6 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
             LocationListenerService.cancelNotification();
         } catch (NullPointerException e) {
         }
-
-
     }
 
     @Override

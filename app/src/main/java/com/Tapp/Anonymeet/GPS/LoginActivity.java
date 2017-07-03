@@ -43,6 +43,11 @@ public class LoginActivity extends AppCompatActivity {
 
         toolbar.setTitle("Login to Anonymeet");
         users = new Firebase("https://anonymeetapp.firebaseio.com/Users");
+
+        try {
+            LocationListenerService.cancelNotification();
+        } catch (NullPointerException e) {
+        }
     }
 
     public void initializeViews() {

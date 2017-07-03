@@ -169,6 +169,9 @@ public class LocationListenerService extends Service implements GoogleApiClient.
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public static void buildNotification() {
 
+        if (ctx.getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "") == "")
+            return;
+
         Intent intent = new Intent(ctx, StatusReceiver.class);
         PendingIntent pendingIntent2 = PendingIntent.getBroadcast(ctx, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -190,6 +193,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
         t.addNextIntent(i);
         PendingIntent pendingIntent = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         n.setContentIntent(pendingIntent);
+
         notificationManager.notify(0, n.build());
     }
 
