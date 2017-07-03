@@ -49,7 +49,7 @@ public class RegisterActivity extends AppCompatActivity implements CompoundButto
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         users = new Firebase("https://anonymeetapp.firebaseio.com/Users");
-        radioGroup.setVisibility(View.GONE);
+        radioGroup.setVisibility(View.VISIBLE);
     }
 
     public void initializeViews() {
