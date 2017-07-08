@@ -31,7 +31,6 @@ public class MyService extends Service implements ChildEventListener {
     SharedPreferences.Editor se;
     String gender;
     String message;
-    static int numOfNoti = 0;
     public static boolean isActive;
 
     public MyService() {
@@ -53,6 +52,10 @@ public class MyService extends Service implements ChildEventListener {
         myFirebaseChat.addChildEventListener(this);
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();
+
+
+
+
 
 
     }
@@ -160,10 +163,11 @@ public class MyService extends Service implements ChildEventListener {
                 se = preferences.edit();
                 int num = preferences.getInt("user " + userWith, 0);
                 se.putInt("user " + userWith, 1 + num);
+                se.putInt("numOfNoti", preferences.getInt("numOfNoti", 0) + 1);
                 se.commit();
-                numOfNoti += 1;
 
-                if (numOfNoti == 1) notifyOne(dataSnapshot.getKey().toString(), cleanCode(dataSnapshot.child("message").getValue().toString()));
+
+                if (preferences.getInt("numOfNoti", 0) == 1) notifyOne(dataSnapshot.getKey().toString(), cleanCode(dataSnapshot.child("message").getValue().toString()));
                 else notifyFew();
 
             }
@@ -243,7 +247,7 @@ public class MyService extends Service implements ChildEventListener {
 
     public void notifyFew(){
         Notification.Builder n = new Notification.Builder(getApplicationContext())
-                .setContentTitle("You have " + numOfNoti + " new messages")
+                .setContentTitle("You have " + preferences.getInt("numOfNoti", 0) + " new messages")
                 .setSmallIcon(R.drawable.contact)
                 .setAutoCancel(true)
                 .setTicker("New anonymous message")

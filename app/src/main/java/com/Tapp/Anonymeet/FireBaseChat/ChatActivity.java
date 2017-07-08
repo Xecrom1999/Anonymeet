@@ -87,7 +87,7 @@ public class ChatActivity extends AppCompatActivity {
         se = preferences.edit();
 
         if(db.userExists(userWith)) {
-            MyService.numOfNoti = MyService.numOfNoti - preferences.getInt("user " + userWith, 0);
+            se.putInt("numOfNoti", preferences.getInt("numOfNoti", 0) - preferences.getInt("user " + userWith, 0));
             se.putInt("user " + userWith, 0);
             se.commit();
 

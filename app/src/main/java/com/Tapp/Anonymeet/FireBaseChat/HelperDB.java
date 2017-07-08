@@ -74,11 +74,13 @@ public class HelperDB {
 
             Cursor cursor = db.query('"'+user+'"', columns, null, null, null, null, null);
 
-            cursor.moveToFirst();
+            cursor.moveToLast();
+            cursor.moveToNext();
             boolean f = false;
 
 
-            while(!f && cursor.moveToNext()){
+            while(!f && cursor.moveToPrevious()){
+
                 String s1 = cursor.getString(cursor.getColumnIndex(d.IS_MINE));
 
                 if(s1.equals("t")){
@@ -87,6 +89,9 @@ public class HelperDB {
                 }
 
             }
+
+            Log.i("hiiiiiiiiiii", "My last message: " + lastMessage);
+            Log.i("hiiiiiiiiiii", "Cursor size: " + cursor.getCount());
         }
 
 
