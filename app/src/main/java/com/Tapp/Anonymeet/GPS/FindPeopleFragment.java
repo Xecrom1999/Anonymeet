@@ -243,6 +243,7 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
 
         ctx.getSharedPreferences("data", MODE_PRIVATE).edit().clear().commit();
 
+
         startActivity(new Intent(ctx, LoginActivity.class));
 
         getActivity().finish();

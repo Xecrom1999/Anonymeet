@@ -54,6 +54,9 @@ public class MyService extends Service implements ChildEventListener {
         se = preferences.edit();
 
 
+        se.commit();
+
+
 
 
 
@@ -104,36 +107,112 @@ public class MyService extends Service implements ChildEventListener {
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-
         final String userWith = dataSnapshot.getKey().toString();
 
-        //checking if it was really the message child which was changed
-        Log.i("hiiiiiiiiiiiiiiiiii", preferences.getString(userWith + "LastMessage", "") + " = " + dataSnapshot.child("message").getValue().toString());
-        if (!(preferences.getString(userWith + "LastMessage", "").equals(dataSnapshot.child("message").getValue().toString()))) {
-
-            Log.i("hiiiiiiiiii", "a message has been recieved: " + dataSnapshot.child("message").getValue().toString());
-
-
-
-            message = dataSnapshot.child("message").getValue().toString();
-            se.putString(userWith + "LastMessage", message);
+        if (preferences.getInt("numOfNoti", -1) == -1) {
+            se.putInt("numOfNoti", 0);
+            se.putString(userWith + "LastMessage", dataSnapshot.child("message").getValue().toString());
             se.commit();
 
-            if (!db.userExists(userWith)){
+        }
+        else {
 
-                Log.i("hiiiiiiiiiiiiiiiii", "hereeee");
 
-                myFirebaseUsers.child(userWith).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        gender = dataSnapshot.child("gender").getValue().toString();
-                        db.insertUser(dataSnapshot.getKey().toString(), gender, System.currentTimeMillis());
-                        db.insertMessage(dataSnapshot.getKey().toString(), cleanCode(message), false);
+            //checking if it was really the message child which was changed
 
-                        if (FindPeopleActivity.isRunning()) {
-                            FindPeopleActivity.getF2().itemInsertedIn(0);
+            if (!(preferences.getString(userWith + "LastMessage", "").equals(dataSnapshot.child("message").getValue().toString()))) {
+
+                Log.i("hiiiiiiiiii", "a message has been received: " + dataSnapshot.child("message").getValue().toString());
+
+                message = dataSnapshot.child("message").getValue().toString();
+                se.putString(userWith + "LastMessage", message);
+                se.commit();
+
+                if (!db.userExists(userWith)){
+
+
+
+                    myFirebaseUsers.child(userWith).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            gender = dataSnapshot.child("gender").getValue().toString();
+                            db.insertUser(dataSnapshot.getKey().toString(), gender, System.currentTimeMillis());
+                            db.insertMessage(dataSnapshot.getKey().toString(), cleanCode(message), false);
+
+                            if (FindPeopleActivity.isRunning()) {
+                                FindPeopleActivity.getF2().itemInsertedIn(0);
+
+                            }
 
                         }
+
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
+
+                        }
+                    });
+
+                }
+                else {
+                    db.updateDateOfUser(userWith, System.currentTimeMillis());
+                    db.insertMessage(dataSnapshot.getKey().toString(), cleanCode(message), false);
+                    if (FindPeopleActivity.isRunning()) {
+                        FindPeopleActivity.getF2().syncContacts();
+                    }
+
+                }
+
+
+
+                if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {
+                    ChatActivity.recyclerAdapter.syncMessages();
+                    ChatActivity.scrollDown();
+                } else {
+                    preferences = getSharedPreferences("data", MODE_PRIVATE);
+                    se = preferences.edit();
+                    int num = preferences.getInt("user " + userWith, 0);
+                    se.putInt("user " + userWith, 1 + num);
+                    se.putInt("numOfNoti", preferences.getInt("numOfNoti", 0) + 1);
+                    se.commit();
+
+
+                    if (preferences.getInt("numOfNoti", 0) == 1) notifyOne(dataSnapshot.getKey().toString(), cleanCode(dataSnapshot.child("message").getValue().toString()));
+                    else notifyFew();
+
+                }
+
+
+
+
+                myFirebaseChat.child(userWith).addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        if (dataSnapshot.getKey().toString().equals("message")) {
+                            Random rnd = new Random();
+                            myFirebaseChat.child(userWith).child("arrived").setValue("true" + rnd.nextInt(1000000));
+                            myFirebaseChat.child(userWith).removeEventListener(this);
+                        }
+
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                        if(dataSnapshot.getKey().toString().equals("arrived")) {
+                            Random rnd = new Random();
+
+                            myFirebaseChat.child(userWith).child("arrived").setValue("true" + rnd.nextInt(1000000));
+                            myFirebaseChat.child(userWith).removeEventListener(this);
+                        }
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
                     }
 
@@ -142,78 +221,9 @@ public class MyService extends Service implements ChildEventListener {
 
                     }
                 });
-
             }
-            else {
-                db.updateDateOfUser(userWith, System.currentTimeMillis());
-                db.insertMessage(dataSnapshot.getKey().toString(), cleanCode(message), false);
-                if (FindPeopleActivity.isRunning()) {
-                    FindPeopleActivity.getF2().syncContacts();
-                }
-
-            }
-
-
-
-            if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {
-                ChatActivity.recyclerAdapter.syncMessages();
-                ChatActivity.scrollDown();
-            } else {
-                preferences = getSharedPreferences("data", MODE_PRIVATE);
-                se = preferences.edit();
-                int num = preferences.getInt("user " + userWith, 0);
-                se.putInt("user " + userWith, 1 + num);
-                se.putInt("numOfNoti", preferences.getInt("numOfNoti", 0) + 1);
-                se.commit();
-
-
-                if (preferences.getInt("numOfNoti", 0) == 1) notifyOne(dataSnapshot.getKey().toString(), cleanCode(dataSnapshot.child("message").getValue().toString()));
-                else notifyFew();
-
-            }
-
-
-
-
-            myFirebaseChat.child(userWith).addChildEventListener(new ChildEventListener() {
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    if (dataSnapshot.getKey().toString().equals("message")) {
-                        Random rnd = new Random();
-
-                        myFirebaseChat.child(userWith).child("arrived").setValue("true" + rnd.nextInt(1000000));
-                        myFirebaseChat.child(userWith).removeEventListener(this);
-                    }
-
-                }
-
-                @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                }
-
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                    if(dataSnapshot.getKey().toString().equals("arrived")) {
-                        Random rnd = new Random();
-
-                        myFirebaseChat.child(userWith).child("arrived").setValue("true" + rnd.nextInt(1000000));
-                        myFirebaseChat.child(userWith).removeEventListener(this);
-                    }
-                }
-
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                }
-
-                @Override
-                public void onCancelled(FirebaseError firebaseError) {
-
-                }
-            });
         }
+
     }
 
     public String cleanCode(String m) {
