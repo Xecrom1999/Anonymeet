@@ -39,11 +39,11 @@
         <TextView
             android:id="@+id/cancel_change_name"
             android:textColor="@color/white"
-            android:padding="12dp"
+            android:padding="15dp"
             android:gravity="center"
             android:text="Cancel"
             android:layout_weight="1"
-            android:layout_width="1dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content" />
 
 
@@ -51,10 +51,10 @@
             android:id="@+id/change_name_confirm"
             android:textColor="@color/white"
             android:layout_height="wrap_content"
-            android:layout_width="1dp"
+            android:layout_width="0dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:padding="12dp"
+            android:padding="15dp"
             android:text="Change" />
 
     </LinearLayout>
