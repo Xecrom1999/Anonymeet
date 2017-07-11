@@ -5,15 +5,19 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.Tapp.Anonymeet.R;
 
 import java.util.ArrayList;
+import java.util.jar.Pack200;
 
 /**
  * Created by Or on 18/01/2016.
@@ -50,6 +54,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
 
 
     public UsersAdapter(Context con, Activity a, MyListener myListener){
+        setHasStableIds(true);
         preferences = con.getSharedPreferences("data", Context.MODE_PRIVATE);
         this.mItemClickListener = myListener;
         context = con;
@@ -87,7 +92,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         final Contact c = contacts.get(position);
         holder.image.setImageResource(c.photo);
         holder.name.setText(c.name);
-        holder.position = position;
+        holder.checkIfLast(position);
+        holder.setTheLongClickListener(position);
         holder.lastMessage.setText(db.getLastMessageWith(c.name));
         preferences = context.getSharedPreferences("data", Context.MODE_PRIVATE);
         int num = preferences.getInt("user " + c.name, 0);
@@ -122,9 +128,10 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
 
         ImageView image;
         TextView name;
-        int position;
         TextView alert;
         TextView lastMessage;
+        View divider;
+        LinearLayout layout;
 
         public MyViewHolder(View v){
             super(v);
@@ -132,11 +139,20 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
             name = (TextView) v.findViewById(R.id.contactName);
             alert = (TextView)v.findViewById(R.id.alert);
             lastMessage = (TextView)v.findViewById(R.id.lastMessage);
+            divider = v.findViewById(R.id.users_divider);
+            layout = (LinearLayout)v.findViewById(R.id.main_contact_layout);
+
+
             v.setOnClickListener(this);
+
+
+        }
+
+        public void setTheLongClickListener(final int position) {
             v.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                   ContactMenuDialogFragment dialogFragment = new ContactMenuDialogFragment(adapter, position, context);
+                    ContactMenuDialogFragment dialogFragment = new ContactMenuDialogFragment(adapter, position, context);
                     dialogFragment.show(activity.getFragmentManager(), "contact_menu_dialog_fragment");
 
 
@@ -145,7 +161,13 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
                     return false;
                 }
             });
-
+        }
+        public void checkIfLast(int position) {
+            if(position == contacts.size()-1) {
+                int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, context.getResources().getDisplayMetrics());
+                layout.setLayoutParams(new RecyclerView.LayoutParams(v.getLayoutParams().width, height));
+                layout.removeView(divider);
+            }
         }
 
         @Override
