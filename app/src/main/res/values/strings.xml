@@ -52,6 +52,12 @@
         <item>-1</item>
     </string-array>
 
+
+    <string-array name="contact_menu_list_values">
+        <item>Change contacts name</item>
+        <item>Remove contact</item>
+    </string-array>
+
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync">Data &amp; sync</string>
 

@@ -1,10 +1,8 @@
 package com.Tapp.Anonymeet.FireBaseChat;
 
-import android.app.Dialog;
+import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,13 +46,14 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
     UsersAdapter adapter = this;
     HelperDB db;
     SharedPreferences preferences;
+    Activity activity;
 
 
-    public UsersAdapter(Context con, MyListener myListener){
+    public UsersAdapter(Context con, Activity a, MyListener myListener){
         preferences = con.getSharedPreferences("data", Context.MODE_PRIVATE);
-
         this.mItemClickListener = myListener;
         context = con;
+        activity = a;
         inflater = LayoutInflater.from(context);
         this.db = new HelperDB(con);
         contacts = db.getContacts();
@@ -137,24 +136,10 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
             v.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle("Delete Contact");
-                    builder.setMessage("Are you sure you want to delete your contact? You will lose your chat history too.");
-                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            UsersAdapter.this.adapter.delete(getPosition());
-                        }
-                    });
+                   ContactMenuDialogFragment dialogFragment = new ContactMenuDialogFragment(adapter, position, context);
+                    dialogFragment.show(activity.getFragmentManager(), "contact_menu_dialog_fragment");
 
-                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
 
-                        }
-                    });
-                    Dialog dialog = builder.create();
-                    dialog.show();
 
 
                     return false;

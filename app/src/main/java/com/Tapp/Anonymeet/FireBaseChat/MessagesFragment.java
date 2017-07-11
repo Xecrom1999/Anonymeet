@@ -46,7 +46,7 @@ public class MessagesFragment extends Fragment implements MyListener {
 
         preferences = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycle);
-        usersAdapter = new UsersAdapter(getContext(), this);
+        usersAdapter = new UsersAdapter(getContext(), getActivity(), this);
         recyclerView.setAdapter(usersAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
 
