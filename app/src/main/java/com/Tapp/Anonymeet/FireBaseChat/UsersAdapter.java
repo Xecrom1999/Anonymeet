@@ -11,13 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.Tapp.Anonymeet.R;
 
 import java.util.ArrayList;
-import java.util.jar.Pack200;
+import java.util.Random;
 
 /**
  * Created by Or on 18/01/2016.
@@ -32,9 +31,57 @@ class Contact {
 
         this.gender = gender;
         this.date = date;
-        if(gender.equals("male"))this.photo = R.drawable.boy2;
-        else this.photo= R.drawable.girl2;
-        this.name=name;
+        this.name = name;
+
+
+
+
+        Random rnd = new Random();
+        int num = rnd.nextInt(5);
+
+        if(gender.equals("male")) {
+            switch (num) {
+                case 0:
+                    this.photo = R.drawable.boy3;
+                    break;
+                case 1:
+                    this.photo = R.drawable.boy4;
+                    break;
+                case 2:
+                    this.photo = R.drawable.boy5;
+                    break;
+                case 3:
+                    this.photo = R.drawable.boy6;
+                    break;
+                case 4:
+                    this.photo = R.drawable.boy7;
+                    break;
+
+            }
+        }
+        else {
+
+                switch (num) {
+                    case 0:
+                        this.photo = R.drawable.girl3;
+                        break;
+                    case 1:
+                        this.photo = R.drawable.girl4;
+                        break;
+                    case 2:
+                        this.photo = R.drawable.girl5;
+                        break;
+                    case 3:
+                        this.photo = R.drawable.girl6;
+                        break;
+                    case 4:
+                        this.photo = R.drawable.girl7;
+                        break;
+
+                }
+
+        }
+
 
     }
 
