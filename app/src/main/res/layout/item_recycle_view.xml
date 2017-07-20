@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main_contact_layout"
-    android:orientation="vertical" android:layout_width="match_parent" android:layout_height="100dp">
+    android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
 
     <RelativeLayout
         android:background="@drawable/press_effect"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:id="@+id/layout2"
         android:layout_width="match_parent"
-        android:layout_height="80dp">
+        android:layout_height="70dp">
 
     <ImageView
         android:layout_marginLeft="5dp"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerVertical="true"
         android:id="@+id/contactImage"
         />
     <TextView
@@ -28,31 +32,44 @@
         />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:width="36dp"
-        android:height="36dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:textSize="15sp"
-        android:textColor="@color/colorAccent"
+        android:layout_marginRight="10dp"
+        android:textColor="@color/white"
         android:gravity="center"
-        android:visibility="invisible"
-        android:backgroundTint="#64DD17"
         android:id="@+id/alert"
         android:background="@drawable/alert"
-        android:layout_below="@+id/contactName"
+        android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:text="18:23"
+            android:id="@+id/contact_hour"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="10dp"
+            />
 
     <TextView
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/alert"
-        android:layout_alignBottom="@id/alert"
-        android:layout_marginRight="40dp"
+        android:layout_marginRight="75dp"
+        android:layout_marginLeft="75dp"
+        android:ellipsize="end"
+        android:lines="1"
         android:id="@+id/lastMessage"
+        android:text=""
         android:textSize="12sp"
         android:gravity="center"
-        />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/contactImage"
+     />
 
     </RelativeLayout>
 
@@ -60,7 +77,6 @@
         android:id="@+id/users_divider"
         android:layout_marginRight="3dp"
         android:layout_marginLeft="3dp"
-        android:layout_marginTop="10dp"
         android:background="@drawable/users_messages_divider"
         android:layout_width="match_parent"
         android:layout_height="3dp"/>

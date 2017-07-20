@@ -109,7 +109,7 @@ public class MyService extends Service implements ChildEventListener {
 
         final String userWith = dataSnapshot.getKey().toString();
 
-        if (preferences.getInt("numOfNoti", -1) == -1) {
+        if (preferences.getInt("numOfNoti", -1) == -1 && preferences.getString("LastMessage", "").equals("")) {
             se.putInt("numOfNoti", 0);
             se.putString(userWith + "LastMessage", dataSnapshot.child("message").getValue().toString());
             se.commit();
@@ -130,8 +130,6 @@ public class MyService extends Service implements ChildEventListener {
 
                 if (!db.userExists(userWith)){
 
-
-
                     myFirebaseUsers.child(userWith).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -140,7 +138,10 @@ public class MyService extends Service implements ChildEventListener {
                             db.insertMessage(dataSnapshot.getKey().toString(), cleanCode(message), false);
 
                             if (FindPeopleActivity.isRunning()) {
+
+                                FindPeopleActivity.getF2().recyclerView.invalidate();
                                 FindPeopleActivity.getF2().itemInsertedIn(0);
+
 
                             }
 

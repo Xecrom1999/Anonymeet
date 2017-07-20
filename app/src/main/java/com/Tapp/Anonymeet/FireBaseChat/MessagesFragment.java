@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.Tapp.Anonymeet.GPS.FindPeopleActivity;
 import com.Tapp.Anonymeet.R;
@@ -28,6 +30,8 @@ public class MessagesFragment extends Fragment implements MyListener {
     static UsersAdapter usersAdapter;
     static Context ctx;
     SharedPreferences preferences;
+    FrameLayout fragmentContainer;
+    RelativeLayout contactsLayout;
 
     @Override
     public void onResume() {
@@ -46,9 +50,17 @@ public class MessagesFragment extends Fragment implements MyListener {
 
         preferences = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycle);
-        usersAdapter = new UsersAdapter(getContext(), getActivity(), this);
+        contactsLayout = (RelativeLayout) view.findViewById(R.id.contacts_layout);
+
+
+        fragmentContainer = (FrameLayout) view.findViewById(R.id.frame);
+
+        usersAdapter = new UsersAdapter(getContext(), getActivity(), this, fragmentContainer, recyclerView, contactsLayout);
+
         recyclerView.setAdapter(usersAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(ctx));
+        CustomRecyclerViewLayoutManager layoutManager = new CustomRecyclerViewLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
+
 
 
 
@@ -66,6 +78,18 @@ public class MessagesFragment extends Fragment implements MyListener {
         Log.d("MYLOG", "fragment");
 
         usersAdapter.syncContacts();
+
+    }
+
+    public void onClickMainLayout(View v) {
+        Log.i("hiiiiiiiiiii", "happens");
+        if (usersAdapter.contactMenuPosition != -1) {
+            getFragmentManager().beginTransaction().remove(getFragmentManager().getFragment(null, "contact_menu")).commit();
+
+            for (int i = 0; i < recyclerView.getChildCount(); i++) {
+                recyclerView.getChildAt(i).setEnabled(true);
+            }
+        }
 
     }
 

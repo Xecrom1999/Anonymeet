@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by Or on 23/07/2016.
@@ -31,7 +32,9 @@ public class HelperDB {
         if(!f) {
             ContentValues values = new ContentValues();
             values.put(d.USER, user);
-            values.put(d.Gender, gender);
+            values.put(d.GENDER, gender);
+            Random rnd = new Random();
+            values.put(d.AVATAR, rnd.nextInt(5));
             values.put(d.DATE, date);
             db.insert(d.TABLE_NAME_CONV, null, values);
         }
@@ -90,8 +93,6 @@ public class HelperDB {
 
             }
 
-            Log.i("hiiiiiiiiiii", "My last message: " + lastMessage);
-            Log.i("hiiiiiiiiiii", "Cursor size: " + cursor.getCount());
         }
 
 
@@ -121,6 +122,27 @@ public class HelperDB {
         }
         catch (Exception e){
         }
+    }
+
+    public String getUserGender(String user) {
+        String gender = "";
+
+        if(userExists(user)) {
+            String[] columns = {d.USER,d.GENDER};
+
+
+            Cursor cursor = db.query('"'+d.TABLE_NAME_CONV+'"', columns, d.USER + "='" + user + "'", null, null, null, null);
+
+            cursor.moveToFirst();
+
+                    gender = cursor.getString(cursor.getColumnIndex(d.GENDER));
+
+
+            }
+
+
+        return gender;
+
     }
 
 
@@ -153,18 +175,20 @@ public class HelperDB {
 
     public ArrayList<Contact> getContacts(){
         ArrayList<Contact> c = new ArrayList<Contact>();
-        String[] columns = {d.USER, d.Gender, d.DATE};
+        String[] columns = {d.USER, d.GENDER, d.AVATAR, d.DATE};
         Cursor cursor = db.query(d.TABLE_NAME_CONV, columns, null, null, null, null, null);
         Contact contact;
         String user;
         String gender;
+        int avatar;
         long date;
         for(cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()){
 
             user = cursor.getString(cursor.getColumnIndex(d.USER));
-            gender = cursor.getString(cursor.getColumnIndex(d.Gender));
-            date = Long.parseLong(cursor.getString(cursor.getColumnIndex(d.DATE)));
-            contact = new Contact(user, gender, date);
+            gender = cursor.getString(cursor.getColumnIndex(d.GENDER));
+            avatar = cursor.getInt(cursor.getColumnIndex(d.AVATAR));
+            date = cursor.getLong(cursor.getColumnIndex(d.DATE));
+            contact = new Contact(user, gender, avatar, date);
             c.add(contact);
         }
 

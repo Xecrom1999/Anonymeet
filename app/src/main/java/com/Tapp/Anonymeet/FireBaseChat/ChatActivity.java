@@ -3,6 +3,7 @@ package com.Tapp.Anonymeet.FireBaseChat;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.Tapp.Anonymeet.R;
@@ -26,6 +28,9 @@ public class ChatActivity extends AppCompatActivity {
     static Firebase myFirebaseRef;
     static String userWith;
     static String myNickname;
+    TextView userTitle;
+    TextView ageTitle;
+    TextView genderTitle;
     EditText SendMessage;
     HelperDB db;
     ImageView isRead;
@@ -82,6 +87,14 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView = (RecyclerView)findViewById(R.id.chatList);
         SendMessage = (EditText)findViewById(R.id.sendMessage);
         isRead = (ImageView)findViewById(R.id.read);
+        userTitle = (TextView)findViewById(R.id.chat_user_title);
+        ageTitle = (TextView)findViewById(R.id.chat_title_age);
+        genderTitle = (TextView)findViewById(R.id.chat_title_gender);
+
+        userTitle.setText(userWith);
+        genderTitle.setText(db.getUserGender(userWith));
+        if(genderTitle.getText().toString().equals("male")) genderTitle.setTextColor(Color.parseColor("#1acefc"));
+        else genderTitle.setTextColor(Color.parseColor("#CB82FD"));
 
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();

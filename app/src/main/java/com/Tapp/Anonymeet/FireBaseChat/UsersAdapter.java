@@ -1,22 +1,45 @@
 package com.Tapp.Anonymeet.FireBaseChat;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.Tapp.Anonymeet.R;
 
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Or on 18/01/2016.
@@ -27,7 +50,7 @@ class Contact {
     String gender;
     long date;
 
-    public Contact(String name, String gender, long date){
+    public Contact(String name, String gender, int avatar, long date){
 
         this.gender = gender;
         this.date = date;
@@ -35,12 +58,8 @@ class Contact {
 
 
 
-
-        Random rnd = new Random();
-        int num = rnd.nextInt(5);
-
         if(gender.equals("male")) {
-            switch (num) {
+            switch (avatar) {
                 case 0:
                     this.photo = R.drawable.boy3;
                     break;
@@ -61,7 +80,7 @@ class Contact {
         }
         else {
 
-                switch (num) {
+                switch (avatar) {
                     case 0:
                         this.photo = R.drawable.girl3;
                         break;
@@ -87,28 +106,44 @@ class Contact {
 
 }
 
-public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder> {
+public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     ArrayList<Contact> contacts;
     LayoutInflater inflater;
-    View v;
     MyListener mItemClickListener;
     Context context;
     UsersAdapter adapter = this;
     HelperDB db;
     SharedPreferences preferences;
     Activity activity;
+    FrameLayout fragmentContainer;
+    RecyclerView recyclerView;
+    RelativeLayout contactsLayout;
+    ArrayList<RelativeLayout> viewLayouts;
+    int contactMenuPosition;
+    boolean animationSetted;
+    RelativeLayout r1;
+    RelativeLayout r2;
+    MyViewHolder optionsHolder;
 
 
-    public UsersAdapter(Context con, Activity a, MyListener myListener){
+
+
+    public UsersAdapter(Context con, Activity a, MyListener myListener, FrameLayout f, RecyclerView r, RelativeLayout rl){
         setHasStableIds(true);
+        viewLayouts = new ArrayList<>();
         preferences = con.getSharedPreferences("data", Context.MODE_PRIVATE);
         this.mItemClickListener = myListener;
         context = con;
         activity = a;
+        animationSetted = false;
+        contactMenuPosition = -1;
         inflater = LayoutInflater.from(context);
         this.db = new HelperDB(con);
         contacts = db.getContacts();
+        fragmentContainer = f;
+        recyclerView = r;
+        contactsLayout = rl;
         Log.i("hiiiiiiiiiii", "contacts: " + contacts.size());
 
     }
@@ -118,6 +153,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         Log.i("hiiiiiiiiiiiiiiiii", "contacts: " + contacts.size());
         notifyDataSetChanged();
 
+
     }
 
     public void itemInsertedIn(int position) {
@@ -126,35 +162,205 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
     }
 
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        v = inflater.inflate(R.layout.item_recycle_view, parent, false);
+        View v;
 
-        MyViewHolder viewHolder = new MyViewHolder(v);
-        return viewHolder;
+        if (viewType == 0){
+            v = inflater.inflate(R.layout.item_recycle_view, parent, false);
+            MyViewHolder viewHolder = new MyViewHolder(v);
+            return viewHolder;
+        }
+        else{
+            v = inflater.inflate(R.layout.contact_menu_fragment, parent, false);
+            ContactMenuViewHolder viewHolder = new ContactMenuViewHolder(v);
+            return viewHolder;
+        }
+
+
     }
 
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, final int position) {
-        final Contact c = contacts.get(position);
-        holder.image.setImageResource(c.photo);
-        holder.name.setText(c.name);
-        holder.checkIfLast(position);
-        holder.setTheLongClickListener(position);
-        holder.lastMessage.setText(db.getLastMessageWith(c.name));
-        preferences = context.getSharedPreferences("data", Context.MODE_PRIVATE);
-        int num = preferences.getInt("user " + c.name, 0);
-        if(num > 0){
-            holder.alert.setText(""+num);
-            holder.alert.setVisibility(View.VISIBLE);
-        } else{
-            holder.alert.setVisibility(View.INVISIBLE);
+    public int getItemViewType(int position) {
+        if (position == contactMenuPosition) return 1;
+        else return 0;
+    }
+
+    @Override
+    public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, final int position) {
+
+
+        if (position == contactMenuPosition) {
+
+            setAnimation(viewHolder.itemView);
+            ContactMenuViewHolder holder = (ContactMenuViewHolder) viewHolder;
+            holder.setDeleteClick(position - 1);
+            holder.setCancelClick(position - 1);
+            holder.setEditClick(position - 1);
         }
+        else {
+
+            MyViewHolder holder = (MyViewHolder) viewHolder;
+            int pos = position;
+            if (position + 1 == contactMenuPosition){
+                holder.removeDivider();
+                optionsHolder = holder;
+                holder.view.setEnabled(false);
+            }
+            else if (contactMenuPosition != -1) {
+                if(position > contactMenuPosition) pos = pos - 1;
+
+            }
+            holder.view.bringToFront();
+            final Contact c = contacts.get(pos);
+            holder.image.setImageResource(c.photo);
+            holder.name.setText(c.name);
+            Log.i("hiiiiiiiiii", "last: " + holder.checkIfLast(pos));
+
+            if (holder.checkIfLast(pos)) holder.removeDivider();
+            holder.setTheLongClickListener(pos);
+            holder.setHour(c.date);
+            holder.lastMessage.setText(db.getLastMessageWith(c.name));
+            preferences = context.getSharedPreferences("data", Context.MODE_PRIVATE);
+            int num = preferences.getInt("user " + c.name, 0);
+            if(num > 0){
+                holder.alert.setText(""+num);
+                holder.alert.setVisibility(View.VISIBLE);
+            } else{
+                holder.alert.setVisibility(View.INVISIBLE);
+            }
+
+        }
+
+    }
+
+
+    private void setAnimation(View viewToAnimate)
+    {
+        // If the bound view wasn't previously displayed on screen, it's animated
+
+
+            Animation a = AnimationUtils.loadAnimation(context, R.anim.in_from_left);
+            a.setInterpolator(context, android.R.interpolator.linear);
+            a.setDuration(300);
+
+            viewToAnimate.setAnimation(a);
+
+
+    }
+
+    public void setUpOptionsOpen(final MyViewHolder holder, final int position, boolean scrolled) {
+
+        View view = holder.view;
+
+
+
+
+        r1 = new RelativeLayout(context);
+        r2 = new RelativeLayout(context);
+
+        if(!scrolled) {
+            ((CustomRecyclerViewLayoutManager)recyclerView.getLayoutManager()).scrollEnabled = false;
+            int y = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70, context.getResources().getDisplayMetrics());
+
+            r1.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int)view.getY()));
+            r2.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+            r1.setX(0);
+            r1.setY(0);
+            r1.setBackgroundColor(Color.parseColor("#212121"));
+
+
+            r2.setX(0);
+            int num;
+            if(holder.checkIfLast(position))
+                num = 0;
+            else
+                num = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, context.getResources().getDisplayMetrics());
+            r2.setY((int)view.getY() + view.getHeight() + y - num);
+            r2.setBackgroundColor(Color.parseColor("#212121"));
+
+            contactsLayout.addView(r1);
+            contactsLayout.addView(r2);
+            r1.setAlpha(0.3f);
+            r2.setAlpha(0.3f);
+            r1.bringToFront();
+            r2.bringToFront();
+
+            r1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    removeContactMenu(holder, holder.checkIfLast(position));
+                }
+            });
+
+            r2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    removeContactMenu(holder, holder.checkIfLast(position));
+                }
+            });
+
+        }
+        else {
+            int y = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70, context.getResources().getDisplayMetrics());
+
+            r1.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, contactsLayout.getHeight() - y - view.getHeight()));
+            r1.setX(0);
+            r1.setY(0);
+            r1.setBackgroundColor(Color.parseColor("#212121"));
+            contactsLayout.addView(r1);
+            r1.setAlpha(0.3f);
+            r1.bringToFront();
+            recyclerView.scrollToPosition(contactMenuPosition);
+            ((CustomRecyclerViewLayoutManager)recyclerView.getLayoutManager()).scrollEnabled = false;
+
+            r1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int num = contactMenuPosition;
+                    contactMenuPosition = -1;
+                    contactsLayout.removeView(r1);
+                    r1.setOnClickListener(null);
+                    if(!holder.checkIfLast(position)) {
+                        View contactDivider = inflater.inflate(R.layout.contacts_divider, null, false);
+                        optionsHolder.layout.addView(contactDivider);
+                    }
+                    holder.view.setEnabled(true);
+                    notifyItemRemoved(num);
+                    ((CustomRecyclerViewLayoutManager)recyclerView.getLayoutManager()).scrollEnabled = true;
+
+
+                }
+            });
+
+        }
+
+    }
+
+    public void removeContactMenu(MyViewHolder holder, boolean isLast){
+        int num = contactMenuPosition;
+        contactMenuPosition = -1;
+        contactsLayout.removeView(r1);
+        contactsLayout.removeView(r2);
+        r1.setOnClickListener(null);
+        r2.setOnClickListener(null);
+        if(!isLast) {
+            View contactDivider = inflater.inflate(R.layout.contacts_divider, null, false);
+            holder.layout.addView(contactDivider);
+        }
+        holder.view.setEnabled(true);
+        notifyItemRemoved(num);
+        ((CustomRecyclerViewLayoutManager)recyclerView.getLayoutManager()).scrollEnabled = true;
+
+
     }
 
     @Override
     public int getItemCount() {
-        return this.contacts.size();
+        int num = 0;
+        if (contactMenuPosition != -1) num = 1;
+        return this.contacts.size() + num;
     }
 
 
@@ -171,23 +377,98 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
         }
     }
 
+    class ContactMenuViewHolder extends RecyclerView.ViewHolder {
+
+        RelativeLayout changeName;
+        RelativeLayout delete;
+        RelativeLayout cancel;
+
+        public ContactMenuViewHolder(View v) {
+            super(v);
+
+            changeName = (RelativeLayout)v.findViewById(R.id.change_name_button);
+            delete = (RelativeLayout)v.findViewById(R.id.delete_contact_button);
+            cancel = (RelativeLayout)v.findViewById(R.id.cancel_button);
+
+        }
+
+        public void setDeleteClick(final int positionOfContact) {
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("Delete Contact");
+                    builder.setMessage("Are you sure you want to delete your contact? You will lose your chat history too.");
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            adapter.delete(positionOfContact);
+                            removeContactMenu(optionsHolder, optionsHolder.checkIfLast(positionOfContact));
+                        }
+                    });
+
+                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+                    Dialog dialog = builder.create();
+                    dialog.show();
+
+                }
+            });
+        }
+
+        public void setCancelClick(final int positionOfContact){
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    removeContactMenu(optionsHolder, optionsHolder.checkIfLast(positionOfContact));
+
+                }
+            });
+        }
+
+        public void setEditClick(int positionOfContact) {
+            changeName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ChangeNameDialogFragment fragment = new ChangeNameDialogFragment();
+                    activity.getFragmentManager().beginTransaction().add(fragment, "change_name").commit();
+                }
+            });
+        }
+
+
+    }
+
     class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         ImageView image;
         TextView name;
         TextView alert;
+        TextView hour;
         TextView lastMessage;
         View divider;
         LinearLayout layout;
+        RelativeLayout layout2;
+        View view;
+        private MyViewHolder me;
 
         public MyViewHolder(View v){
             super(v);
+            me = this;
+            view = v;
             image = (ImageView) v.findViewById(R.id.contactImage);
             name = (TextView) v.findViewById(R.id.contactName);
             alert = (TextView)v.findViewById(R.id.alert);
             lastMessage = (TextView)v.findViewById(R.id.lastMessage);
             divider = v.findViewById(R.id.users_divider);
             layout = (LinearLayout)v.findViewById(R.id.main_contact_layout);
+            layout2 = (RelativeLayout) v.findViewById(R.id.layout2);
+            hour = (TextView) v.findViewById(R.id.contact_hour);
+            viewLayouts.add(layout2);
 
 
             v.setOnClickListener(this);
@@ -195,26 +476,70 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder
 
         }
 
+        public void setHour(long date) {
+            Calendar cal = GregorianCalendar.getInstance();
+            cal.setTimeInMillis(date);
+
+
+
+            if (System.currentTimeMillis() - date < TimeUnit.DAYS.toMillis(1)) {
+                String minute = cal.get(Calendar.MINUTE) + "";
+                if (minute.length() == 1) {
+                    minute = "0" + minute;
+                }
+                hour.setText(cal.get(Calendar.HOUR_OF_DAY) + ":" + minute);
+            }
+            else {
+                String[] months = {"January", "February", "March", "April", "May", "June", "July",
+                        "August", "September", "October", "November", "December"};
+                hour.setText( months[cal.get(Calendar.MONTH)] + "/" + cal.get(Calendar.DAY_OF_MONTH) + "/" + cal.get(Calendar.YEAR));
+            }
+
+
+        }
+
         public void setTheLongClickListener(final int position) {
-            v.setOnLongClickListener(new View.OnLongClickListener() {
+            view.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    ContactMenuDialogFragment dialogFragment = new ContactMenuDialogFragment(adapter, position, context);
-                    dialogFragment.show(activity.getFragmentManager(), "contact_menu_dialog_fragment");
+
+
+                    contactMenuPosition = position + 1;
+
+                    notifyDataSetChanged();
+
+                    int y = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70, context.getResources().getDisplayMetrics());
+
+                    boolean scrolled = false;
+
+                    if ( (contactsLayout.getHeight() - view.getHeight() * (position + 1) - y) < 0 ) scrolled = true;
+
+                    Log.i("hiiiiiiiiiii", "position1: " + position);
+
+                    setUpOptionsOpen(me, position, scrolled);
 
 
 
 
-                    return false;
+                    return true;
                 }
             });
         }
-        public void checkIfLast(int position) {
+
+
+
+        public boolean checkIfLast(int position) {
             if(position == contacts.size()-1) {
-                int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, context.getResources().getDisplayMetrics());
-                layout.setLayoutParams(new RecyclerView.LayoutParams(v.getLayoutParams().width, height));
-                layout.removeView(divider);
+                return true;
             }
+            return false;
+        }
+
+        public void removeDivider(){
+            if(layout.getChildCount() > 1) {
+                layout.removeViewAt(layout.getChildCount() - 1);
+            }
+
         }
 
         @Override

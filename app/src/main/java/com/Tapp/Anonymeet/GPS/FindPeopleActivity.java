@@ -18,9 +18,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerTitleStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,6 +67,10 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
         super.onCreate(savedInstanceState);
         setContentView(R.layout.find_people_activity);
 
+        PagerTitleStrip p = (PagerTitleStrip) findViewById(R.id.pager_title_strip);
+        p.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+
+
         db = new HelperDB(this);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -76,7 +82,15 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
         pager = (ViewPager) findViewById(R.id.viewPager);
         pager.setAdapter(new FragmentPagerAdapter(manager) {
             @Override
+            public CharSequence getPageTitle(int position) {
+                if(position == 0) return "Find People";
+                else return "My Messages";
+
+            }
+
+            @Override
             public Fragment getItem(int position) {
+
                 if (position == 0)
                     return f1;
                 return f2;

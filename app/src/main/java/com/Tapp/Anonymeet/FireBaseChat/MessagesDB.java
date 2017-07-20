@@ -9,12 +9,13 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by Or on 02/04/2016.
  */
 public class MessagesDB extends SQLiteOpenHelper {
-    static final int DATABASE_VERSION = 41;
+    static final int DATABASE_VERSION = 42;
     static final String DATABASE_NAME = "Anonymeet.db";
     static final String TABLE_NAME_CONV = "Conversations";
     static final String UID = "_id";
     static final String USER = "User";
-    static final String Gender = "Gender";
+    static final String GENDER = "Gender";
+    static final String AVATAR = "Avatar";
     static final String MESSAGE = "Message";
     static final String IS_MINE = "IsMine";
     static final String DATE = "Date";
@@ -22,8 +23,9 @@ public class MessagesDB extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_CONV = "CREATE TABLE IF NOT EXISTS "+TABLE_NAME_CONV+" ("+
             UID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
             USER+" varchar(225), "+
-            Gender+" varchar(225), " +
-            DATE + " varchar(225));";
+            GENDER+" varchar(225), " +
+            AVATAR+" INTEGER, " +
+            DATE + " INTEGER);";
 
 
     public MessagesDB(Context context) {
