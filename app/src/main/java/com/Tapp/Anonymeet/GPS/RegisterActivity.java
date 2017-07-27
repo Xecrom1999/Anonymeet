@@ -13,14 +13,15 @@ import android.widget.RadioGroup;
 
 import com.Tapp.Anonymeet.FireBaseChat.MyService;
 import com.Tapp.Anonymeet.R;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class RegisterActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
 
-    Firebase users;
+    DatabaseReference users;
     SharedPreferences preferences;
     EditText nicknameInput;
     EditText passwordInput;
@@ -48,7 +49,7 @@ public class RegisterActivity extends AppCompatActivity implements CompoundButto
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        users = new Firebase("https://anonymeetapp.firebaseio.com/Users");
+        users = FirebaseDatabase.getInstance().getReference().child("Users");
         radioGroup.setVisibility(View.VISIBLE);
     }
 
@@ -79,6 +80,7 @@ public class RegisterActivity extends AppCompatActivity implements CompoundButto
         else if (password.isEmpty()) passwordInput.setError("Password is empty");
 
         else users.addListenerForSingleValueEvent(new ValueEventListener() {
+
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -96,8 +98,11 @@ public class RegisterActivity extends AppCompatActivity implements CompoundButto
                         login(nickname, gender);
                     }
                 }
+
                 @Override
-                public void onCancelled(FirebaseError firebaseError) {}
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
             });
     }
 

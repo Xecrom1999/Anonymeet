@@ -1,7 +1,6 @@
 package com.Tapp.Anonymeet.FireBaseChat;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
@@ -16,16 +15,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.Tapp.Anonymeet.GPS.FindPeopleActivity;
+import com.Tapp.Anonymeet.GPS.FindPeopleFragment;
+import com.Tapp.Anonymeet.GPS.LocationListenerService;
 import com.Tapp.Anonymeet.R;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
 public class ChatActivity extends AppCompatActivity {
 
-    static Firebase myFirebaseRef;
+    static DatabaseReference myFirebaseRef;
     static String userWith;
     static String myNickname;
     TextView userTitle;
@@ -52,7 +55,6 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-
         active = false;
         super.onDestroy();
     }
@@ -63,6 +65,13 @@ public class ChatActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    @Override
+    protected void onUserLeaveHint() {
+        if (!FindPeopleActivity.isRunning())
+            FindPeopleFragment.exit();
+        super.onUserLeaveHint();
+    }
+
     public static boolean isActive(){
         return active;
     }
@@ -71,6 +80,8 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         active = false;
+        if (FindPeopleActivity.isRunning() && FindPeopleActivity.showMyself() && LocationListenerService.providerEnabled)
+            LocationListenerService.buildNotification();
         super.onStop();
     }
 
@@ -80,7 +91,6 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        Firebase.setAndroidContext(this);
         db = new HelperDB(this);
         context = this;
         userWith = getIntent().getStringExtra("usernameTo");
@@ -109,10 +119,7 @@ public class ChatActivity extends AppCompatActivity {
 
         lastMessage = preferences.getString("lastMessage", "");
         myNickname = preferences.getString("nickname", "");
-        myFirebaseRef = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
-
-
-
+        myFirebaseRef = FirebaseDatabase.getInstance().getReference().child("Chat");
 
         myFirebaseRef.child(myNickname).child(userWith).child("read").setValue("true");
 
@@ -135,22 +142,12 @@ public class ChatActivity extends AppCompatActivity {
                     else isRead.setImageResource(R.drawable.unread);
 
                     isRead.setVisibility(View.VISIBLE);
-
-
-
                 }
-
             }
-
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
+            public void onCancelled(DatabaseError databaseError) {
             }
         });
-
-
-
-
     }
 
     public void setUpChatMessages() {
@@ -203,27 +200,18 @@ public class ChatActivity extends AppCompatActivity {
                         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
                         scrollDown();
-
-
-
                     }
-
                 }
                 else{
                     Toast.makeText(getApplicationContext(), "You need to wait until the user gets the message in order to send another one", Toast.LENGTH_LONG).show();
                 }
-
             }
-
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
+            public void onCancelled(DatabaseError databaseError) {
             }
         });
 
     }
-
-
 
     public static void scrollDown(){
         recyclerView.getLayoutManager().scrollToPosition(recyclerAdapter.getItemCount() - 1);

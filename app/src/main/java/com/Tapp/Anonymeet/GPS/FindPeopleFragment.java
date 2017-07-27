@@ -13,11 +13,13 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -25,12 +27,15 @@ import com.Tapp.Anonymeet.FireBaseChat.ChatActivity;
 import com.Tapp.Anonymeet.FireBaseChat.HelperDB;
 import com.Tapp.Anonymeet.FireBaseChat.MyService;
 import com.Tapp.Anonymeet.R;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.MutableData;
-import com.firebase.client.Transaction;
-import com.firebase.client.ValueEventListener;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,9 +43,10 @@ import java.util.Collection;
 import static android.content.Context.LOCATION_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 
-public class FindPeopleFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, ListListener, ValueEventListener {
+public class FindPeopleFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, ListListener, ValueEventListener, SeekBar.OnSeekBarChangeListener {
 
-    private static Firebase onlineUsers;
+    private static DatabaseReference onlineUsers;
+
     LocationManager lm;
     static RecyclerView peopleList;
     static PeopleListAdapter adapter;
@@ -57,6 +63,8 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
     View view;
     static String username;
     ImageButton refresh_button;
+    static SeekBar seekBar;
+    TextView distance_text;
 
     public FindPeopleFragment() {
     }
@@ -66,9 +74,8 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
 
         View view = inflater.inflate(R.layout.find_people_fragment, container, false);
         this.view = view;
-
-        onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
-
+        //onlineUsers = FirebaseDatabase.getInstance().getReference().child("OnlineUsers");
+        onlineUsers = FirebaseDatabase.getInstance().getReferenceFromUrl("https://anonymeet-7827d.firebaseio.com/");
         this.ctx = getContext();
 
         username = ctx.getSharedPreferences("data", MODE_PRIVATE).getString("nickname", "");
@@ -95,6 +102,13 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
         visible_switch = (Switch) view.findViewById(R.id.visible_switch);
         visible_switch.setChecked(ctx.getSharedPreferences("data", MODE_PRIVATE).getBoolean("visible", true));
         visible_switch.setOnCheckedChangeListener(this);
+
+        distance_text = (TextView) view.findViewById(R.id.distance);
+        distance_text.setText(8500+"");
+        seekBar = (SeekBar) view.findViewById(R.id.seekBar);
+        seekBar.setOnSeekBarChangeListener(this);
+        seekBar.setProgress(8500);
+
 
         lm = (LocationManager) ctx.getSystemService(LOCATION_SERVICE);
 
@@ -146,6 +160,55 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
     }
 
     public static void updateList() {
+
+        /*final double meters = 111.23 * 1000;
+        double d = seekBar.getProgress() / meters;
+
+        Location location = LocationListenerService.getLocation();
+        double lat = Math.abs(location.getLatitude() - d);
+        double lon = Math.abs(location.getLongitude() - d);
+
+        Query q1 = onlineUsers.orderByChild("latitude").startAt(location.getLatitude() - d).endAt(location.getLatitude() + d);
+        Query q2 = onlineUsers.orderByChild("longitude").startAt(location.getLongitude() - d).endAt(location.getLatitude() + d);
+
+        double dis = seekBar.getProgress();
+        final ArrayList lst1 = new ArrayList();
+        final ArrayList lst2 = new ArrayList();
+
+        q1.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot item : dataSnapshot.getChildren())
+                    lst1.add(item.child("latitude").getValue().toString());
+            }
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+        q2.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot item : dataSnapshot.getChildren())
+                    lst2.add(item.child("longitude").getValue().toString());
+            }
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+        for (int i = 0; i < lst1.size(); i++) {
+            Location loc = new Location("");
+            loc.setLatitude((Double) lst1.get(i));
+            loc.setLongitude((Double) lst2.get(i));
+        }*/
+
+
+        GeoFire geoFire = new GeoFire(onlineUsers);
+        geoFire.setLocation(username + "_ID", new GeoLocation(37.7853889, -122.4056973));
+
         onlineUsers.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -177,7 +240,7 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError databaseError) {
             }
         });
     }
@@ -213,10 +276,14 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
 
     public static void exit() {
 
-        if (visible_switch.isChecked() && LocationListenerService.providerEnabled)
+        if (visible_switch.isChecked() && LocationListenerService.providerEnabled && !ChatActivity.isActive())
             LocationListenerService.buildNotification();
 
         ctx.getSharedPreferences("data", MODE_PRIVATE).edit().putBoolean("visible", visible_switch.isChecked()).commit();
+    }
+
+    public static boolean showMyself(){
+        return visible_switch.isChecked();
     }
 
     public void onLogout() {
@@ -230,12 +297,12 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
                 return Transaction.success(mutableData);
             }
 
-            public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
             }
         });
 
         ctx.getSharedPreferences("data", MODE_PRIVATE).edit().clear().commit();
-
 
         startActivity(new Intent(ctx, LoginActivity.class));
 
@@ -261,13 +328,27 @@ public class FindPeopleFragment extends Fragment implements CompoundButton.OnChe
 
     }
 
+    @Override
+    public void onCancelled(DatabaseError databaseError) {
+    }
+
     public static void hideMessage() {
         peopleList.setVisibility(View.VISIBLE);
         message_text.setVisibility(View.GONE);
     }
 
     @Override
-    public void onCancelled(FirebaseError firebaseError) {
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        distance_text.setText(progress+"");
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
 
     }
 }

@@ -11,15 +11,16 @@ import android.widget.RadioButton;
 
 import com.Tapp.Anonymeet.FireBaseChat.MyService;
 import com.Tapp.Anonymeet.R;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
 public class LoginActivity extends AppCompatActivity {
 
-    Firebase users;
+    DatabaseReference users;
     SharedPreferences preferences;
     EditText nicknameInput;
     EditText passwordInput;
@@ -42,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         toolbar.setTitle("Login to Anonymeet");
-        users = new Firebase("https://anonymeetapp.firebaseio.com/Users");
+        users = FirebaseDatabase.getInstance().getReference().child("Users");
 
         try {
             LocationListenerService.cancelNotification();
@@ -63,8 +64,8 @@ public class LoginActivity extends AppCompatActivity {
 
         if (nickname.isEmpty()) nicknameInput.setError("Nickname is empty");
         else if (password.isEmpty()) passwordInput.setError("Password is empty");
-
-        else users.addListenerForSingleValueEvent(new ValueEventListener() {
+        else
+            users.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -81,9 +82,9 @@ public class LoginActivity extends AppCompatActivity {
                         login(nickname, gender);
                     }
                 }
-
                 @Override
-                public void onCancelled(FirebaseError firebaseError) {}
+                public void onCancelled(DatabaseError databaseError) {
+                }
             });
     }
 

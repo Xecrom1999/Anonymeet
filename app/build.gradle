@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
 
 android {
 
@@ -32,25 +31,16 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.google.android.gms:play-services-location:9.0.0'
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:design:23.1.0'
     compile 'com.android.support:recyclerview-v7:23.1.0'
     compile 'com.android.support:support-v4:23.1.0'
-    compile 'com.firebase:firebase-client-android:2.3.1'
-    compile 'com.google.android.gms:play-services-gcm:9.0.0'
+    compile 'com.firebase:geofire-android:2.1.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.google.firebase:firebase-database:10.0.1'
     androidTestCompile 'junit:junit:4.12'
+    compile 'com.google.android.gms:play-services:10.0.1'
 }
 
 
-
-
-
-
-
-
-
-
-
-
+apply plugin: 'com.google.gms.google-services'

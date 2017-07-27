@@ -22,12 +22,15 @@ import android.support.v4.view.PagerTitleStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.Tapp.Anonymeet.FireBaseChat.ChatActivity;
 import com.Tapp.Anonymeet.FireBaseChat.HelperDB;
 import com.Tapp.Anonymeet.FireBaseChat.MessagesFragment;
 import com.Tapp.Anonymeet.R;
@@ -68,8 +71,7 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
         setContentView(R.layout.find_people_activity);
 
         PagerTitleStrip p = (PagerTitleStrip) findViewById(R.id.pager_title_strip);
-        p.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-
+        p.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
 
         db = new HelperDB(this);
 
@@ -106,9 +108,7 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
             pager.setCurrentItem(1);
         }
 
-        toolbar = (Toolbar) findViewById(R.id.toolBar2);
-        toolbar.setTitle("Find People");
-        setSupportActionBar(toolbar);
+
 
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
             setupGPS();
@@ -119,6 +119,13 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
             return;
         }
         locationManager.addGpsStatusListener(this);
+    }
+
+    @Override
+    protected void onUserLeaveHint() {
+
+            FindPeopleFragment.exit();
+        super.onUserLeaveHint();
     }
 
     public static boolean isOnMessagesFragment() {
@@ -143,10 +150,8 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
         isRunning = false;
     }
 
-    public void onStop() {
-        super.onStop();
-
-        FindPeopleFragment.exit();
+    public static boolean showMyself() {
+        return f1.showMyself();
     }
 
     public static void updateMessage() {
@@ -201,8 +206,8 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
 
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(30 * 1000);
-        locationRequest.setFastestInterval(5 * 1000);
+        locationRequest.setInterval(5 * 1000);
+        locationRequest.setFastestInterval(2 * 1000);
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest);
         builder.setAlwaysShow(true);
@@ -212,7 +217,6 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
                                      @Override
                                      public void onResult(LocationSettingsResult result) {
                                          final Status status = result.getStatus();
-                                         final LocationSettingsStates state = result.getLocationSettingsStates();
                                          switch (status.getStatusCode()) {
                                              case LocationSettingsStatusCodes.SUCCESS:
                                                  break;
@@ -279,8 +283,10 @@ public class FindPeopleActivity extends AppCompatActivity implements GpsStatus.L
     public void onBackPressed() {
         if (pager.getCurrentItem() == 1)
             pager.setCurrentItem(0);
-        else
+        else {
+            FindPeopleFragment.exit();
             super.onBackPressed();
+        }
     }
 
     public static void hideMessage() {

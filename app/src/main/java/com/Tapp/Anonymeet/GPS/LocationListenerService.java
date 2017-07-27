@@ -21,16 +21,17 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.MutableData;
-import com.firebase.client.Transaction;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 
 public class LocationListenerService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, GpsStatus.Listener {
 
@@ -43,7 +44,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
     static String gender;
 
     private static String username;
-    private static Firebase onlineUsers;
+    private static DatabaseReference onlineUsers;
 
     public static boolean providerEnabled;
     LocationManager locationManager;
@@ -81,7 +82,7 @@ public class LocationListenerService extends Service implements GoogleApiClient.
 
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        onlineUsers = new Firebase("https://anonymeetapp.firebaseio.com/OnlineUsers");
+        onlineUsers = FirebaseDatabase.getInstance().getReference().child("OnlineUsers");
 
         buildGoogleApiClient();
 
@@ -142,8 +143,8 @@ public class LocationListenerService extends Service implements GoogleApiClient.
                     mutableData.setValue(null);
                     return Transaction.success(mutableData);
                 }
-
-                public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
+                @Override
+                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                 }
             });
         if (mGoogleApiClient.isConnected())
@@ -273,9 +274,11 @@ public class LocationListenerService extends Service implements GoogleApiClient.
                 mutableData.setValue(null);
                 return Transaction.success(mutableData);
             }
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
 
-            public void onComplete(FirebaseError error, boolean b, DataSnapshot data) {
             }
+
         });
     }
 

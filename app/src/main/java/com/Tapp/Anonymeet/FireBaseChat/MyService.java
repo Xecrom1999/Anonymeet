@@ -14,18 +14,19 @@ import android.util.Log;
 import java.util.*;
 import com.Tapp.Anonymeet.GPS.FindPeopleActivity;
 import com.Tapp.Anonymeet.R;
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class MyService extends Service implements ChildEventListener {
 
 
     HelperDB db;
-    Firebase myFirebaseChat;
-    Firebase myFirebaseUsers;
+    DatabaseReference myFirebaseChat;
+    DatabaseReference myFirebaseUsers;
     NotificationManager nm;
     SharedPreferences preferences;
     SharedPreferences.Editor se;
@@ -46,21 +47,14 @@ public class MyService extends Service implements ChildEventListener {
         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
         String myNickname = preferences.getString("nickname", "");
-        myFirebaseUsers = new Firebase("https://anonymeetapp.firebaseio.com/Users");
-        myFirebaseChat = new Firebase("https://anonymeetapp.firebaseio.com/Chat");
+        myFirebaseUsers = FirebaseDatabase.getInstance().getReference().child("Users");
+        myFirebaseChat = FirebaseDatabase.getInstance().getReference().child("Users");
         myFirebaseChat = myFirebaseChat.child(myNickname);
         myFirebaseChat.addChildEventListener(this);
         preferences = getSharedPreferences("data", MODE_PRIVATE);
         se = preferences.edit();
 
-
         se.commit();
-
-
-
-
-
-
     }
 
 
@@ -148,11 +142,9 @@ public class MyService extends Service implements ChildEventListener {
                         }
 
                         @Override
-                        public void onCancelled(FirebaseError firebaseError) {
-
+                        public void onCancelled(DatabaseError databaseError) {
                         }
                     });
-
                 }
                 else {
                     db.updateDateOfUser(userWith, System.currentTimeMillis());
@@ -160,10 +152,7 @@ public class MyService extends Service implements ChildEventListener {
                     if (FindPeopleActivity.isRunning()) {
                         FindPeopleActivity.getF2().syncContacts();
                     }
-
                 }
-
-
 
                 if (ChatActivity.isActive() && ChatActivity.userWith.equals(dataSnapshot.getKey().toString())) {
                     ChatActivity.recyclerAdapter.syncMessages();
@@ -176,14 +165,12 @@ public class MyService extends Service implements ChildEventListener {
                     se.putInt("numOfNoti", preferences.getInt("numOfNoti", 0) + 1);
                     se.commit();
 
-
-                    if (preferences.getInt("numOfNoti", 0) == 1) notifyOne(dataSnapshot.getKey().toString(), cleanCode(dataSnapshot.child("message").getValue().toString()));
-                    else notifyFew();
+                    if (preferences.getInt("numOfNoti", 0) == 1)
+                        notifyOne(dataSnapshot.getKey().toString(), cleanCode(dataSnapshot.child("message").getValue().toString()));
+                    else
+                        notifyFew();
 
                 }
-
-
-
 
                 myFirebaseChat.child(userWith).addChildEventListener(new ChildEventListener() {
                     @Override
@@ -193,12 +180,10 @@ public class MyService extends Service implements ChildEventListener {
                             myFirebaseChat.child(userWith).child("arrived").setValue("true" + rnd.nextInt(1000000));
                             myFirebaseChat.child(userWith).removeEventListener(this);
                         }
-
                     }
 
                     @Override
                     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
                     }
 
                     @Override
@@ -214,17 +199,14 @@ public class MyService extends Service implements ChildEventListener {
 
                     @Override
                     public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
                     }
 
                     @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-
+                    public void onCancelled(DatabaseError databaseError) {
                     }
                 });
             }
         }
-
     }
 
     public String cleanCode(String m) {
@@ -276,16 +258,13 @@ public class MyService extends Service implements ChildEventListener {
 
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) {
-
     }
 
     @Override
     public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
     }
 
     @Override
-    public void onCancelled(FirebaseError firebaseError) {
-
+    public void onCancelled(DatabaseError databaseError) {
     }
 }

@@ -242,7 +242,7 @@ public class UsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             Animation a = AnimationUtils.loadAnimation(context, R.anim.in_from_left);
             a.setInterpolator(context, android.R.interpolator.linear);
-            a.setDuration(300);
+            a.setDuration(150);
 
             viewToAnimate.setAnimation(a);
 
