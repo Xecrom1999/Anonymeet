@@ -1,35 +1,35 @@
 {
   "project_info": {
-    "project_number": "910333516998",
-    "firebase_url": "https://anonymeet-7827d.firebaseio.com",
-    "project_id": "anonymeet-7827d",
-    "storage_bucket": "anonymeet-7827d.appspot.com"
+    "project_number": "921897066957",
+    "firebase_url": "https://anonymeet-7b2c0.firebaseio.com",
+    "project_id": "anonymeet-7b2c0",
+    "storage_bucket": "anonymeet-7b2c0.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:910333516998:android:3cc7b4dec83d584c",
+        "mobilesdk_app_id": "1:921897066957:android:3cc7b4dec83d584c",
         "android_client_info": {
           "package_name": "com.Tapp.Anonymeet"
         }
       },
       "oauth_client": [
         {
-          "client_id": "910333516998-e0edhatejp6v7ccse6pfbivcl2g0sj69.apps.googleusercontent.com",
+          "client_id": "921897066957-55mrska3475iii434s3svq72tqv40ss5.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.Tapp.Anonymeet",
-            "certificate_hash": "7878bfc4ecdaa4703064af39ba2a4b8d4d7495ad"
+            "certificate_hash": "11df20200fe65275f8c8f3a5407839d953b8e33c"
           }
         },
         {
-          "client_id": "910333516998-apua25dvmdl4g2jmf9j0jn1eqen9r3k7.apps.googleusercontent.com",
+          "client_id": "921897066957-vcqv23m63tk598nhfpsdvqpu0vbq2gec.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDYw25FjKrJFahyr9Hw39DcF4QdQaCDUmo"
+          "current_key": "AIzaSyCvklw3g69iJn4VGaAHgOrpvnYmcqjPraM"
         }
       ],
       "services": {
@@ -40,7 +40,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "910333516998-apua25dvmdl4g2jmf9j0jn1eqen9r3k7.apps.googleusercontent.com",
+              "client_id": "921897066957-vcqv23m63tk598nhfpsdvqpu0vbq2gec.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
